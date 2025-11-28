@@ -81,7 +81,7 @@ class ProfileDocument extends Model
     }
 
     /**
-     * Check if document is rejected
+     * Check if document is rejecteds
      */
     public function isRejected(): bool
     {
