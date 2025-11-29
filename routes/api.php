@@ -8,9 +8,11 @@ use App\Http\Controllers\Api\V1\Admin\AdminUserController;
 use App\Http\Controllers\Api\V1\Admin\AdminDocumentController;
 use App\Http\Controllers\Api\V1\Admin\AdminListingController;
 use App\Http\Controllers\Api\V1\Admin\AdminBookingController;
+use App\Http\Controllers\Api\V1\Admin\AdminReviewController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\ListingController;
 use App\Http\Controllers\Api\V1\BookingController;
+use App\Http\Controllers\Api\V1\ReviewController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +47,12 @@ Route::prefix('v1')->group(function () {
         Route::get('/', [ListingController::class, 'index']);
         Route::get('/featured', [ListingController::class, 'featured']);
         Route::get('/{id}', [ListingController::class, 'show']);
+    });
+
+    // Public Reviews (no auth required)
+    Route::prefix('reviews')->group(function () {
+        Route::get('/', [ReviewController::class, 'index']); // Browse all reviews with filters
+        Route::get('/{id}', [ReviewController::class, 'show']); // View single review
     });
 
     // Protected Routes (require authentication)
@@ -82,6 +90,24 @@ Route::prefix('v1')->group(function () {
             Route::put('/{id}/cancel', [BookingController::class, 'cancel']); // Cancel booking
             Route::put('/{id}/in-progress', [BookingController::class, 'markInProgress']); // Mark in progress
             Route::put('/{id}/complete', [BookingController::class, 'markCompleted']); // Mark completed
+        });
+
+        // Review Routes (Clients & Providers)
+        Route::prefix('reviews')->group(function () {
+            Route::get('/my-reviews', [ReviewController::class, 'myReviews']); // Get my reviews (client or provider)
+            Route::get('/statistics', [ReviewController::class, 'statistics']); // Review statistics
+            Route::post('/', [ReviewController::class, 'store']); // Create review (clients only)
+            Route::put('/{review}', [ReviewController::class, 'update']); // Update review (within 24h)
+            Route::delete('/{review}', [ReviewController::class, 'destroy']); // Delete review (within 48h)
+            
+            // Provider Response Routes
+            Route::post('/{review}/response', [ReviewController::class, 'addResponse']); // Add response (providers)
+            Route::put('/{review}/response', [ReviewController::class, 'updateResponse']); // Update response
+            Route::delete('/{review}/response', [ReviewController::class, 'deleteResponse']); // Delete response
+            
+            // Engagement Routes
+            Route::post('/{review}/flag', [ReviewController::class, 'flag']); // Flag review
+            Route::post('/{review}/helpful', [ReviewController::class, 'markHelpful']); // Mark as helpful
         });
 
         // Admin Routes (only accessible by admin users)
@@ -131,6 +157,19 @@ Route::prefix('v1')->group(function () {
                 Route::get('/{id}', [AdminBookingController::class, 'show']); // View specific booking
                 Route::put('/{id}/cancel', [AdminBookingController::class, 'cancel']); // Cancel booking
                 Route::delete('/{id}', [AdminBookingController::class, 'destroy']); // Delete permanently
+            });
+
+            // Review Management
+            Route::prefix('reviews')->group(function () {
+                Route::get('/', [AdminReviewController::class, 'index']); // All reviews with filters
+                Route::get('/pending', [AdminReviewController::class, 'pending']); // Pending reviews
+                Route::get('/flagged', [AdminReviewController::class, 'flagged']); // Flagged reviews
+                Route::get('/statistics', [AdminReviewController::class, 'statistics']); // Review analytics
+                Route::get('/{id}', [AdminReviewController::class, 'show']); // View review
+                Route::put('/{id}/approve', [AdminReviewController::class, 'approve']); // Approve review
+                Route::put('/{id}/reject', [AdminReviewController::class, 'reject']); // Reject review
+                Route::put('/{id}/unflag', [AdminReviewController::class, 'unflag']); // Unflag review
+                Route::delete('/{id}', [AdminReviewController::class, 'destroy']); // Delete permanently
             });
         });
     });
