@@ -7,8 +7,10 @@ use App\Http\Controllers\Api\V1\User\ProfileController;
 use App\Http\Controllers\Api\V1\Admin\AdminUserController;
 use App\Http\Controllers\Api\V1\Admin\AdminDocumentController;
 use App\Http\Controllers\Api\V1\Admin\AdminListingController;
+use App\Http\Controllers\Api\V1\Admin\AdminBookingController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\ListingController;
+use App\Http\Controllers\Api\V1\BookingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,14 +37,14 @@ Route::prefix('v1')->group(function () {
 
     // Public Categories & Listings (no auth required)
     Route::prefix('categories')->group(function () {
-        Route::get('/', [CategoryController::class, 'index']); // Get all categories
-        Route::get('/{slug}', [CategoryController::class, 'show']); // Get category by slug
+        Route::get('/', [CategoryController::class, 'index']);
+        Route::get('/{slug}', [CategoryController::class, 'show']);
     });
 
     Route::prefix('listings')->group(function () {
-        Route::get('/', [ListingController::class, 'index']); // Browse all listings
-        Route::get('/featured', [ListingController::class, 'featured']); // Get featured listings
-        Route::get('/{id}', [ListingController::class, 'show']); // View specific listing
+        Route::get('/', [ListingController::class, 'index']);
+        Route::get('/featured', [ListingController::class, 'featured']);
+        Route::get('/{id}', [ListingController::class, 'show']);
     });
 
     // Protected Routes (require authentication)
@@ -62,11 +64,24 @@ Route::prefix('v1')->group(function () {
 
         // Provider Listing Management Routes
         Route::prefix('my-listings')->group(function () {
-            Route::get('/', [ListingController::class, 'myListings']); // Get my listings
-            Route::post('/', [ListingController::class, 'store']); // Create listing
-            Route::put('/{id}', [ListingController::class, 'update']); // Update listing
-            Route::delete('/{id}', [ListingController::class, 'destroy']); // Delete listing
-            Route::put('/{id}/toggle-availability', [ListingController::class, 'toggleAvailability']); // Toggle availability
+            Route::get('/', [ListingController::class, 'myListings']);
+            Route::post('/', [ListingController::class, 'store']);
+            Route::put('/{id}', [ListingController::class, 'update']);
+            Route::delete('/{id}', [ListingController::class, 'destroy']);
+            Route::put('/{id}/toggle-availability', [ListingController::class, 'toggleAvailability']);
+        });
+
+        // Booking Routes (Clients & Providers)
+        Route::prefix('bookings')->group(function () {
+            Route::get('/', [BookingController::class, 'index']); // Get my bookings
+            Route::get('/statistics', [BookingController::class, 'statistics']); // Get booking stats
+            Route::get('/{id}', [BookingController::class, 'show']); // View specific booking
+            Route::post('/', [BookingController::class, 'store']); // Create booking (clients only)
+            Route::put('/{id}/accept', [BookingController::class, 'accept']); // Accept booking (providers)
+            Route::put('/{id}/reject', [BookingController::class, 'reject']); // Reject booking (providers)
+            Route::put('/{id}/cancel', [BookingController::class, 'cancel']); // Cancel booking
+            Route::put('/{id}/in-progress', [BookingController::class, 'markInProgress']); // Mark in progress
+            Route::put('/{id}/complete', [BookingController::class, 'markCompleted']); // Mark completed
         });
 
         // Admin Routes (only accessible by admin users)
@@ -100,22 +115,24 @@ Route::prefix('v1')->group(function () {
 
             // Listing Management
             Route::prefix('listings')->group(function () {
-                Route::get('/', [AdminListingController::class, 'index']); // All listings with filters
-                Route::get('/pending', [AdminListingController::class, 'getPendingListings']); // Pending listings
-                Route::put('/{id}/approve', [AdminListingController::class, 'approve']); // Approve listing
-                Route::put('/{id}/reject', [AdminListingController::class, 'reject']); // Reject listing
-                Route::put('/{id}/suspend', [AdminListingController::class, 'suspend']); // Suspend listing
-                Route::delete('/{id}', [AdminListingController::class, 'destroy']); // Delete listing
-                Route::put('/{id}/feature', [AdminListingController::class, 'feature']); // Feature listing
+                Route::get('/', [AdminListingController::class, 'index']);
+                Route::get('/pending', [AdminListingController::class, 'getPendingListings']);
+                Route::put('/{id}/approve', [AdminListingController::class, 'approve']);
+                Route::put('/{id}/reject', [AdminListingController::class, 'reject']);
+                Route::put('/{id}/suspend', [AdminListingController::class, 'suspend']);
+                Route::delete('/{id}', [AdminListingController::class, 'destroy']);
+                Route::put('/{id}/feature', [AdminListingController::class, 'feature']);
+            });
+
+            // Booking Management
+            Route::prefix('bookings')->group(function () {
+                Route::get('/', [AdminBookingController::class, 'index']); // All bookings with filters
+                Route::get('/statistics', [AdminBookingController::class, 'statistics']); // Booking analytics
+                Route::get('/{id}', [AdminBookingController::class, 'show']); // View specific booking
+                Route::put('/{id}/cancel', [AdminBookingController::class, 'cancel']); // Cancel booking
+                Route::delete('/{id}', [AdminBookingController::class, 'destroy']); // Delete permanently
             });
         });
-
-        // Booking Routes (Coming in Module 5)
-        // Route::prefix('bookings')->group(function () {
-        //     Route::get('/', [BookingController::class, 'index']);
-        //     Route::post('/', [BookingController::class, 'store']);
-        //     Route::get('/{id}', [BookingController::class, 'show']);
-        // });
     });
 });
 
