@@ -10,11 +10,15 @@ use App\Http\Controllers\Api\V1\Admin\AdminListingController;
 use App\Http\Controllers\Api\V1\Admin\AdminBookingController;
 use App\Http\Controllers\Api\V1\Admin\AdminReviewController;
 use App\Http\Controllers\Api\V1\Admin\AdminPaymentController;
+use App\Http\Controllers\Api\V1\Admin\AdminMessageController;
+use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\ListingController;
 use App\Http\Controllers\Api\V1\BookingController;
 use App\Http\Controllers\Api\V1\ReviewController;
 use App\Http\Controllers\Api\V1\PaymentController;
+use App\Http\Controllers\Api\V1\MessageController;
+use App\Http\Controllers\Api\V1\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -117,17 +121,52 @@ Route::prefix('v1')->group(function () {
 
         // Payment Routes (Clients & Providers)
         Route::prefix('payments')->group(function () {
-            Route::get('/', [PaymentController::class, 'myPayments']); // Get my payments
-            Route::get('/statistics', [PaymentController::class, 'statistics']); // Payment stats
-            Route::get('/{id}', [PaymentController::class, 'show']); // View payment
-            Route::post('/create-intent', [PaymentController::class, 'createPaymentIntent']); // Create payment
-            Route::post('/{id}/confirm', [PaymentController::class, 'confirmPayment']); // Confirm payment
-            Route::post('/{id}/refund', [PaymentController::class, 'requestRefund']); // Request refund
+            Route::get('/', [PaymentController::class, 'myPayments']);
+            Route::get('/statistics', [PaymentController::class, 'statistics']);
+            Route::get('/{id}', [PaymentController::class, 'show']);
+            Route::post('/create-intent', [PaymentController::class, 'createPaymentIntent']);
+            Route::post('/{id}/confirm', [PaymentController::class, 'confirmPayment']);
+            Route::post('/{id}/refund', [PaymentController::class, 'requestRefund']);
         });
 
         // Transaction Routes
         Route::prefix('transactions')->group(function () {
-            Route::get('/', [PaymentController::class, 'myTransactions']); // Get my transactions
+            Route::get('/', [PaymentController::class, 'myTransactions']);
+        });
+
+        // Messaging Routes (Clients & Providers)
+        Route::prefix('messages')->group(function () {
+            Route::get('/conversations', [MessageController::class, 'conversations']);
+            Route::get('/conversations/{id}/messages', [MessageController::class, 'messages']);
+            Route::post('/send', [MessageController::class, 'send']);
+            Route::put('/conversations/{id}/read', [MessageController::class, 'markAsRead']);
+            Route::delete('/{id}', [MessageController::class, 'deleteMessage']);
+            Route::put('/conversations/{id}/block', [MessageController::class, 'blockConversation']);
+            Route::put('/conversations/{id}/unblock', [MessageController::class, 'unblockConversation']);
+            Route::post('/{id}/flag', [MessageController::class, 'flagMessage']);
+            Route::get('/unread-count', [MessageController::class, 'unreadCount']);
+            Route::get('/search', [MessageController::class, 'search']);
+        });
+
+        // Notification Routes (All Users)
+        Route::prefix('notifications')->group(function () {
+            Route::get('/', [NotificationController::class, 'index']); // Get all notifications
+            Route::get('/unread-count', [NotificationController::class, 'unreadCount']); // Unread count
+            Route::get('/recent', [NotificationController::class, 'recent']); // Recent notifications
+            Route::put('/{id}/read', [NotificationController::class, 'markAsRead']); // Mark as read
+            Route::put('/{id}/unread', [NotificationController::class, 'markAsUnread']); // Mark as unread
+            Route::put('/read-all', [NotificationController::class, 'markAllAsRead']); // Mark all as read
+            Route::delete('/{id}', [NotificationController::class, 'destroy']); // Delete notification
+            Route::delete('/', [NotificationController::class, 'deleteAll']); // Delete all
+            
+            // Preferences
+            Route::get('/preferences', [NotificationController::class, 'getPreferences']); // Get preferences
+            Route::put('/preferences', [NotificationController::class, 'updatePreferences']); // Update preferences
+            Route::put('/settings', [NotificationController::class, 'updateSettings']); // Update global settings
+            
+            // Device Registration
+            Route::post('/register-device', [NotificationController::class, 'registerDevice']); // Register device
+            Route::post('/unregister-device', [NotificationController::class, 'unregisterDevice']); // Unregister device
         });
 
         // Admin Routes (only accessible by admin users)
@@ -194,21 +233,44 @@ Route::prefix('v1')->group(function () {
 
             // Payment Management
             Route::prefix('payments')->group(function () {
-                Route::get('/', [AdminPaymentController::class, 'index']); // All payments
-                Route::get('/statistics', [AdminPaymentController::class, 'statistics']); // Payment analytics
-                Route::get('/{id}', [AdminPaymentController::class, 'show']); // View payment
-                Route::post('/{id}/refund', [AdminPaymentController::class, 'refund']); // Process refund
+                Route::get('/', [AdminPaymentController::class, 'index']);
+                Route::get('/statistics', [AdminPaymentController::class, 'statistics']);
+                Route::get('/{id}', [AdminPaymentController::class, 'show']);
+                Route::post('/{id}/refund', [AdminPaymentController::class, 'refund']);
             });
 
             // Payout Management
             Route::prefix('payouts')->group(function () {
-                Route::get('/', [AdminPaymentController::class, 'payouts']); // All payouts
-                Route::post('/{id}/process', [AdminPaymentController::class, 'processPayout']); // Process payout
+                Route::get('/', [AdminPaymentController::class, 'payouts']);
+                Route::post('/{id}/process', [AdminPaymentController::class, 'processPayout']);
             });
 
             // Transaction Management
             Route::prefix('transactions')->group(function () {
-                Route::get('/', [AdminPaymentController::class, 'transactions']); // All transactions
+                Route::get('/', [AdminPaymentController::class, 'transactions']);
+            });
+
+            // Message Management
+            Route::prefix('messages')->group(function () {
+                Route::get('/conversations', [AdminMessageController::class, 'conversations']);
+                Route::get('/', [AdminMessageController::class, 'messages']);
+                Route::get('/flagged', [AdminMessageController::class, 'flaggedMessages']);
+                Route::get('/statistics', [AdminMessageController::class, 'statistics']);
+                Route::get('/{id}', [AdminMessageController::class, 'showMessage']);
+                Route::delete('/{id}', [AdminMessageController::class, 'deleteMessage']);
+                Route::put('/{id}/unflag', [AdminMessageController::class, 'unflagMessage']);
+                Route::put('/conversations/{id}/block', [AdminMessageController::class, 'blockConversation']);
+                Route::put('/conversations/{id}/unblock', [AdminMessageController::class, 'unblockConversation']);
+            });
+
+            // Notification Management
+            Route::prefix('notifications')->group(function () {
+                Route::get('/', [AdminNotificationController::class, 'index']); // All notifications
+                Route::get('/statistics', [AdminNotificationController::class, 'statistics']); // Statistics
+                Route::post('/announcement', [AdminNotificationController::class, 'sendAnnouncement']); // Send announcement
+                Route::post('/send-to-users', [AdminNotificationController::class, 'sendToUsers']); // Send to specific users
+                Route::post('/test', [AdminNotificationController::class, 'test']); // Test notification
+                Route::delete('/{id}', [AdminNotificationController::class, 'destroy']); // Delete notification
             });
         });
     });
