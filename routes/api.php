@@ -9,10 +9,12 @@ use App\Http\Controllers\Api\V1\Admin\AdminDocumentController;
 use App\Http\Controllers\Api\V1\Admin\AdminListingController;
 use App\Http\Controllers\Api\V1\Admin\AdminBookingController;
 use App\Http\Controllers\Api\V1\Admin\AdminReviewController;
+use App\Http\Controllers\Api\V1\Admin\AdminPaymentController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\ListingController;
 use App\Http\Controllers\Api\V1\BookingController;
 use App\Http\Controllers\Api\V1\ReviewController;
+use App\Http\Controllers\Api\V1\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,9 +53,12 @@ Route::prefix('v1')->group(function () {
 
     // Public Reviews (no auth required)
     Route::prefix('reviews')->group(function () {
-        Route::get('/', [ReviewController::class, 'index']); // Browse all reviews with filters
-        Route::get('/{id}', [ReviewController::class, 'show']); // View single review
+        Route::get('/', [ReviewController::class, 'index']);
+        Route::get('/{id}', [ReviewController::class, 'show']);
     });
+
+    // Stripe Webhook (no auth required)
+    Route::post('/webhooks/stripe', [PaymentController::class, 'webhook']);
 
     // Protected Routes (require authentication)
     Route::middleware('auth:sanctum')->group(function () {
@@ -81,33 +86,48 @@ Route::prefix('v1')->group(function () {
 
         // Booking Routes (Clients & Providers)
         Route::prefix('bookings')->group(function () {
-            Route::get('/', [BookingController::class, 'index']); // Get my bookings
-            Route::get('/statistics', [BookingController::class, 'statistics']); // Get booking stats
-            Route::get('/{id}', [BookingController::class, 'show']); // View specific booking
-            Route::post('/', [BookingController::class, 'store']); // Create booking (clients only)
-            Route::put('/{id}/accept', [BookingController::class, 'accept']); // Accept booking (providers)
-            Route::put('/{id}/reject', [BookingController::class, 'reject']); // Reject booking (providers)
-            Route::put('/{id}/cancel', [BookingController::class, 'cancel']); // Cancel booking
-            Route::put('/{id}/in-progress', [BookingController::class, 'markInProgress']); // Mark in progress
-            Route::put('/{id}/complete', [BookingController::class, 'markCompleted']); // Mark completed
+            Route::get('/', [BookingController::class, 'index']);
+            Route::get('/statistics', [BookingController::class, 'statistics']);
+            Route::get('/{id}', [BookingController::class, 'show']);
+            Route::post('/', [BookingController::class, 'store']);
+            Route::put('/{id}/accept', [BookingController::class, 'accept']);
+            Route::put('/{id}/reject', [BookingController::class, 'reject']);
+            Route::put('/{id}/cancel', [BookingController::class, 'cancel']);
+            Route::put('/{id}/in-progress', [BookingController::class, 'markInProgress']);
+            Route::put('/{id}/complete', [BookingController::class, 'markCompleted']);
         });
 
         // Review Routes (Clients & Providers)
         Route::prefix('reviews')->group(function () {
-            Route::get('/my-reviews', [ReviewController::class, 'myReviews']); // Get my reviews (client or provider)
-            Route::get('/statistics', [ReviewController::class, 'statistics']); // Review statistics
-            Route::post('/', [ReviewController::class, 'store']); // Create review (clients only)
-            Route::put('/{review}', [ReviewController::class, 'update']); // Update review (within 24h)
-            Route::delete('/{review}', [ReviewController::class, 'destroy']); // Delete review (within 48h)
+            Route::get('/my-reviews', [ReviewController::class, 'myReviews']);
+            Route::get('/statistics', [ReviewController::class, 'statistics']);
+            Route::post('/', [ReviewController::class, 'store']);
+            Route::put('/{review}', [ReviewController::class, 'update']);
+            Route::delete('/{review}', [ReviewController::class, 'destroy']);
             
             // Provider Response Routes
-            Route::post('/{review}/response', [ReviewController::class, 'addResponse']); // Add response (providers)
-            Route::put('/{review}/response', [ReviewController::class, 'updateResponse']); // Update response
-            Route::delete('/{review}/response', [ReviewController::class, 'deleteResponse']); // Delete response
+            Route::post('/{review}/response', [ReviewController::class, 'addResponse']);
+            Route::put('/{review}/response', [ReviewController::class, 'updateResponse']);
+            Route::delete('/{review}/response', [ReviewController::class, 'deleteResponse']);
             
             // Engagement Routes
-            Route::post('/{review}/flag', [ReviewController::class, 'flag']); // Flag review
-            Route::post('/{review}/helpful', [ReviewController::class, 'markHelpful']); // Mark as helpful
+            Route::post('/{review}/flag', [ReviewController::class, 'flag']);
+            Route::post('/{review}/helpful', [ReviewController::class, 'markHelpful']);
+        });
+
+        // Payment Routes (Clients & Providers)
+        Route::prefix('payments')->group(function () {
+            Route::get('/', [PaymentController::class, 'myPayments']); // Get my payments
+            Route::get('/statistics', [PaymentController::class, 'statistics']); // Payment stats
+            Route::get('/{id}', [PaymentController::class, 'show']); // View payment
+            Route::post('/create-intent', [PaymentController::class, 'createPaymentIntent']); // Create payment
+            Route::post('/{id}/confirm', [PaymentController::class, 'confirmPayment']); // Confirm payment
+            Route::post('/{id}/refund', [PaymentController::class, 'requestRefund']); // Request refund
+        });
+
+        // Transaction Routes
+        Route::prefix('transactions')->group(function () {
+            Route::get('/', [PaymentController::class, 'myTransactions']); // Get my transactions
         });
 
         // Admin Routes (only accessible by admin users)
@@ -152,24 +172,43 @@ Route::prefix('v1')->group(function () {
 
             // Booking Management
             Route::prefix('bookings')->group(function () {
-                Route::get('/', [AdminBookingController::class, 'index']); // All bookings with filters
-                Route::get('/statistics', [AdminBookingController::class, 'statistics']); // Booking analytics
-                Route::get('/{id}', [AdminBookingController::class, 'show']); // View specific booking
-                Route::put('/{id}/cancel', [AdminBookingController::class, 'cancel']); // Cancel booking
-                Route::delete('/{id}', [AdminBookingController::class, 'destroy']); // Delete permanently
+                Route::get('/', [AdminBookingController::class, 'index']);
+                Route::get('/statistics', [AdminBookingController::class, 'statistics']);
+                Route::get('/{id}', [AdminBookingController::class, 'show']);
+                Route::put('/{id}/cancel', [AdminBookingController::class, 'cancel']);
+                Route::delete('/{id}', [AdminBookingController::class, 'destroy']);
             });
 
             // Review Management
             Route::prefix('reviews')->group(function () {
-                Route::get('/', [AdminReviewController::class, 'index']); // All reviews with filters
-                Route::get('/pending', [AdminReviewController::class, 'pending']); // Pending reviews
-                Route::get('/flagged', [AdminReviewController::class, 'flagged']); // Flagged reviews
-                Route::get('/statistics', [AdminReviewController::class, 'statistics']); // Review analytics
-                Route::get('/{id}', [AdminReviewController::class, 'show']); // View review
-                Route::put('/{id}/approve', [AdminReviewController::class, 'approve']); // Approve review
-                Route::put('/{id}/reject', [AdminReviewController::class, 'reject']); // Reject review
-                Route::put('/{id}/unflag', [AdminReviewController::class, 'unflag']); // Unflag review
-                Route::delete('/{id}', [AdminReviewController::class, 'destroy']); // Delete permanently
+                Route::get('/', [AdminReviewController::class, 'index']);
+                Route::get('/pending', [AdminReviewController::class, 'pending']);
+                Route::get('/flagged', [AdminReviewController::class, 'flagged']);
+                Route::get('/statistics', [AdminReviewController::class, 'statistics']);
+                Route::get('/{id}', [AdminReviewController::class, 'show']);
+                Route::put('/{id}/approve', [AdminReviewController::class, 'approve']);
+                Route::put('/{id}/reject', [AdminReviewController::class, 'reject']);
+                Route::put('/{id}/unflag', [AdminReviewController::class, 'unflag']);
+                Route::delete('/{id}', [AdminReviewController::class, 'destroy']);
+            });
+
+            // Payment Management
+            Route::prefix('payments')->group(function () {
+                Route::get('/', [AdminPaymentController::class, 'index']); // All payments
+                Route::get('/statistics', [AdminPaymentController::class, 'statistics']); // Payment analytics
+                Route::get('/{id}', [AdminPaymentController::class, 'show']); // View payment
+                Route::post('/{id}/refund', [AdminPaymentController::class, 'refund']); // Process refund
+            });
+
+            // Payout Management
+            Route::prefix('payouts')->group(function () {
+                Route::get('/', [AdminPaymentController::class, 'payouts']); // All payouts
+                Route::post('/{id}/process', [AdminPaymentController::class, 'processPayout']); // Process payout
+            });
+
+            // Transaction Management
+            Route::prefix('transactions')->group(function () {
+                Route::get('/', [AdminPaymentController::class, 'transactions']); // All transactions
             });
         });
     });
