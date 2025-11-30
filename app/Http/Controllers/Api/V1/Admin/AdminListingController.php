@@ -59,6 +59,27 @@ class AdminListingController extends Controller
     }
 
     /**
+     * Show a specific listing
+     */
+    public function show($id)
+    {
+        $listing = ServiceListing::with(['category', 'provider'])->find($id);
+
+        if (!$listing) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Listing not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => new ListingResource($listing)
+        ], 200);
+    }
+
+
+    /**
      * Get pending listings
      */
     public function getPendingListings(Request $request)

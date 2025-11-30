@@ -201,6 +201,7 @@ Route::prefix('v1')->group(function () {
             // Listing Management
             Route::prefix('listings')->group(function () {
                 Route::get('/', [AdminListingController::class, 'index']);
+                Route::get('/{id}', [AdminListingController::class, 'show']);
                 Route::get('/pending', [AdminListingController::class, 'getPendingListings']);
                 Route::put('/{id}/approve', [AdminListingController::class, 'approve']);
                 Route::put('/{id}/reject', [AdminListingController::class, 'reject']);
