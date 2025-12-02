@@ -170,7 +170,8 @@ Route::prefix('v1')->group(function () {
         });
 
         // Admin Routes (only accessible by admin users)
-        Route::prefix('admin')->middleware(['auth:sanctum', 'check.admin'])->group(function () {          
+        Route::prefix('admin')->middleware('check.admin')->group(function () {
+            
             // Dashboard & Analytics
             Route::get('/dashboard', [AdminUserController::class, 'dashboard']);
             
