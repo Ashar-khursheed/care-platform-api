@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReviewStoreRequest;
 use App\Http\Requests\ReviewUpdateRequest;
+ use Illuminate\Http\Response;
 use App\Http\Requests\ReviewResponseRequest;
 use App\Http\Resources\ReviewResource;
 use App\Models\Review;
@@ -89,22 +90,43 @@ class ReviewController extends Controller
     /**
      * Create review (clients only)
      */
-    public function store(ReviewStoreRequest $request)
-    {
-        $booking = Booking::findOrFail($request->booking_id);
+   
 
-        $review = Review::create([
-            'booking_id' => $booking->id,
-            'client_id' => $request->user()->id,
-            'provider_id' => $booking->provider_id,
-            'listing_id' => $booking->listing_id,
-            'rating' => $request->rating,
-            'comment' => $request->comment,
-            'status' => 'approved', // Auto-approve, or set to 'pending' if you want moderation
-        ]);
+public function store(ReviewStoreRequest $request)
+{
+    $booking = Booking::findOrFail($request->booking_id);
 
-        return new ReviewResource($review);
-    }
+    $review = Review::create([
+        'booking_id' => $booking->id,
+        'client_id' => $request->user()->id,
+        'provider_id' => $booking->provider_id,
+        'listing_id' => $booking->listing_id,
+        'rating' => $request->rating,
+        'comment' => $request->comment,
+        'status' => 'approved',
+    ]);
+
+    return (new ReviewResource($review))
+                ->response()
+                ->setStatusCode(Response::HTTP_CREATED); // 201
+}
+
+    // public function store(ReviewStoreRequest $request)
+    // {
+    //     $booking = Booking::findOrFail($request->booking_id);
+
+    //     $review = Review::create([
+    //         'booking_id' => $booking->id,
+    //         'client_id' => $request->user()->id,
+    //         'provider_id' => $booking->provider_id,
+    //         'listing_id' => $booking->listing_id,
+    //         'rating' => $request->rating,
+    //         'comment' => $request->comment,
+    //         'status' => 'approved', // Auto-approve, or set to 'pending' if you want moderation
+    //     ]);
+
+    //     return new ReviewResource($review);
+    // }
 
     /**
      * Update review (client only, within 24 hours)

@@ -100,57 +100,92 @@ class BookingController extends Controller
      * Create new booking (Client only)
      */
     public function store(BookingStoreRequest $request)
-    {
-        try {
-            $listing = ServiceListing::with('provider')->find($request->listing_id);
-
-            if (!$listing || !$listing->isActive()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Service listing is not available'
-                ], 400);
-            }
-
-            // Calculate hours and total
-            $start = Carbon::createFromFormat('H:i', $request->start_time);
-            $end = Carbon::createFromFormat('H:i', $request->end_time);
-            $hours = $end->diffInMinutes($start) / 60;
-            $totalAmount = $hours * $listing->hourly_rate;
-
-            // Create booking
-            $booking = Booking::create([
-                'client_id' => $request->user()->id,
-                'provider_id' => $listing->provider_id,
-                'listing_id' => $listing->id,
-                'booking_date' => $request->booking_date,
-                'start_time' => $request->start_time,
-                'end_time' => $request->end_time,
-                'hours' => $hours,
-                'hourly_rate' => $listing->hourly_rate,
-                'total_amount' => $totalAmount,
-                'service_location' => $request->service_location,
-                'special_requirements' => $request->special_requirements,
-                'status' => 'pending',
-            ]);
-
-            $booking->load(['client', 'provider', 'listing.category']);
-
-            // TODO: Send notification to provider
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Booking request sent successfully',
-                'data' => new BookingResource($booking)
-            ], 201);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to create booking',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+{
+    if (!$request->user()) {
+        return response()->json(['error' => 'Unauthenticated'], 401);
     }
+
+    dd($request->user());
+}
+
+
+
+    // public function store(BookingStoreRequest $request)
+    // {
+    //     try {
+    //         // Debug: see authenticated user
+    //         dd('Authenticated User:', $request->user());
+
+    //         $listing = ServiceListing::with('provider')->find($request->listing_id);
+
+    //         // Debug: check listing and isActive
+    //         dd('Listing:', $listing, 'isActive:', $listing?->isActive());
+
+    //         if (!$listing || !$listing->isActive()) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Service listing is not available'
+    //             ], 400);
+    //         }
+
+    //         $start = Carbon::createFromFormat('H:i', $request->start_time);
+    //         $end = Carbon::createFromFormat('H:i', $request->end_time);
+    //         $hours = $end->diffInMinutes($start) / 60;
+    //         $totalAmount = $hours * $listing->hourly_rate;
+
+    //         // Debug: booking data before creation
+    //         dd([
+    //             'client_id' => $request->user()->id,
+    //             'provider_id' => $listing->provider_id,
+    //             'listing_id' => $listing->id,
+    //             'booking_date' => $request->booking_date,
+    //             'start_time' => $request->start_time,
+    //             'end_time' => $request->end_time,
+    //             'hours' => $hours,
+    //             'hourly_rate' => $listing->hourly_rate,
+    //             'total_amount' => $totalAmount,
+    //             'service_location' => $request->service_location,
+    //             'special_requirements' => $request->special_requirements,
+    //             'status' => 'pending',
+    //         ]);
+
+    //         $booking = Booking::create([
+    //             'client_id' => $request->user()->id,
+    //             'provider_id' => $listing->provider_id,
+    //             'listing_id' => $listing->id,
+    //             'booking_date' => $request->booking_date,
+    //             'start_time' => $request->start_time,
+    //             'end_time' => $request->end_time,
+    //             'hours' => $hours,
+    //             'hourly_rate' => $listing->hourly_rate,
+    //             'total_amount' => $totalAmount,
+    //             'service_location' => $request->service_location,
+    //             'special_requirements' => $request->special_requirements,
+    //             'status' => 'pending',
+    //         ]);
+
+    //         // Debug: after creation
+    //         dd('Booking Created:', $booking);
+
+    //         $booking->load(['client', 'provider', 'listing.category']);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Booking request sent successfully',
+    //             'data' => new BookingResource($booking)
+    //         ], 201);
+
+    //     } catch (\Exception $e) {
+    //         dd('Exception:', $e->getMessage());
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Failed to create booking',
+    //             'error' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
 
     /**
      * Accept booking (Provider only)
