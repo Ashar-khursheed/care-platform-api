@@ -139,19 +139,18 @@ class BookingController extends Controller
         // -------------------
         // Parse start & end datetime
         // -------------------
-        $start = Carbon::parse($validated['start_date'] . ' ' . $validated['start_time']);
-        $end = Carbon::parse($validated['end_date'] . ' ' . $validated['end_time']);
+       $start = Carbon::parse($validated['start_date'] . ' ' . $validated['start_time']);
+$end = Carbon::parse($validated['end_date'] . ' ' . $validated['end_time']);
 
-        // -------------------
-        // Calculate hours
-        // -------------------
-        $hours = $end->diffInMinutes($start) / 60;
-        if ($hours < 1) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Booking must be at least 1 hour.'
-            ], 400);
-        }
+// Calculate total hours
+$hours = $end->diffInMinutes($start) / 60;
+
+if ($hours < 1) {
+    return response()->json([
+        'success' => false,
+        'message' => 'Booking must be at least 1 hour.'
+    ], 400);
+}
         if ($hours > 12 * ($end->diffInDays($start) + 1)) { // max 12 hours per day
             return response()->json([
                 'success' => false,
