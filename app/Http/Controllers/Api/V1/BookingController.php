@@ -145,6 +145,7 @@ $end = Carbon::parse($validated['end_date'] . ' ' . $validated['end_time']);
 // Calculate total hours
 $hours = $end->diffInMinutes($start) / 60;
 
+
         if ($hours > 12 * ($end->diffInDays($start) + 1)) { // max 12 hours per day
             return response()->json([
                 'success' => false,
@@ -160,6 +161,7 @@ $hours = $end->diffInMinutes($start) / 60;
         $booking = Booking::create([
             'client_id' => $user->id,
             'provider_id' => $listing->provider_id,
+            'booking_date' => $validated['start_date'], // must include
             'listing_id' => $listing->id,
             'start_date' => $validated['start_date'],
             'end_date' => $validated['end_date'],
