@@ -90,44 +90,68 @@ class ReviewController extends Controller
     /**
      * Create review (clients only)
      */
-   
+    public function store(Request $request)
+    {
+        // Basic validation
+        $request->validate([
+            'booking_id' => 'required|integer|exists:bookings,id',
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:1000',
+        ]);
 
-public function store(ReviewStoreRequest $request)
-{
-    $booking = Booking::findOrFail($request->booking_id);
+        // Find the booking
+        $booking = Booking::find($request->booking_id);
 
-    $review = Review::create([
-        'booking_id' => $booking->id,
-        'client_id' => $request->user()->id,
-        'provider_id' => $booking->provider_id,
-        'listing_id' => $booking->listing_id,
-        'rating' => $request->rating,
-        'comment' => $request->comment,
-        'status' => 'approved',
-    ]);
+        if (!$booking) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Booking not found.'
+            ], 404);
+        }
 
-    return (new ReviewResource($review))
-                ->response()
-                ->setStatusCode(Response::HTTP_CREATED); // 201
-}
+        // Ensure booking belongs to the client
+        if ($booking->client_id !== $request->user()->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This booking does not belong to you.'
+            ], 403);
+        }
 
-    // public function store(ReviewStoreRequest $request)
-    // {
-    //     $booking = Booking::findOrFail($request->booking_id);
+        // Ensure booking is completed
+        if ($booking->status !== 'completed') {
+            return response()->json([
+                'success' => false,
+                'message' => 'You can only review completed bookings.'
+            ], 400);
+        }
 
-    //     $review = Review::create([
-    //         'booking_id' => $booking->id,
-    //         'client_id' => $request->user()->id,
-    //         'provider_id' => $booking->provider_id,
-    //         'listing_id' => $booking->listing_id,
-    //         'rating' => $request->rating,
-    //         'comment' => $request->comment,
-    //         'status' => 'approved', // Auto-approve, or set to 'pending' if you want moderation
-    //     ]);
+        // Check if review already exists
+        $existingReview = Review::where('booking_id', $booking->id)->first();
+        if ($existingReview) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You have already reviewed this booking.'
+            ], 400);
+        }
 
-    //     return new ReviewResource($review);
-    // }
+        // Create review
+        $review = Review::create([
+            'booking_id' => $booking->id,
+            'client_id' => $request->user()->id,
+            'provider_id' => $booking->provider_id,
+            'listing_id' => $booking->listing_id,
+            'rating' => $request->rating,
+            'comment' => $request->comment,
+            'status' => 'approved', // automatically approved
+        ]);
 
+       return response()->json([
+            'success' => true,
+            'message' => 'Review created successfully.',
+            'data' => $review
+        ], 201);
+
+    }
     /**
      * Update review (client only, within 24 hours)
      */

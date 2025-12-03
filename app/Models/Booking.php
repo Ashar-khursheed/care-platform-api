@@ -51,10 +51,11 @@ class Booking extends Model
     /**
      * Get the client who made the booking
      */
-    public function client()
-    {
-        return $this->belongsTo(User::class, 'client_id');
-    }
+  public function client()
+{
+    return $this->belongsTo(User::class, 'client_id')
+                ->where('user_type', 'client');
+}
 
     /**
      * Get the provider for this booking
