@@ -100,108 +100,109 @@ class BookingController extends Controller
      * Create new booking (Client only)
      */
    public function store(Request $request)
-    {
-        try {
-            $user = $request->user();
+{
+    try {
+        $user = $request->user();
 
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized'
-                ], 401);
-            }
-
-            // -------------------
-            // Validate input
-            // -------------------
-            $validated = $request->validate([
-                'listing_id' => 'required|exists:service_listings,id',
-                'booking_date' => 'required|date|after_or_equal:today',
-                'start_time' => 'required|string', // allow HH:MM or HH:MM:SS
-                'end_time' => 'required|string',
-                'service_location' => 'required|string|max:500',
-                'special_requirements' => 'nullable|string|max:1000',
-            ]);
-
-            // -------------------
-            // Find listing
-            // -------------------
-            $listing = ServiceListing::with('provider')->find($validated['listing_id']);
-
-            if (!$listing || !$listing->isActive()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Service listing is not available'
-                ], 400);
-            }
-
-            // -------------------
-            // Parse times
-            // -------------------
-            $start = Carbon::parse($validated['start_time']);
-            $end = Carbon::parse($validated['end_time']);
-
-            // -------------------
-            // Calculate hours and total amount
-            // -------------------
-            $hours = $end->diffInMinutes($start) / 60;
-            if ($hours < 1) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Booking must be at least 1 hour.'
-                ], 400);
-            }
-            if ($hours > 12) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Booking cannot exceed 12 hours.'
-                ], 400);
-            }
-
-            $totalAmount = $hours * $listing->hourly_rate;
-
-            // -------------------
-            // Create booking
-            // -------------------
-            $booking = Booking::create([
-                'client_id' => $user->id,
-                'provider_id' => $listing->provider_id,
-                'listing_id' => $listing->id,
-                'booking_date' => $validated['booking_date'],
-                'start_time' => $start->format('H:i:s'),
-                'end_time' => $end->format('H:i:s'),
-                'hours' => $hours,
-                'hourly_rate' => $listing->hourly_rate,
-                'total_amount' => $totalAmount,
-                'service_location' => $validated['service_location'],
-                'special_requirements' => $validated['special_requirements'] ?? null,
-                'status' => 'pending',
-            ]);
-
-            $booking->load(['client', 'provider', 'listing.category']);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Booking request sent successfully',
-                'data' => new BookingResource($booking)
-            ], 201);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Validation errors
+        if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            // Any other error
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to create booking',
-                'error' => $e->getMessage()
-            ], 500);
+                'message' => 'Unauthorized'
+            ], 401);
         }
+
+        // -------------------
+        // Validate input
+        // -------------------
+        $validated = $request->validate([
+            'listing_id' => 'required|exists:service_listings,id',
+            'start_date' => 'required|date|after_or_equal:today',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'start_time' => 'required|string',
+            'end_time' => 'required|string',
+            'service_location' => 'required|string|max:500',
+            'special_requirements' => 'nullable|string|max:1000',
+        ]);
+
+        // -------------------
+        // Find listing
+        // -------------------
+        $listing = ServiceListing::with('provider')->find($validated['listing_id']);
+
+        if (!$listing || !$listing->isActive()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Service listing is not available'
+            ], 400);
+        }
+
+        // -------------------
+        // Parse start & end datetime
+        // -------------------
+        $start = Carbon::parse($validated['start_date'] . ' ' . $validated['start_time']);
+        $end = Carbon::parse($validated['end_date'] . ' ' . $validated['end_time']);
+
+        // -------------------
+        // Calculate hours
+        // -------------------
+        $hours = $end->diffInMinutes($start) / 60;
+        if ($hours < 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Booking must be at least 1 hour.'
+            ], 400);
+        }
+        if ($hours > 12 * ($end->diffInDays($start) + 1)) { // max 12 hours per day
+            return response()->json([
+                'success' => false,
+                'message' => 'Booking cannot exceed 12 hours per day.'
+            ], 400);
+        }
+
+        $totalAmount = $hours * $listing->hourly_rate;
+
+        // -------------------
+        // Create booking
+        // -------------------
+        $booking = Booking::create([
+            'client_id' => $user->id,
+            'provider_id' => $listing->provider_id,
+            'listing_id' => $listing->id,
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+            'start_time' => $start->format('H:i:s'),
+            'end_time' => $end->format('H:i:s'),
+            'hours' => $hours,
+            'hourly_rate' => $listing->hourly_rate,
+            'total_amount' => $totalAmount,
+            'service_location' => $validated['service_location'],
+            'special_requirements' => $validated['special_requirements'] ?? null,
+            'status' => 'pending',
+        ]);
+
+        $booking->load(['client', 'provider', 'listing.category']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Booking request sent successfully',
+            'data' => new BookingResource($booking)
+        ], 201);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to create booking',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
 
     /**
      * Accept booking (Provider only)
