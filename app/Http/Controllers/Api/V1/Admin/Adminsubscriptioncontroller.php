@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 class AdminSubscriptionController extends Controller
 {
     /**
-     * Get all subscription plans
+     * Get all subscription planss
      */
     public function plans(Request $request)
     {
