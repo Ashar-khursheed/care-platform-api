@@ -31,6 +31,20 @@ class AdminSubscriptionController extends Controller
         return SubscriptionPlanResource::collection($plans);
     }
 
+    public function planById($id)
+    {
+        $plan = SubscriptionPlan::with('features')->find($id);
+
+        if (!$plan) {
+            return response()->json([
+                'message' => 'Plan not found'
+            ], 404);
+        }
+
+        return new SubscriptionPlanResource($plan);
+    }
+
+
     /**
      * Create new plan
      */
