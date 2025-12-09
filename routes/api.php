@@ -414,7 +414,7 @@ Route::prefix('v1')->group(function () {
             
             // Plans Management
             Route::get('/plans', [AdminSubscriptionController::class, 'plans']);
-            Route::get('/subscription/plan/{id}', [SubscriptionController::class, 'planById']);
+            Route::get('/plan/{id}', [SubscriptionController::class, 'planById']);
             Route::post('/plans', [AdminSubscriptionController::class, 'createPlan']);
             Route::put('/plans/{id}', [AdminSubscriptionController::class, 'updatePlan']);
             Route::delete('/plans/{id}', [AdminSubscriptionController::class, 'deletePlan']);
