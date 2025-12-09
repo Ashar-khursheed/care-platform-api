@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminReviewController;
 use App\Http\Controllers\Api\V1\Admin\AdminPaymentController;
 use App\Http\Controllers\Api\V1\Admin\AdminMessageController;
 use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
+use App\Http\Controllers\Api\V1\Admin\AdminSubscriptionController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\ListingController;
 use App\Http\Controllers\Api\V1\BookingController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\Api\V1\ReviewController;
 use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\MessageController;
 use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\SubscriptionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,6 +62,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/', [ReviewController::class, 'index']);
         Route::get('/{id}', [ReviewController::class, 'show']);
     });
+
+    // Public Subscription Plans (no auth required)
+    Route::get('/subscription-plans', [SubscriptionController::class, 'plans']);
 
     // Stripe Webhook (no auth required)
     Route::post('/webhooks/stripe', [PaymentController::class, 'webhook']);
@@ -150,23 +155,35 @@ Route::prefix('v1')->group(function () {
 
         // Notification Routes (All Users)
         Route::prefix('notifications')->group(function () {
-            Route::get('/', [NotificationController::class, 'index']); // Get all notifications
-            Route::get('/unread-count', [NotificationController::class, 'unreadCount']); // Unread count
-            Route::get('/recent', [NotificationController::class, 'recent']); // Recent notifications
-            Route::put('/{id}/read', [NotificationController::class, 'markAsRead']); // Mark as read
-            Route::put('/{id}/unread', [NotificationController::class, 'markAsUnread']); // Mark as unread
-            Route::put('/read-all', [NotificationController::class, 'markAllAsRead']); // Mark all as read
-            Route::delete('/{id}', [NotificationController::class, 'destroy']); // Delete notification
-            Route::delete('/', [NotificationController::class, 'deleteAll']); // Delete all
+            Route::get('/', [NotificationController::class, 'index']);
+            Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
+            Route::get('/recent', [NotificationController::class, 'recent']);
+            Route::put('/{id}/read', [NotificationController::class, 'markAsRead']);
+            Route::put('/{id}/unread', [NotificationController::class, 'markAsUnread']);
+            Route::put('/read-all', [NotificationController::class, 'markAllAsRead']);
+            Route::delete('/{id}', [NotificationController::class, 'destroy']);
+            Route::delete('/', [NotificationController::class, 'deleteAll']);
             
             // Preferences
-            Route::get('/preferences', [NotificationController::class, 'getPreferences']); // Get preferences
-            Route::put('/preferences', [NotificationController::class, 'updatePreferences']); // Update preferences
-            Route::put('/settings', [NotificationController::class, 'updateSettings']); // Update global settings
+            Route::get('/preferences', [NotificationController::class, 'getPreferences']);
+            Route::put('/preferences', [NotificationController::class, 'updatePreferences']);
+            Route::put('/settings', [NotificationController::class, 'updateSettings']);
             
             // Device Registration
-            Route::post('/register-device', [NotificationController::class, 'registerDevice']); // Register device
-            Route::post('/unregister-device', [NotificationController::class, 'unregisterDevice']); // Unregister device
+            Route::post('/register-device', [NotificationController::class, 'registerDevice']);
+            Route::post('/unregister-device', [NotificationController::class, 'unregisterDevice']);
+        });
+
+        // Subscription Routes (All Users)
+        Route::prefix('subscriptions')->group(function () {
+            Route::get('/current', [SubscriptionController::class, 'current']); // Current subscription
+            Route::get('/history', [SubscriptionController::class, 'history']); // Subscription history
+            Route::get('/usage', [SubscriptionController::class, 'usage']); // Usage statistics
+            Route::post('/subscribe', [SubscriptionController::class, 'subscribe']); // Subscribe to plan
+            Route::post('/upgrade', [SubscriptionController::class, 'upgrade']); // Upgrade plan
+            Route::post('/downgrade', [SubscriptionController::class, 'downgrade']); // Downgrade plan
+            Route::post('/cancel', [SubscriptionController::class, 'cancel']); // Cancel subscription
+            Route::post('/resume', [SubscriptionController::class, 'resume']); // Resume subscription
         });
 
         // Admin Routes (only accessible by admin users)
@@ -201,8 +218,8 @@ Route::prefix('v1')->group(function () {
             // Listing Management
             Route::prefix('listings')->group(function () {
                 Route::get('/', [AdminListingController::class, 'index']);
-                Route::get('/{id}', [AdminListingController::class, 'show']);
                 Route::get('/pending', [AdminListingController::class, 'getPendingListings']);
+                Route::get('/{id}', [AdminListingController::class, 'show']);
                 Route::put('/{id}/approve', [AdminListingController::class, 'approve']);
                 Route::put('/{id}/reject', [AdminListingController::class, 'reject']);
                 Route::put('/{id}/suspend', [AdminListingController::class, 'suspend']);
@@ -266,12 +283,25 @@ Route::prefix('v1')->group(function () {
 
             // Notification Management
             Route::prefix('notifications')->group(function () {
-                Route::get('/', [AdminNotificationController::class, 'index']); // All notifications
-                Route::get('/statistics', [AdminNotificationController::class, 'statistics']); // Statistics
-                Route::post('/announcement', [AdminNotificationController::class, 'sendAnnouncement']); // Send announcement
-                Route::post('/send-to-users', [AdminNotificationController::class, 'sendToUsers']); // Send to specific users
-                Route::post('/test', [AdminNotificationController::class, 'test']); // Test notification
-                Route::delete('/{id}', [AdminNotificationController::class, 'destroy']); // Delete notification
+                Route::get('/', [AdminNotificationController::class, 'index']);
+                Route::get('/statistics', [AdminNotificationController::class, 'statistics']);
+                Route::post('/announcement', [AdminNotificationController::class, 'sendAnnouncement']);
+                Route::post('/send-to-users', [AdminNotificationController::class, 'sendToUsers']);
+                Route::post('/test', [AdminNotificationController::class, 'test']);
+                Route::delete('/{id}', [AdminNotificationController::class, 'destroy']);
+            });
+
+            // Subscription Management
+            Route::prefix('subscriptions')->group(function () {
+                Route::get('/plans', [AdminSubscriptionController::class, 'plans']); // All plans
+                Route::post('/plans', [AdminSubscriptionController::class, 'createPlan']); // Create plan
+                Route::put('/plans/{id}', [AdminSubscriptionController::class, 'updatePlan']); // Update plan
+                Route::delete('/plans/{id}', [AdminSubscriptionController::class, 'deletePlan']); // Delete plan
+                Route::post('/plans/{id}/features', [AdminSubscriptionController::class, 'addFeature']); // Add feature
+                Route::delete('/plans/{planId}/features/{featureId}', [AdminSubscriptionController::class, 'removeFeature']); // Remove feature
+                Route::get('/', [AdminSubscriptionController::class, 'subscriptions']); // All subscriptions
+                Route::get('/statistics', [AdminSubscriptionController::class, 'statistics']); // Statistics
+                Route::post('/{id}/cancel', [AdminSubscriptionController::class, 'cancelSubscription']); // Cancel subscription
             });
         });
     });
