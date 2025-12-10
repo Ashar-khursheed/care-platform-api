@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 // Controllers
 use App\Http\Controllers\Api\V1\Auth\AuthController;
-use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\User\ProfileController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\ListingController;
 use App\Http\Controllers\Api\V1\BookingController;
