@@ -392,6 +392,7 @@ Route::prefix('v1')->group(function () {
         // ==============================================
         Route::prefix('messages')->group(function () {
             Route::get('/flagged', [AdminMessageController::class, 'flagged']);
+             Route::get('/', [AdminMessageController::class, 'messages']);
             Route::get('/{id}', [AdminMessageController::class, 'show']);
             Route::put('/{id}/resolve', [AdminMessageController::class, 'resolveFlagged']);
             Route::delete('/{id}', [AdminMessageController::class, 'destroy']);
