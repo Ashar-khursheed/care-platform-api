@@ -425,4 +425,9 @@ class User extends Authenticatable
     {
         return 0; // Will be implemented with Notification module
     }
+    public function bookings()
+{
+    return $this->hasMany(Booking::class, 'user_id', 'id');
+}
+
 }

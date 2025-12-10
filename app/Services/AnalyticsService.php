@@ -96,9 +96,9 @@ class AnalyticsService
         // Revenue by payment method
         $revenueByMethod = Payment::where('status', 'completed')
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->selectRaw('payment_method, SUM(amount) as total')
-            ->groupBy('payment_method')
+            ->selectRaw('SUM(amount) as total')
             ->get();
+
 
         // Revenue by category
         $revenueByCategory = Payment::where('payments.status', 'completed')
