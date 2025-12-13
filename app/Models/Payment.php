@@ -49,9 +49,13 @@ class Payment extends Model
     /**
      * Relationships
      */
-    public function booking()
+    // public function booking()
+    // {
+    //     return $this->belongsTo(Booking::class);
+    // }
+      public function booking()
     {
-        return $this->belongsTo(Booking::class);
+        return $this->belongsTo(\App\Models\Booking::class, 'booking_id'); // <- make sure Payment table has booking_id
     }
 
     public function client()

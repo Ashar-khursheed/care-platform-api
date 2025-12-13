@@ -36,9 +36,10 @@ class AnalyticsService
             ->count();
 
         // Active users (users with activity in date range)
-        $activeUsers = User::whereHas('bookings', function ($query) use ($startDate, $endDate) {
-            $query->whereBetween('created_at', [$startDate, $endDate]);
-        })->count();
+        $activeUsers = Booking::whereBetween('created_at', [$startDate, $endDate])
+    ->distinct('client_id')
+    ->count('client_id');
+
 
         // Verified users
         $verifiedUsers = User::where('is_verified', true)->count();
@@ -264,13 +265,15 @@ class AnalyticsService
             ->get();
 
         // Top rated providers
-        $topRatedProviders = User::where('user_type', 'provider')
-            ->where('average_rating', '>', 0)
-            ->orderBy('average_rating', 'desc')
-            ->orderBy('reviews_count', 'desc')
-            ->limit(10)
-            ->select('id', 'first_name', 'last_name', 'average_rating', 'reviews_count')
-            ->get();
+       $topRatedProviders = User::where('user_type', 'provider')
+    ->withCount(['reviews as reviews_count'])
+    ->withAvg('reviews as average_rating', 'rating')
+    ->having('average_rating', '>', 0)
+    ->orderBy('average_rating', 'desc')
+    ->orderBy('reviews_count', 'desc')
+    ->limit(10)
+    ->get(['id', 'first_name', 'last_name']);
+
 
         return [
             'overview' => [
