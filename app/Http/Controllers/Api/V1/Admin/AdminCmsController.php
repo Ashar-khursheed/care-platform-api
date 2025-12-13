@@ -12,15 +12,29 @@ class AdminCmsController extends Controller
     /**
      * Get all site settings
      */
-    public function getSettings()
-    {
-        $settings = SiteSetting::all()->groupBy('group');
+  public function getSettings()
+{
+    $settings = SiteSetting::all()
+        ->map(function ($setting) {
 
-        return response()->json([
-            'success' => true,
-            'data' => $settings,
-        ]);
-    }
+            if ($setting->type === 'json' && is_string($setting->value)) {
+                $setting->value = json_decode($setting->value, true);
+            }
+
+            if ($setting->type === 'boolean') {
+                $setting->value = filter_var($setting->value, FILTER_VALIDATE_BOOLEAN);
+            }
+
+            return $setting;
+        })
+        ->groupBy('group');
+
+    return response()->json([
+        'success' => true,
+        'data' => $settings,
+    ]);
+}
+
 
     /**
      * Get settings by group
