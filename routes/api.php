@@ -14,6 +14,12 @@ use App\Http\Controllers\Api\V1\Admin\AdminMessageController;
 use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
 use App\Http\Controllers\Api\V1\Admin\AdminSubscriptionController;
 use App\Http\Controllers\Api\V1\Admin\AdminAnalyticsController;
+use App\Http\Controllers\Api\V1\CmsController;
+use App\Http\Controllers\Api\V1\Admin\AdminCmsController;
+use App\Http\Controllers\Api\V1\Admin\AdminSliderController;
+use App\Http\Controllers\Api\V1\Admin\AdminAnnouncementController;
+use App\Http\Controllers\Api\V1\Admin\AdminPageController;
+use App\Http\Controllers\Api\V1\Admin\AdminSeoController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\ListingController;
 use App\Http\Controllers\Api\V1\BookingController;
@@ -30,13 +36,51 @@ use App\Http\Middleware\ResponseCompressionMiddleware;
 |--------------------------------------------------------------------------
 | API Routes - Version 1
 |--------------------------------------------------------------------------
+|
+| Care Platform API Routes
+| Total Endpoints: 287+ routes across 12 modules
+|
 */
 
-// Public routes
+// Health check route (outside v1 prefix)
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'healthy',
+        'timestamp' => now(),
+        'version' => '1.0.0',
+    ]);
+});
+
+// ============================================================
+// API VERSION 1
+// ============================================================
+
 Route::prefix('v1')->group(function () {
     
-    // Authentication Routes
+    // ========================================================
+    // MODULE 12: CMS & PAGES MANAGEMENT (37 endpoints)
+    // ========================================================
+    
+    // Public CMS Routes (10 endpoints - no authentication)
+    Route::prefix('cms')->group(function () {
+        Route::get('/sliders', [CmsController::class, 'getSliders']);
+        Route::get('/announcement', [CmsController::class, 'getAnnouncement']);
+        Route::get('/settings', [CmsController::class, 'getSettings']);
+        Route::get('/header', [CmsController::class, 'getHeader']);
+        Route::get('/footer', [CmsController::class, 'getFooter']);
+        Route::get('/config', [CmsController::class, 'getFrontendConfig']); // All-in-one
+        Route::get('/pages', [CmsController::class, 'getPages']);
+        Route::get('/pages/menu', [CmsController::class, 'getMenuPages']);
+        Route::get('/pages/{slug}', [CmsController::class, 'getPage']);
+        Route::get('/seo/{pageType}', [CmsController::class, 'getSeo']);
+    });
+    
+    // ========================================================
+    // MODULE 1: AUTHENTICATION (11 endpoints)
+    // ========================================================
+    
     Route::prefix('auth')->group(function () {
+        // Public authentication routes
         Route::post('/register', [AuthController::class, 'register']);
         Route::post('/login', [AuthController::class, 'login']);
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
@@ -55,12 +99,17 @@ Route::prefix('v1')->group(function () {
         });
     });
 
-    // Public Categories & Listings (no auth required)
+    // ========================================================
+    // MODULE 3: PUBLIC CATEGORIES & LISTINGS (8 endpoints)
+    // ========================================================
+    
+    // Public Categories (no auth required)
     Route::prefix('categories')->group(function () {
         Route::get('/', [CategoryController::class, 'index']);
         Route::get('/{slug}', [CategoryController::class, 'show']);
     });
 
+    // Public Listings (no auth required)
     Route::prefix('listings')->group(function () {
         Route::get('/', [ListingController::class, 'index']);
         Route::get('/featured', [ListingController::class, 'featured']);
@@ -68,22 +117,37 @@ Route::prefix('v1')->group(function () {
         Route::get('/{id}/reviews', [ReviewController::class, 'listingReviews']);
     });
 
-    // Public Reviews (no auth required)
+    // ========================================================
+    // MODULE 5: PUBLIC REVIEWS (2 endpoints)
+    // ========================================================
+    
     Route::prefix('reviews')->group(function () {
         Route::get('/', [ReviewController::class, 'index']);
         Route::get('/{id}', [ReviewController::class, 'show']);
     });
 
-    // Public Subscription Plans (no auth required)
+    // ========================================================
+    // MODULE 9: PUBLIC SUBSCRIPTION PLANS (1 endpoint)
+    // ========================================================
+    
     Route::get('/subscription-plans', [SubscriptionController::class, 'plans']);
 
-    // Stripe Webhook (no auth required)
+    // ========================================================
+    // MODULE 6: STRIPE WEBHOOK (1 endpoint)
+    // ========================================================
+    
     Route::post('/webhooks/stripe', [PaymentController::class, 'webhook']);
 
-    // Protected Routes (require authentication)
+    // ========================================================
+    // PROTECTED ROUTES (require authentication)
+    // ========================================================
+    
     Route::middleware('auth:sanctum')->group(function () {
         
-        // User Profile Routes
+        // ====================================================
+        // MODULE 2: USER PROFILE (9 endpoints)
+        // ====================================================
+        
         Route::prefix('profile')->group(function () {
             Route::get('/', [ProfileController::class, 'show']);
             Route::put('/', [ProfileController::class, 'update']);
@@ -96,7 +160,10 @@ Route::prefix('v1')->group(function () {
             Route::put('/settings', [ProfileController::class, 'updateSettings']);
         });
 
-        // Provider Listing Management Routes
+        // ====================================================
+        // MODULE 3: PROVIDER LISTINGS (10 endpoints)
+        // ====================================================
+        
         Route::prefix('my-listings')->group(function () {
             Route::get('/', [ListingController::class, 'myListings']);
             Route::post('/', [ListingController::class, 'store']);
@@ -109,7 +176,10 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{listingId}/images/{imageId}', [ListingController::class, 'deleteImage']);
         });
 
-        // Booking Routes (Clients & Providers)
+        // ====================================================
+        // MODULE 4: BOOKINGS (15 endpoints)
+        // ====================================================
+        
         Route::prefix('bookings')->group(function () {
             Route::get('/', [BookingController::class, 'index']);
             Route::get('/statistics', [BookingController::class, 'statistics']);
@@ -128,7 +198,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/client/upcoming', [BookingController::class, 'clientUpcoming']);
         });
 
-        // Review Routes (Clients & Providers)
+        // ====================================================
+        // MODULE 5: REVIEWS (11 endpoints)
+        // ====================================================
+        
         Route::prefix('reviews')->group(function () {
             Route::get('/my-reviews', [ReviewController::class, 'myReviews']);
             Route::get('/statistics', [ReviewController::class, 'statistics']);
@@ -150,7 +223,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/my/received', [ReviewController::class, 'myReceivedReviews']);
         });
 
-        // Payment Routes (Clients & Providers)
+        // ====================================================
+        // MODULE 6: PAYMENTS (12 endpoints)
+        // ====================================================
+        
         Route::prefix('payments')->group(function () {
             Route::get('/', [PaymentController::class, 'myPayments']);
             Route::get('/statistics', [PaymentController::class, 'statistics']);
@@ -169,12 +245,15 @@ Route::prefix('v1')->group(function () {
             Route::get('/transactions/history', [PaymentController::class, 'transactionHistory']);
         });
 
-        // Transaction Routes
+        // Transactions (1 endpoint)
         Route::prefix('transactions')->group(function () {
             Route::get('/', [PaymentController::class, 'myTransactions']);
         });
 
-        // Messaging Routes (Clients & Providers)
+        // ====================================================
+        // MODULE 7: MESSAGING (11 endpoints)
+        // ====================================================
+        
         Route::prefix('messages')->group(function () {
             Route::get('/conversations', [MessageController::class, 'conversations']);
             Route::get('/conversations/{id}/messages', [MessageController::class, 'messages']);
@@ -188,7 +267,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/search', [MessageController::class, 'search']);
         });
 
-        // Conversation Routes (Alternative structure from file 2)
+        // Conversations (Alternative structure - 10 endpoints)
         Route::prefix('conversations')->group(function () {
             Route::get('/', [MessageController::class, 'conversations']);
             Route::post('/', [MessageController::class, 'createConversation']);
@@ -202,7 +281,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/unread/count', [MessageController::class, 'unreadCount']);
         });
 
-        // Notification Routes (All Users)
+        // ====================================================
+        // MODULE 8: NOTIFICATIONS (15 endpoints)
+        // ====================================================
+        
         Route::prefix('notifications')->group(function () {
             Route::get('/', [NotificationController::class, 'index']);
             Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
@@ -227,19 +309,25 @@ Route::prefix('v1')->group(function () {
             Route::get('/unread/count', [NotificationController::class, 'unreadCount']);
         });
 
-        // Subscription Routes (All Users)
+        // ====================================================
+        // MODULE 9: SUBSCRIPTIONS (8 endpoints)
+        // ====================================================
+        
         Route::prefix('subscriptions')->group(function () {
-            Route::get('/current', [SubscriptionController::class, 'current']); // Current subscription
-            Route::get('/history', [SubscriptionController::class, 'history']); // Subscription history
-            Route::get('/usage', [SubscriptionController::class, 'usage']); // Usage statistics
-            Route::post('/subscribe', [SubscriptionController::class, 'subscribe']); // Subscribe to plan
-            Route::post('/upgrade', [SubscriptionController::class, 'upgrade']); // Upgrade plan
-            Route::post('/downgrade', [SubscriptionController::class, 'downgrade']); // Downgrade plan
-            Route::post('/cancel', [SubscriptionController::class, 'cancel']); // Cancel subscription
-            Route::post('/resume', [SubscriptionController::class, 'resume']); // Resume subscription
+            Route::get('/current', [SubscriptionController::class, 'current']);
+            Route::get('/history', [SubscriptionController::class, 'history']);
+            Route::get('/usage', [SubscriptionController::class, 'usage']);
+            Route::post('/subscribe', [SubscriptionController::class, 'subscribe']);
+            Route::post('/upgrade', [SubscriptionController::class, 'upgrade']);
+            Route::post('/downgrade', [SubscriptionController::class, 'downgrade']);
+            Route::post('/cancel', [SubscriptionController::class, 'cancel']);
+            Route::post('/resume', [SubscriptionController::class, 'resume']);
         });
 
-        // Analytics Routes (User)
+        // ====================================================
+        // MODULE 10: USER ANALYTICS (6 endpoints)
+        // ====================================================
+        
         Route::prefix('analytics')->group(function () {
             // Provider Analytics
             Route::get('/provider/dashboard', [AnalyticsController::class, 'providerDashboard']);
@@ -252,7 +340,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/client/spending', [AnalyticsController::class, 'clientSpending']);
         });
 
-        // Mobile API Routes
+        // ====================================================
+        // MODULE 11: MOBILE API (9 endpoints)
+        // ====================================================
+        
         Route::prefix('mobile')->middleware(ResponseCompressionMiddleware::class)->group(function () {
             // Home & Discovery
             Route::get('/home', [MobileApiController::class, 'getHomeData']);
@@ -272,13 +363,22 @@ Route::prefix('v1')->group(function () {
             Route::get('/config', [MobileApiController::class, 'getAppConfig']);
         });
 
-        // Admin Routes (only accessible by admin users)
+        // ====================================================
+        // ADMIN ROUTES (requires auth:sanctum + check.admin)
+        // ====================================================
+        
         Route::prefix('admin')->middleware('check.admin')->group(function () {
             
-            // Dashboard & Analytics
+            // ================================================
+            // ADMIN DASHBOARD (1 endpoint)
+            // ================================================
+            
             Route::get('/dashboard', [AdminUserController::class, 'dashboard']);
             
-            // User Management
+            // ================================================
+            // ADMIN USER MANAGEMENT (11 endpoints)
+            // ================================================
+            
             Route::prefix('users')->group(function () {
                 Route::get('/', [AdminUserController::class, 'index']);
                 Route::get('/{id}', [AdminUserController::class, 'show']);
@@ -293,7 +393,10 @@ Route::prefix('v1')->group(function () {
                 Route::get('/statistics/overview', [AdminUserController::class, 'statistics']);
             });
 
-            // Document Verification Management
+            // ================================================
+            // ADMIN DOCUMENT VERIFICATION (6 endpoints)
+            // ================================================
+            
             Route::prefix('documents')->group(function () {
                 Route::get('/pending', [AdminDocumentController::class, 'getPendingDocuments']);
                 Route::get('/', [AdminDocumentController::class, 'getAllDocuments']);
@@ -304,7 +407,10 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/{id}', [AdminDocumentController::class, 'destroy']);
             });
 
-            // Listing Management
+            // ================================================
+            // ADMIN LISTING MANAGEMENT (8 endpoints)
+            // ================================================
+            
             Route::prefix('listings')->group(function () {
                 Route::get('/', [AdminListingController::class, 'index']);
                 Route::get('/pending', [AdminListingController::class, 'getPendingListings']);
@@ -317,7 +423,10 @@ Route::prefix('v1')->group(function () {
                 Route::put('/{id}/feature', [AdminListingController::class, 'feature']);
             });
 
-            // Booking Management
+            // ================================================
+            // ADMIN BOOKING MANAGEMENT (5 endpoints)
+            // ================================================
+            
             Route::prefix('bookings')->group(function () {
                 Route::get('/', [AdminBookingController::class, 'index']);
                 Route::get('/statistics', [AdminBookingController::class, 'statistics']);
@@ -327,7 +436,10 @@ Route::prefix('v1')->group(function () {
                 Route::get('/statistics/overview', [AdminBookingController::class, 'statistics']);
             });
 
-            // Review Management
+            // ================================================
+            // ADMIN REVIEW MANAGEMENT (9 endpoints)
+            // ================================================
+            
             Route::prefix('reviews')->group(function () {
                 Route::get('/', [AdminReviewController::class, 'index']);
                 Route::get('/pending', [AdminReviewController::class, 'pending']);
@@ -341,7 +453,10 @@ Route::prefix('v1')->group(function () {
                 Route::get('/statistics/overview', [AdminReviewController::class, 'statistics']);
             });
 
-            // Payment Management
+            // ================================================
+            // ADMIN PAYMENT MANAGEMENT (13 endpoints)
+            // ================================================
+            
             Route::prefix('payments')->group(function () {
                 Route::get('/', [AdminPaymentController::class, 'index']);
                 Route::get('/statistics', [AdminPaymentController::class, 'statistics']);
@@ -359,18 +474,21 @@ Route::prefix('v1')->group(function () {
                 Route::get('/statistics/overview', [AdminPaymentController::class, 'statistics']);
             });
 
-            // Payout Management
+            // Payout Management (2 endpoints)
             Route::prefix('payouts')->group(function () {
                 Route::get('/', [AdminPaymentController::class, 'payouts']);
                 Route::post('/{id}/process', [AdminPaymentController::class, 'processPayout']);
             });
 
-            // Transaction Management
+            // Transaction Management (1 endpoint)
             Route::prefix('transactions')->group(function () {
                 Route::get('/', [AdminPaymentController::class, 'transactions']);
             });
 
-            // Message Management
+            // ================================================
+            // ADMIN MESSAGE MANAGEMENT (10 endpoints)
+            // ================================================
+            
             Route::prefix('messages')->group(function () {
                 Route::get('/conversations', [AdminMessageController::class, 'conversations']);
                 Route::get('/', [AdminMessageController::class, 'messages']);
@@ -384,7 +502,10 @@ Route::prefix('v1')->group(function () {
                 Route::put('/{id}/resolve', [AdminMessageController::class, 'resolveFlagged']);
             });
 
-            // Notification Management
+            // ================================================
+            // ADMIN NOTIFICATION MANAGEMENT (9 endpoints)
+            // ================================================
+            
             Route::prefix('notifications')->group(function () {
                 Route::get('/', [AdminNotificationController::class, 'index']);
                 Route::get('/statistics', [AdminNotificationController::class, 'statistics']);
@@ -397,21 +518,27 @@ Route::prefix('v1')->group(function () {
                 Route::get('/history', [AdminNotificationController::class, 'history']);
             });
 
-            // Subscription Management
+            // ================================================
+            // ADMIN SUBSCRIPTION MANAGEMENT (10 endpoints)
+            // ================================================
+            
             Route::prefix('subscriptions')->group(function () {
-                Route::get('/plans', [AdminSubscriptionController::class, 'plans']); // All plans
-                Route::get('/plan/{id}', [AdminSubscriptionController::class, 'planById']); // Plan by ID
-                Route::post('/plans', [AdminSubscriptionController::class, 'createPlan']); // Create plan
-                Route::put('/plans/{id}', [AdminSubscriptionController::class, 'updatePlan']); // Update plan
-                Route::delete('/plans/{id}', [AdminSubscriptionController::class, 'deletePlan']); // Delete plan
-                Route::post('/plans/{id}/features', [AdminSubscriptionController::class, 'addFeature']); // Add feature
-                Route::delete('/plans/{planId}/features/{featureId}', [AdminSubscriptionController::class, 'removeFeature']); // Remove feature
-                Route::get('/', [AdminSubscriptionController::class, 'subscriptions']); // All subscriptions
-                Route::get('/statistics', [AdminSubscriptionController::class, 'statistics']); // Statistics
-                Route::post('/{id}/cancel', [AdminSubscriptionController::class, 'cancelSubscription']); // Cancel subscription
+                Route::get('/plans', [AdminSubscriptionController::class, 'plans']);
+                Route::get('/plan/{id}', [AdminSubscriptionController::class, 'planById']);
+                Route::post('/plans', [AdminSubscriptionController::class, 'createPlan']);
+                Route::put('/plans/{id}', [AdminSubscriptionController::class, 'updatePlan']);
+                Route::delete('/plans/{id}', [AdminSubscriptionController::class, 'deletePlan']);
+                Route::post('/plans/{id}/features', [AdminSubscriptionController::class, 'addFeature']);
+                Route::delete('/plans/{planId}/features/{featureId}', [AdminSubscriptionController::class, 'removeFeature']);
+                Route::get('/', [AdminSubscriptionController::class, 'subscriptions']);
+                Route::get('/statistics', [AdminSubscriptionController::class, 'statistics']);
+                Route::post('/{id}/cancel', [AdminSubscriptionController::class, 'cancelSubscription']);
             });
 
-            // Analytics & Reports
+            // ================================================
+            // ADMIN ANALYTICS & REPORTS (11 endpoints)
+            // ================================================
+            
             Route::prefix('analytics')->group(function () {
                 // Dashboard
                 Route::get('/dashboard', [AdminAnalyticsController::class, 'dashboard']);
@@ -430,14 +557,51 @@ Route::prefix('v1')->group(function () {
                 Route::get('/export/users', [AdminAnalyticsController::class, 'exportUsers']);
                 Route::get('/export/revenue-summary', [AdminAnalyticsController::class, 'exportRevenueSummary']);
             });
+
+            // ================================================
+            // ADMIN CMS MANAGEMENT (27 endpoints)
+            // ================================================
+            
+            Route::prefix('cms')->group(function () {
+                
+                // Site Settings (9)
+                Route::get('/settings', [AdminCmsController::class, 'getSettings']);
+                Route::get('/settings/{group}', [AdminCmsController::class, 'getSettingsByGroup']);
+                Route::post('/settings', [AdminCmsController::class, 'updateSettings']);
+                Route::put('/settings/single', [AdminCmsController::class, 'updateSetting']);
+                Route::post('/settings/clear-cache', [AdminCmsController::class, 'clearCache']);
+                Route::get('/header/menu', [AdminCmsController::class, 'getHeaderMenu']);
+                Route::put('/header/menu', [AdminCmsController::class, 'updateHeaderMenu']);
+                Route::get('/footer/links', [AdminCmsController::class, 'getFooterLinks']);
+                Route::put('/footer/links', [AdminCmsController::class, 'updateFooterLinks']);
+                
+                // Sliders (5)
+                Route::get('/sliders', [AdminSliderController::class, 'index']);
+                Route::post('/sliders', [AdminSliderController::class, 'store']);
+                Route::put('/sliders/{id}', [AdminSliderController::class, 'update']);
+                Route::delete('/sliders/{id}', [AdminSliderController::class, 'destroy']);
+                Route::post('/sliders/reorder', [AdminSliderController::class, 'reorder']);
+                
+                // Announcements (5)
+                Route::get('/announcements', [AdminAnnouncementController::class, 'index']);
+                Route::get('/announcements/current', [AdminAnnouncementController::class, 'getCurrent']);
+                Route::post('/announcements', [AdminAnnouncementController::class, 'store']);
+                Route::put('/announcements/{id}', [AdminAnnouncementController::class, 'update']);
+                Route::delete('/announcements/{id}', [AdminAnnouncementController::class, 'destroy']);
+                
+                // Pages (5)
+                Route::get('/pages', [AdminPageController::class, 'index']);
+                Route::get('/pages/{id}', [AdminPageController::class, 'show']);
+                Route::post('/pages', [AdminPageController::class, 'store']);
+                Route::put('/pages/{id}', [AdminPageController::class, 'update']);
+                Route::delete('/pages/{id}', [AdminPageController::class, 'destroy']);
+                
+                // SEO (4)
+                Route::get('/seo', [AdminSeoController::class, 'index']);
+                Route::get('/seo/{pageType}', [AdminSeoController::class, 'show']);
+                Route::put('/seo/{pageType}', [AdminSeoController::class, 'update']);
+                Route::post('/seo/clear-cache', [AdminSeoController::class, 'clearCache']);
+            });
         });
     });
-});
-
-// Health check route
-Route::get('/health', function () {
-    return response()->json([
-        'status' => 'healthy',
-        'timestamp' => now(),
-    ]);
 });
