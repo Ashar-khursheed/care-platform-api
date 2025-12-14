@@ -201,6 +201,24 @@ class AdminAnnouncementController extends Controller
         ]);
     }
 
+    public function show($id)
+{
+    $announcement = AnnouncementBar::find($id);
+
+    if (!$announcement) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Announcement not found',
+        ], 404);
+    }
+
+    return response()->json([
+        'success' => true,
+        'data' => $announcement,
+    ]);
+}
+
+
     public function store(Request $request)
     {
         $request->validate([

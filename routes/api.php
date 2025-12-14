@@ -585,6 +585,7 @@ Route::prefix('v1')->group(function () {
                 
                 // Announcements (5)
                 Route::get('/announcements', [AdminAnnouncementController::class, 'index']);
+                Route::get('/announcements/{id}', [AdminAnnouncementController::class, 'show']);
                 Route::get('/announcements/current', [AdminAnnouncementController::class, 'getCurrent']);
                 Route::post('/announcements', [AdminAnnouncementController::class, 'store']);
                 Route::put('/announcements/{id}', [AdminAnnouncementController::class, 'update']);
