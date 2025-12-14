@@ -1,0 +1,67 @@
+<?php
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use App\Models\JobApplication;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
+class JobApplicationController extends Controller
+{
+    /**
+     * GET: List all applications
+     */
+    public function index()
+    {
+        $applications = JobApplication::latest()->paginate(20);
+
+        return response()->json([
+            'success' => true,
+            'data' => $applications,
+        ]);
+    }
+
+    /**
+     * POST: Store new application
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'first_name'     => 'required|string|max:100',
+            'last_name'      => 'required|string|max:100',
+            'email'          => 'required|email|max:150',
+            'phone_number'   => 'required|string|max:20',
+            'position'       => 'required|string|max:150',
+            'experience'     => 'required|string|max:100',
+            'availability'   => 'required|string|max:100',
+
+            'video'          => 'required|file|mimes:mp4,mov,avi,webm|max:102400', // 100MB
+            'resume'         => 'required|file|mimes:pdf,doc,docx|max:10240',     // 10MB
+
+            'message'        => 'nullable|string|max:500',
+        ]);
+
+        // Upload files
+        $videoPath = $request->file('video')->store('job-applications/videos', 'public');
+        $resumePath = $request->file('resume')->store('job-applications/resumes', 'public');
+
+        $application = JobApplication::create([
+            'first_name'   => $request->first_name,
+            'last_name'    => $request->last_name,
+            'email'        => $request->email,
+            'phone_number' => $request->phone_number,
+            'position'     => $request->position,
+            'experience'   => $request->experience,
+            'availability' => $request->availability,
+            'video_path'   => $videoPath,
+            'resume_path'  => $resumePath,
+            'message'      => $request->message,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Application submitted successfully',
+            'data'    => $application,
+        ], 201);
+    }
+}

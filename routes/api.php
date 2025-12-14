@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminPaymentController;
 use App\Http\Controllers\Api\V1\Admin\AdminMessageController;
 use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
 use App\Http\Controllers\Api\V1\Admin\AdminSubscriptionController;
+use App\Http\Controllers\Api\V1\Admin\AdminJobApplicationController;
 use App\Http\Controllers\Api\V1\Admin\AdminAnalyticsController;
 use App\Http\Controllers\Api\V1\CmsController;
 use App\Http\Controllers\Api\V1\Admin\AdminCmsController;
@@ -30,6 +31,8 @@ use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\SubscriptionController;
 use App\Http\Controllers\Api\V1\AnalyticsController;
 use App\Http\Controllers\Api\V1\Mobile\MobileApiController;
+use App\Http\Controllers\Api\V1\JobApplicationController;
+
 use App\Http\Middleware\ResponseCompressionMiddleware;
 
 /*
@@ -56,6 +59,10 @@ Route::get('/health', function () {
 // ============================================================
 
 Route::prefix('v1')->group(function () {
+
+
+    Route::get('/job-applications', [JobApplicationController::class, 'index']);
+    Route::post('/job-applications', [JobApplicationController::class, 'store']);
     
     // ========================================================
     // MODULE 12: CMS & PAGES MANAGEMENT (37 endpoints)
@@ -368,6 +375,9 @@ Route::prefix('v1')->group(function () {
         // ====================================================
         
         Route::prefix('admin')->middleware('check.admin')->group(function () {
+
+            Route::get('/job-applications', [AdminJobApplicationController::class, 'index']);
+
             
             // ================================================
             // ADMIN DASHBOARD (1 endpoint)
