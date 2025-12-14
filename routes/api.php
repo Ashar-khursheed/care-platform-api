@@ -577,6 +577,7 @@ Route::prefix('v1')->group(function () {
                 
                 // Sliders (5)
                 Route::get('/sliders', [AdminSliderController::class, 'index']);
+                Route::get('/sliders/{id}', [AdminSliderController::class, 'show']);
                 Route::post('/sliders', [AdminSliderController::class, 'store']);
                 Route::put('/sliders/{id}', [AdminSliderController::class, 'update']);
                 Route::delete('/sliders/{id}', [AdminSliderController::class, 'destroy']);

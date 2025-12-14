@@ -68,6 +68,23 @@ class AdminSliderController extends Controller
         ], 201);
     }
 
+    public function show($id)
+    {
+        $slider = Slider::find($id);
+
+        if (!$slider) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Slider not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $slider,
+        ]);
+    }
+
     public function update(Request $request, $id)
     {
         $slider = Slider::findOrFail($id);
