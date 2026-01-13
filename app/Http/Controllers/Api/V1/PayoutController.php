@@ -1,0 +1,246 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use App\Models\Payout;
+use App\Models\Payment;
+use App\Models\User;
+use App\Services\StripeService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class PayoutController extends Controller
+{
+    protected $stripeService;
+
+    public function __construct(StripeService $stripeService)
+    {
+        $this->stripeService = $stripeService;
+    }
+
+    /**
+     * Get provider's available balance and earnings
+     */
+    public function getBalance(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user->isProvider()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only providers can check balance',
+            ], 403);
+        }
+
+        // Get total earnings (completed payments)
+        $totalEarnings = Payment::where('provider_id', $user->id)
+            ->where('status', 'succeeded')
+            ->sum('provider_amount');
+
+        // Get total already paid out
+        $totalPaidOut = Payout::where('provider_id', $user->id)
+            ->where('status', 'paid')
+            ->sum('amount');
+
+        // Get pending payouts
+        $pendingPayouts = Payout::where('provider_id', $user->id)
+            ->where('status', 'pending')
+            ->sum('amount');
+
+        // Calculate available balance
+        $availableBalance = $totalEarnings - $totalPaidOut - $pendingPayouts;
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'total_earnings' => number_format($totalEarnings, 2),
+                'total_paid_out' => number_format($totalPaidOut, 2),
+                'pending_payouts' => number_format($pendingPayouts, 2),
+                'available_balance' => number_format($availableBalance, 2),
+                'currency' => 'USD',
+                'has_stripe_account' => !empty($user->stripe_account_id),
+            ]
+        ]);
+    }
+
+    /**
+     * Request withdrawal/payout
+     */
+    public function requestPayout(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user->isProvider()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only providers can request payouts',
+            ], 403);
+        }
+
+        $request->validate([
+            'amount' => 'required|numeric|min:10', // Minimum $10 payout
+            'bank_account_details' => 'sometimes|array',
+            'bank_account_details.bank_name' => 'sometimes|string',
+            'bank_account_details.account_number' => 'sometimes|string',
+            'bank_account_details.routing_number' => 'sometimes|string',
+        ]);
+
+        // Calculate available balance
+        $totalEarnings = Payment::where('provider_id', $user->id)
+            ->where('status', 'succeeded')
+            ->sum('provider_amount');
+
+        $totalPaidOut = Payout::where('provider_id', $user->id)
+            ->where('status', 'paid')
+            ->sum('amount');
+
+        $pendingPayouts = Payout::where('provider_id', $user->id)
+            ->where('status', 'pending')
+            ->sum('amount');
+
+        $availableBalance = $totalEarnings - $totalPaidOut - $pendingPayouts;
+
+        // Validate requested amount
+        if ($request->amount > $availableBalance) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Insufficient balance. Available: $' . number_format($availableBalance, 2),
+            ], 400);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Create payout request
+            $payout = Payout::create([
+                'provider_id' => $user->id,
+                'amount' => $request->amount,
+                'currency' => 'USD',
+                'status' => 'pending',
+                'bank_name' => $request->bank_account_details['bank_name'] ?? null,
+                'account_number_last4' => $request->bank_account_details['account_number'] 
+                    ? substr($request->bank_account_details['account_number'], -4) 
+                    : null,
+                'scheduled_at' => now(),
+                'metadata' => $request->bank_account_details ?? [],
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Payout request submitted successfully. It will be processed by admin.',
+                'data' => [
+                    'payout_id' => $payout->id,
+                    'amount' => $payout->amount,
+                    'status' => $payout->status,
+                    'scheduled_at' => $payout->scheduled_at,
+                ]
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create payout request',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get my payout history
+     */
+    public function myPayouts(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user->isProvider()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only providers can view payouts',
+            ], 403);
+        }
+
+        $query = Payout::where('provider_id', $user->id);
+
+        // Filter by status
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $query->orderBy('created_at', 'desc');
+
+        $perPage = $request->get('per_page', 10);
+        $payouts = $query->paginate($perPage);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'payouts' => $payouts->items(),
+                'pagination' => [
+                    'total' => $payouts->total(),
+                    'per_page' => $payouts->perPage(),
+                    'current_page' => $payouts->currentPage(),
+                    'last_page' => $payouts->lastPage(),
+                ]
+            ]
+        ]);
+    }
+
+    /**
+     * Get payout details
+     */
+    public function show(Request $request, $id)
+    {
+        $user = $request->user();
+        
+        $payout = Payout::findOrFail($id);
+
+        // Authorization
+        if ($payout->provider_id !== $user->id && !$user->isAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $payout
+        ]);
+    }
+
+    /**
+     * Cancel pending payout request
+     */
+    public function cancel(Request $request, $id)
+    {
+        $user = $request->user();
+        $payout = Payout::findOrFail($id);
+
+        // Authorization
+        if ($payout->provider_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        // Can only cancel pending payouts
+        if ($payout->status !== 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Can only cancel pending payouts',
+            ], 400);
+        }
+
+        $payout->update(['status' => 'cancelled']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Payout request cancelled successfully'
+        ]);
+    }
+}
