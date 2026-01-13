@@ -53,6 +53,11 @@ class ListingController extends Controller
         $query = ServiceListing::with(['category', 'provider'])
             ->active();
 
+        // Filter by provider_id if passed (to see specific provider's listings)
+        if ($request->has('provider_id')) {
+            $query->where('provider_id', $request->provider_id);
+        }
+
         // Filter by category
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);
