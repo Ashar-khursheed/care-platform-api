@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminListingController;
 use App\Http\Controllers\Api\V1\Admin\AdminBookingController;
 use App\Http\Controllers\Api\V1\Admin\AdminReviewController;
 use App\Http\Controllers\Api\V1\Admin\AdminPaymentController;
+use App\Http\Controllers\Api\V1\Admin\AdminPayoutController;
 use App\Http\Controllers\Api\V1\Admin\AdminMessageController;
 use App\Http\Controllers\Api\V1\Admin\AdminNotificationController;
 use App\Http\Controllers\Api\V1\Admin\AdminSubscriptionController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\Api\V1\ListingController;
 use App\Http\Controllers\Api\V1\BookingController;
 use App\Http\Controllers\Api\V1\ReviewController;
 use App\Http\Controllers\Api\V1\PaymentController;
+use App\Http\Controllers\Api\V1\PayoutController;
 use App\Http\Controllers\Api\V1\MessageController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\SubscriptionController;
@@ -242,14 +244,15 @@ Route::prefix('v1')->group(function () {
             Route::post('/{id}/confirm', [PaymentController::class, 'confirmPayment']);
             Route::post('/{id}/refund', [PaymentController::class, 'requestRefund']);
             Route::post('/', [PaymentController::class, 'store']);
-            
-            // Payouts
-            Route::get('/payouts/balance', [PaymentController::class, 'getBalance']);
-            Route::get('/payouts/history', [PaymentController::class, 'payoutHistory']);
-            Route::post('/payouts/request', [PaymentController::class, 'requestPayout']);
-            
-            // Transactions
-            Route::get('/transactions/history', [PaymentController::class, 'transactionHistory']);
+        });
+
+        // Payouts (Provider Withdrawals) - 5 endpoints
+        Route::prefix('payouts')->group(function () {
+            Route::get('/balance', [PayoutController::class, 'getBalance']);
+            Route::get('/', [PayoutController::class, 'myPayouts']);
+            Route::get('/{id}', [PayoutController::class, 'show']);
+            Route::post('/request', [PayoutController::class, 'requestPayout']);
+            Route::post('/{id}/cancel', [PayoutController::class, 'cancel']);
         });
 
         // Transactions (1 endpoint)
@@ -473,21 +476,19 @@ Route::prefix('v1')->group(function () {
                 Route::get('/{id}', [AdminPaymentController::class, 'show']);
                 Route::post('/{id}/refund', [AdminPaymentController::class, 'refund']);
                 Route::post('/{id}/process-refund', [AdminPaymentController::class, 'processRefund']);
-                
-                // Payouts
-                Route::get('/payouts/pending', [AdminPaymentController::class, 'pendingPayouts']);
-                Route::get('/payouts/{id}', [AdminPaymentController::class, 'showPayout']);
-                Route::put('/payouts/{id}/approve', [AdminPaymentController::class, 'approvePayout']);
-                Route::put('/payouts/{id}/reject', [AdminPaymentController::class, 'rejectPayout']);
-                
-                // Statistics
-                Route::get('/statistics/overview', [AdminPaymentController::class, 'statistics']);
             });
 
-            // Payout Management (2 endpoints)
+            // ================================================
+            // ADMIN PAYOUT MANAGEMENT (8 endpoints)
+            // ================================================
+            
             Route::prefix('payouts')->group(function () {
-                Route::get('/', [AdminPaymentController::class, 'payouts']);
-                Route::post('/{id}/process', [AdminPaymentController::class, 'processPayout']);
+                Route::get('/', [AdminPayoutController::class, 'index']);
+                Route::get('/statistics', [AdminPayoutController::class, 'statistics']);
+                Route::get('/{id}', [AdminPayoutController::class, 'show']);
+                Route::post('/{id}/approve', [AdminPayoutController::class, 'approvePayout']);
+                Route::post('/{id}/reject', [AdminPayoutController::class, 'rejectPayout']);
+                Route::post('/bulk-approve', [AdminPayoutController::class, 'bulkApprove']);
             });
 
             // Transaction Management (1 endpoint)

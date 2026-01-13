@@ -445,5 +445,12 @@ public function reviews()
     return $this->hasMany(\App\Models\Review::class, 'provider_id');
 }
 
+/**
+ * Payouts for providers
+ */
+public function payouts()
+{
+    return $this->hasMany(\App\Models\Payout::class, 'provider_id');
+}
 
 }
