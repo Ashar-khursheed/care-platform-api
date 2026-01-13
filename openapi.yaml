@@ -1,0 +1,1931 @@
+openapi: 3.0.3
+info:
+  title: Care Platform API
+  description: |
+    Complete API documentation for the Care Platform - an Upwork-style marketplace connecting clients with care providers.
+    
+    ## Features
+    - Authentication & Authorization
+    - User Profile Management
+    - Service Listings
+    - Booking System
+    - Payment & Payout System
+    - Reviews & Ratings
+    - Messaging System
+    - Notifications
+    - Document Verification
+    - Admin Dashboard
+    
+    ## Authentication
+    All authenticated endpoints require a Bearer token in the Authorization header:
+    ```
+    Authorization: Bearer {your_token}
+    ```
+    
+    Get your token by calling the `/api/v1/auth/login` endpoint.
+  version: 1.0.0
+  contact:
+    name: Care Platform API Support
+    email: support@careplatform.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local Development Server
+  - url: https://api.careplatform.com/api/v1
+    description: Production Server
+
+tags:
+  - name: Authentication
+    description: User registration, login, and password management
+  - name: Profile
+    description: User profile management and document upload
+  - name: Listings
+    description: Service listings creation and management
+  - name: Bookings
+    description: Service booking and scheduling
+  - name: Payments
+    description: Payment processing with Stripe
+  - name: Payouts
+    description: Provider withdrawal and payout management
+  - name: Reviews
+    description: Review and rating system
+  - name: Messages
+    description: In-app messaging system
+  - name: Notifications
+    description: User notification management
+  - name: Categories
+    description: Service categories
+  - name: Admin - Users
+    description: Admin user management
+  - name: Admin - Listings
+    description: Admin listing approval
+  - name: Admin - Bookings
+    description: Admin booking management
+  - name: Admin - Payments
+    description: Admin payment management
+  - name: Admin - Payouts
+    description: Admin payout approval
+  - name: Admin - Documents
+    description: Admin document verification
+  - name: Admin - Notifications
+    description: Admin notification management
+  - name: Admin - Analytics
+    description: Admin analytics and reports
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Enter your Bearer token
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Error message"
+        errors:
+          type: object
+
+    Success:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operation successful"
+
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 100
+        per_page:
+          type: integer
+          example: 10
+        current_page:
+          type: integer
+          example: 1
+        last_page:
+          type: integer
+          example: 10
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        first_name:
+          type: string
+          example: "John"
+        last_name:
+          type: string
+          example: "Doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        phone:
+          type: string
+          example: "+1234567890"
+        user_type:
+          type: string
+          enum: [client, provider, admin]
+          example: "provider"
+        profile_photo:
+          type: string
+          nullable: true
+          example: "profiles/user_1.jpg"
+        bio:
+          type: string
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        state:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        is_verified:
+          type: boolean
+          example: true
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+          example: "active"
+
+    Listing:
+      type: object
+      properties:
+        id:
+          type: integer
+        provider_id:
+          type: integer
+        category_id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        hourly_rate:
+          type: number
+          format: float
+        years_of_experience:
+          type: integer
+        skills:
+          type: array
+          items:
+            type: string
+        languages:
+          type: array
+          items:
+            type: string
+        is_available:
+          type: boolean
+        status:
+          type: string
+          enum: [pending, active, rejected, inactive]
+
+    Booking:
+      type: object
+      properties:
+        id:
+          type: integer
+        client_id:
+          type: integer
+        provider_id:
+          type: integer
+        listing_id:
+          type: integer
+        booking_date:
+          type: string
+          format: date
+        start_time:
+          type: string
+          format: time
+        end_time:
+          type: string
+          format: time
+        hours:
+          type: number
+          format: float
+        total_amount:
+          type: number
+          format: float
+        status:
+          type: string
+          enum: [pending, accepted, rejected, cancelled, completed]
+        payment_status:
+          type: string
+          enum: [unpaid, paid, refunded]
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+        booking_id:
+          type: integer
+        client_id:
+          type: integer
+        provider_id:
+          type: integer
+        amount:
+          type: number
+          format: float
+        platform_fee:
+          type: number
+          format: float
+        provider_amount:
+          type: number
+          format: float
+        currency:
+          type: string
+          example: "USD"
+        status:
+          type: string
+          enum: [pending, succeeded, failed, refunded]
+        paid_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    Payout:
+      type: object
+      properties:
+        id:
+          type: integer
+        provider_id:
+          type: integer
+        amount:
+          type: number
+          format: float
+        currency:
+          type: string
+          example: "USD"
+        status:
+          type: string
+          enum: [pending, paid, rejected, cancelled]
+        bank_name:
+          type: string
+          nullable: true
+        account_number_last4:
+          type: string
+          nullable: true
+        scheduled_at:
+          type: string
+          format: date-time
+        paid_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          example: "booking_accepted"
+        title:
+          type: string
+        message:
+          type: string
+        is_read:
+          type: boolean
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        created_at:
+          type: string
+          format: date-time
+
+    Document:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        document_type:
+          type: string
+          enum: [identity_proof, address_proof, certification, background_check, insurance, other]
+        document_name:
+          type: string
+        verification_status:
+          type: string
+          enum: [pending, approved, rejected]
+        rejection_reason:
+          type: string
+          nullable: true
+        uploaded_at:
+          type: string
+          format: date-time
+
+paths:
+  # =====================
+  # AUTHENTICATION
+  # =====================
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register new user
+      description: Create a new user account (client or provider)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - first_name
+                - last_name
+                - email
+                - password
+                - user_type
+              properties:
+                first_name:
+                  type: string
+                  example: "John"
+                last_name:
+                  type: string
+                  example: "Doe"
+                email:
+                  type: string
+                  format: email
+                  example: "john@example.com"
+                phone:
+                  type: string
+                  example: "+1234567890"
+                password:
+                  type: string
+                  format: password
+                  example: "Password123!"
+                password_confirmation:
+                  type: string
+                  format: password
+                  example: "Password123!"
+                user_type:
+                  type: string
+                  enum: [client, provider]
+                  example: "provider"
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Registration successful"
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                      token:
+                        type: string
+                        example: "1|abc123def456..."
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate user and get access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "john@example.com"
+                password:
+                  type: string
+                  format: password
+                  example: "Password123!"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Login successful"
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                      token:
+                        type: string
+                        example: "2|xyz789abc123..."
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout
+      description: Revoke current access token
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+
+  /auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: Get current user
+      description: Get authenticated user details
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User details retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/User'
+
+  /auth/forgot-password:
+    post:
+      tags:
+        - Authentication
+      summary: Request password reset
+      description: Send password reset link to email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "john@example.com"
+      responses:
+        '200':
+          description: Reset link sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+
+  # =====================
+  # PROFILE
+  # =====================
+  /profile:
+    get:
+      tags:
+        - Profile
+      summary: Get user profile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Profile retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/User'
+
+    put:
+      tags:
+        - Profile
+      summary: Update profile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                phone:
+                  type: string
+                bio:
+                  type: string
+                address:
+                  type: string
+                city:
+                  type: string
+                state:
+                  type: string
+                country:
+                  type: string
+                zip_code:
+                  type: string
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Profile updated successfully"
+                  data:
+                    $ref: '#/components/schemas/User'
+
+  /profile/photo:
+    post:
+      tags:
+        - Profile
+      summary: Upload profile photo
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - photo
+              properties:
+                photo:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Photo uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      profile_photo:
+                        type: string
+                        example: "https://example.com/storage/profiles/user_1.jpg"
+
+  /profile/documents:
+    get:
+      tags:
+        - Profile
+      summary: Get verification documents
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Documents retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Document'
+
+    post:
+      tags:
+        - Profile
+      summary: Upload verification document
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - document
+                - document_type
+                - document_name
+              properties:
+                document:
+                  type: string
+                  format: binary
+                document_type:
+                  type: string
+                  enum: [identity_proof, address_proof, certification, background_check, insurance, other]
+                document_name:
+                  type: string
+                  example: "Driver License"
+      responses:
+        '201':
+          description: Document uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Document'
+
+  # =====================
+  # LISTINGS
+  # =====================
+  /listings:
+    get:
+      tags:
+        - Listings
+      summary: Browse all listings
+      description: Get all active service listings with filters
+      parameters:
+        - name: category_id
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: min_price
+          in: query
+          schema:
+            type: number
+        - name: max_price
+          in: query
+          schema:
+            type: number
+        - name: min_rating
+          in: query
+          schema:
+            type: number
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [created_at, rating, price_low, price_high]
+        - name: user_type
+          in: query
+          description: Filter by user type (provider shows own listings, client shows all)
+          schema:
+            type: string
+            enum: [provider, client]
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 12
+      responses:
+        '200':
+          description: Listings retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      listings:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Listing'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+
+    post:
+      tags:
+        - Listings
+      summary: Create new listing
+      description: Create a new service listing (providers only)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - category_id
+                - title
+                - description
+                - hourly_rate
+              properties:
+                category_id:
+                  type: integer
+                title:
+                  type: string
+                  example: "Professional Childcare Services"
+                description:
+                  type: string
+                hourly_rate:
+                  type: number
+                  format: float
+                  example: 25.00
+                years_of_experience:
+                  type: integer
+                  example: 5
+                skills:
+                  type: array
+                  items:
+                    type: string
+                  example: ["First Aid", "CPR Certified"]
+                languages:
+                  type: array
+                  items:
+                    type: string
+                  example: ["English", "Spanish"]
+                certifications:
+                  type: array
+                  items:
+                    type: string
+                availability:
+                  type: object
+                service_location:
+                  type: string
+                is_available:
+                  type: boolean
+                  default: true
+      responses:
+        '201':
+          description: Listing created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Listing created successfully. Pending admin approval."
+                  data:
+                    $ref: '#/components/schemas/Listing'
+
+  /listings/{id}:
+    get:
+      tags:
+        - Listings
+      summary: Get listing details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Listing details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Listing'
+
+    put:
+      tags:
+        - Listings
+      summary: Update listing
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                hourly_rate:
+                  type: number
+                skills:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Listing updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Listing'
+
+    delete:
+      tags:
+        - Listings
+      summary: Delete listing
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Listing deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+
+  /listings/my:
+    get:
+      tags:
+        - Listings
+      summary: Get my listings
+      description: Get provider's own listings
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, active, rejected]
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: My listings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      listings:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Listing'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+
+  # =====================
+  # PAYOUTS (Provider Withdrawals)
+  # =====================
+  /payouts/balance:
+    get:
+      tags:
+        - Payouts
+      summary: Get available balance
+      description: Check provider's available balance for withdrawal
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Balance retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      total_earnings:
+                        type: string
+                        example: "500.00"
+                      total_paid_out:
+                        type: string
+                        example: "200.00"
+                      pending_payouts:
+                        type: string
+                        example: "100.00"
+                      available_balance:
+                        type: string
+                        example: "200.00"
+                      currency:
+                        type: string
+                        example: "USD"
+                      has_stripe_account:
+                        type: boolean
+                        example: false
+
+  /payouts:
+    get:
+      tags:
+        - Payouts
+      summary: Get payout history
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, paid, rejected, cancelled]
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Payout history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      payouts:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Payout'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+
+  /payouts/request:
+    post:
+      tags:
+        - Payouts
+      summary: Request payout/withdrawal
+      description: Provider requests to withdraw earnings
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+              properties:
+                amount:
+                  type: number
+                  format: float
+                  minimum: 10
+                  example: 150.00
+                  description: Minimum $10
+                bank_account_details:
+                  type: object
+                  properties:
+                    bank_name:
+                      type: string
+                      example: "Chase Bank"
+                    account_number:
+                      type: string
+                      example: "1234567890"
+                    routing_number:
+                      type: string
+                      example: "021000021"
+      responses:
+        '201':
+          description: Payout requested
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Payout request submitted successfully. It will be processed by admin."
+                  data:
+                    type: object
+                    properties:
+                      payout_id:
+                        type: integer
+                        example: 45
+                      amount:
+                        type: string
+                        example: "150.00"
+                      status:
+                        type: string
+                        example: "pending"
+                      scheduled_at:
+                        type: string
+                        format: date-time
+        '400':
+          description: Insufficient balance
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Insufficient balance. Available: $100.00"
+
+  /payouts/{id}:
+    get:
+      tags:
+        - Payouts
+      summary: Get payout details
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Payout details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Payout'
+
+  /payouts/{id}/cancel:
+    post:
+      tags:
+        - Payouts
+      summary: Cancel pending payout
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Payout cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+
+  # =====================
+  # NOTIFICATIONS
+  # =====================
+  /notifications:
+    get:
+      tags:
+        - Notifications
+      summary: Get all notifications
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: is_read
+          in: query
+          schema:
+            type: boolean
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, urgent]
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Notifications retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      notifications:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Notification'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+
+    delete:
+      tags:
+        - Notifications
+      summary: Delete all notifications
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: All notifications deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+
+  /notifications/unread-count:
+    get:
+      tags:
+        - Notifications
+      summary: Get unread count
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Unread count
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      unread_count:
+                        type: integer
+                        example: 5
+
+  /notifications/read-all:
+    put:
+      tags:
+        - Notifications
+      summary: Mark all as read
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: All marked as read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+
+  /notifications/{id}/read:
+    put:
+      tags:
+        - Notifications
+      summary: Mark notification as read
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Marked as read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+
+  /notifications/preferences:
+    get:
+      tags:
+        - Notifications
+      summary: Get notification preferences
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Preferences retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      email_notifications:
+                        type: boolean
+                        example: true
+                      push_notifications:
+                        type: boolean
+                        example: true
+                      sms_notifications:
+                        type: boolean
+                        example: false
+                      notification_types:
+                        type: object
+                        properties:
+                          booking_updates:
+                            type: boolean
+                            example: true
+                          payment_updates:
+                            type: boolean
+                            example: true
+                          promotional:
+                            type: boolean
+                            example: false
+
+    put:
+      tags:
+        - Notifications
+      summary: Update notification preferences
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email_notifications:
+                  type: boolean
+                push_notifications:
+                  type: boolean
+                sms_notifications:
+                  type: boolean
+                notification_types:
+                  type: object
+      responses:
+        '200':
+          description: Preferences updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+
+  # =====================
+  # ADMIN - PAYOUTS
+  # =====================
+  /admin/payouts:
+    get:
+      tags:
+        - Admin - Payouts
+      summary: Get all payout requests
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, paid, rejected]
+        - name: provider_id
+          in: query
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Payout requests retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      payouts:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/Payout'
+                            - type: object
+                              properties:
+                                provider:
+                                  type: object
+                                  properties:
+                                    id:
+                                      type: integer
+                                    first_name:
+                                      type: string
+                                    last_name:
+                                      type: string
+                                    email:
+                                      type: string
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+
+  /admin/payouts/statistics:
+    get:
+      tags:
+        - Admin - Payouts
+      summary: Get payout statistics
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Statistics retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      total_payouts:
+                        type: integer
+                        example: 150
+                      pending_payouts:
+                        type: integer
+                        example: 12
+                      pending_amount:
+                        type: number
+                        example: 2400.50
+                      paid_payouts:
+                        type: integer
+                        example: 135
+                      paid_amount:
+                        type: number
+                        example: 45600.00
+
+  /admin/payouts/{id}/approve:
+    post:
+      tags:
+        - Admin - Payouts
+      summary: Approve payout and release payment
+      description: |
+        Approve a payout request after manually transferring money to provider's bank account.
+        This marks the payout as paid and creates transaction record.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transaction_reference:
+                  type: string
+                  example: "BANK_TRANSFER_20250111_001"
+                  description: Your bank transfer reference number
+                notes:
+                  type: string
+                  example: "Payment processed via bank transfer on 2025-01-11"
+      responses:
+        '200':
+          description: Payout approved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Payout approved and processed successfully"
+                  data:
+                    $ref: '#/components/schemas/Payout'
+
+  /admin/payouts/{id}/reject:
+    post:
+      tags:
+        - Admin - Payouts
+      summary: Reject payout request
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reason
+              properties:
+                reason:
+                  type: string
+                  example: "Bank account information is incomplete"
+                  maxLength: 500
+      responses:
+        '200':
+          description: Payout rejected
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Payout request rejected"
+
+  /admin/payouts/bulk-approve:
+    post:
+      tags:
+        - Admin - Payouts
+      summary: Bulk approve multiple payouts
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - payout_ids
+              properties:
+                payout_ids:
+                  type: array
+                  items:
+                    type: integer
+                  example: [1, 2, 3, 4]
+                transaction_reference:
+                  type: string
+                  example: "BATCH_TRANSFER_20250111"
+      responses:
+        '200':
+          description: Payouts approved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "4 payouts approved successfully"
+                  data:
+                    type: object
+                    properties:
+                      approved_count:
+                        type: integer
+                        example: 4
+
+  # =====================
+  # ADMIN - DOCUMENTS
+  # =====================
+  /admin/documents/pending:
+    get:
+      tags:
+        - Admin - Documents
+      summary: Get pending documents
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: document_type
+          in: query
+          schema:
+            type: string
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 15
+      responses:
+        '200':
+          description: Pending documents
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      documents:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/Document'
+                            - type: object
+                              properties:
+                                user:
+                                  type: object
+                                  properties:
+                                    id:
+                                      type: integer
+                                    name:
+                                      type: string
+                                    email:
+                                      type: string
+                                    user_type:
+                                      type: string
+
+  /admin/documents/{id}/approve:
+    post:
+      tags:
+        - Admin - Documents
+      summary: Approve document
+      description: |
+        Approve a verification document. System automatically checks if user meets all verification requirements.
+        If requirements are met, user status is updated to verified.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Document approved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Document approved successfully"
+                  data:
+                    $ref: '#/components/schemas/Document'
+
+  /admin/documents/{id}/reject:
+    post:
+      tags:
+        - Admin - Documents
+      summary: Reject document
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reason
+              properties:
+                reason:
+                  type: string
+                  example: "Document is blurry and unreadable. Please upload a clearer image."
+                  maxLength: 500
+      responses:
+        '200':
+          description: Document rejected
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Document rejected"
+
+  /admin/documents/{id}/download:
+    get:
+      tags:
+        - Admin - Documents
+      summary: Download document file
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Document file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+
+  # =====================
+  # ADMIN - NOTIFICATIONS
+  # =====================
+  /admin/notifications/announcement:
+    post:
+      tags:
+        - Admin - Notifications
+      summary: Send announcement to all users
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - message
+              properties:
+                title:
+                  type: string
+                  example: "Platform Maintenance"
+                  maxLength: 255
+                message:
+                  type: string
+                  example: "Scheduled maintenance on Sunday 2AM-4AM EST"
+                  maxLength: 1000
+                user_type:
+                  type: string
+                  enum: [client, provider, admin]
+                  description: Send to specific user type, or omit for all users
+                priority:
+                  type: string
+                  enum: [low, medium, high, urgent]
+                  default: medium
+      responses:
+        '200':
+          description: Announcement sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Announcement sent successfully."
+
+  /admin/notifications/send-to-users:
+    post:
+      tags:
+        - Admin - Notifications
+      summary: Send notification to specific users
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_ids
+                - type
+                - title
+                - message
+              properties:
+                user_ids:
+                  type: array
+                  items:
+                    type: integer
+                  example: [1, 2, 3, 5, 8]
+                type:
+                  type: string
+                  example: "system_announcement"
+                title:
+                  type: string
+                  example: "Important Update"
+                message:
+                  type: string
+                  example: "Your account verification is complete"
+                priority:
+                  type: string
+                  enum: [low, medium, high, urgent]
+                  default: medium
+      responses:
+        '200':
+          description: Notifications sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Notifications sent to 5 users."
+
+  /admin/notifications/statistics:
+    get:
+      tags:
+        - Admin - Notifications
+      summary: Get notification statistics
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Statistics retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      overview:
+                        type: object
+                        properties:
+                          total_notifications:
+                            type: integer
+                            example: 5420
+                          unread_notifications:
+                            type: integer
+                            example: 1230
+                          read_rate:
+                            type: string
+                            example: "77.31%"
+                      by_type:
+                        type: object
+                        additionalProperties:
+                          type: integer
+                      by_priority:
+                        type: object
+                        additionalProperties:
+                          type: integer
+                      delivery:
+                        type: object
+                        properties:
+                          emails_sent:
+                            type: integer
+                          pushes_sent:
+                            type: integer
+                          sms_sent:
+                            type: integer
+
+security:
+  - BearerAuth: []

@@ -53,6 +53,20 @@ class ListingController extends Controller
         $query = ServiceListing::with(['category', 'provider'])
             ->active();
 
+        // Filter by user type (provider/client view)
+        // If user_type=provider is passed, show only provider's own listings (requires auth)
+        // If user_type=client is passed, show all available listings (default)
+        if ($request->has('user_type') && $request->user_type === 'provider') {
+            // Provider view - requires authentication
+            if ($request->user()) {
+                $query->where('provider_id', $request->user()->id);
+            } else {
+                // No auth provided - return empty for security
+                $query->whereRaw('1 = 0'); // Returns empty result
+            }
+        }
+        // For user_type=client or no user_type, show all active listings (default)
+
         // Filter by category
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);
