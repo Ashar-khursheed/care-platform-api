@@ -9,7 +9,6 @@ use App\Http\Resources\ListingResource;
 use App\Models\ServiceListing;
 use Illuminate\Http\Request;
 
-// Swagger annotations added
 class ListingController extends Controller
 {
     /**
