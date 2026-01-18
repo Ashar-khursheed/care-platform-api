@@ -12,6 +12,7 @@ use App\Services\ImageUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+// Swagger annotations added
 class ProfileController extends Controller
 {
     protected $imageUploadService;
