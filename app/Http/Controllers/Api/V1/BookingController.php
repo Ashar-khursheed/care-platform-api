@@ -13,9 +13,26 @@ use Carbon\Carbon;
 
 class BookingController extends Controller
 {
-    /**
-     * Get bookings for authenticated user (client or provider)
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/bookings",
+ *         summary="Get user bookings",
+ *         tags={"Bookings"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function index(Request $request)
     {
         $user = $request->user();
@@ -67,9 +84,33 @@ class BookingController extends Controller
         ], 200);
     }
 
-    /**
-     * Get specific booking
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/bookings/{id}",
+ *         summary="Get booking details",
+ *         tags={"Bookings"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function show(Request $request, $id)
     {
         $user = $request->user();
@@ -96,9 +137,26 @@ class BookingController extends Controller
         ], 200);
     }
 
-    /**
-     * Create new booking (Client only)
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/bookings",
+ *         summary="Create new booking",
+ *         tags={"Bookings"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
    public function store(Request $request)
 {
     try {
@@ -199,9 +257,33 @@ $hours = $end->diffInMinutes($start) / 60;
 }
 
 
-    /**
-     * Accept booking (Provider only)
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/provider/bookings/{id}/accept",
+ *         summary="Accept booking",
+ *         tags={"Bookings"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function accept(Request $request, $id)
     {
         $booking = Booking::find($id);
@@ -253,9 +335,33 @@ $hours = $end->diffInMinutes($start) / 60;
         }
     }
 
-    /**
-     * Reject booking (Provider only)
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/provider/bookings/{id}/reject",
+ *         summary="Reject booking",
+ *         tags={"Bookings"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function reject(Request $request, $id)
     {
         $request->validate([
@@ -312,9 +418,33 @@ $hours = $end->diffInMinutes($start) / 60;
         }
     }
 
-    /**
-     * Cancel booking (Client or Provider)
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/bookings/{id}/cancel",
+ *         summary="Cancel booking",
+ *         tags={"Bookings"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function cancel(Request $request, $id)
     {
         $request->validate([

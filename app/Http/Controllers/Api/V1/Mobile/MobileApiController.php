@@ -20,9 +20,16 @@ class MobileApiController extends Controller
         $this->optimizer = $optimizer;
     }
 
-    /**
-     * Get home screen data (cached, optimized)
-     */
+        /**
+         * @OA\Get(
+         *     path="/v1/mobile/home",
+         *     operationId="mobileGethomedata",
+         *     tags={"Mobile"},
+         *     summary="Get home data",
+         *     @OA\Response(response=200, description="Success"),
+         *     @OA\Response(response=404, description="Not found")
+         * )
+         */
     public function getHomeData(Request $request)
     {
         $cacheKey = 'mobile_home_data_' . $request->user()->id;

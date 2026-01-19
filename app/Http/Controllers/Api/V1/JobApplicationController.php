@@ -8,9 +8,25 @@ use Illuminate\Support\Facades\Storage;
 
 class JobApplicationController extends Controller
 {
-    /**
-     * GET: List all applications
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/job-applications",
+ *         summary="Get all job applications",
+ *         tags={"Job Applications"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function index()
     {
         $applications = JobApplication::latest()->paginate(20);
@@ -21,9 +37,25 @@ class JobApplicationController extends Controller
         ]);
     }
 
-    /**
-     * POST: Store new application
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/job-applications",
+ *         summary="Submit job application",
+ *         tags={"Job Applications"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function store(Request $request)
     {
         $request->validate([

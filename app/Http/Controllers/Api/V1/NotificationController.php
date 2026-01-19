@@ -10,9 +10,26 @@ use Illuminate\Support\Facades\DB;
 
 class NotificationController extends Controller
 {
-    /**
-     * Get user's notifications
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/notifications",
+ *         summary="Get user notifications",
+ *         tags={"Notifications"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function index(Request $request)
     {
         $user = $request->user();
@@ -123,9 +140,33 @@ class NotificationController extends Controller
         ]);
     }
 
-    /**
-     * Mark notification as read
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/notifications/{id}/read",
+ *         summary="Mark notification as read",
+ *         tags={"Notifications"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function markAsRead(Request $request, $id)
     {
         $user = $request->user();
@@ -175,9 +216,26 @@ class NotificationController extends Controller
         ]);
     }
 
-    /**
-     * Mark all notifications as read
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/notifications/read-all",
+ *         summary="Mark all as read",
+ *         tags={"Notifications"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function markAllAsRead(Request $request)
     {
         $user = $request->user();
@@ -195,9 +253,33 @@ class NotificationController extends Controller
         ]);
     }
 
-    /**
-     * Delete a notification
-     */
+        /**
+ *     @OA\Delete(
+ *         path="/api/v1/notifications/{id}",
+ *         summary="Delete notification",
+ *         tags={"Notifications"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function destroy(Request $request, $id)
     {
         $user = $request->user();

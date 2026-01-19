@@ -11,6 +11,33 @@ use Illuminate\Support\Str;
 
 class AdminAnnouncementController extends Controller
 {
+            /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/cms/announcements/{id}",
+ *         summary="Get announcement details",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function index()
     {
         $announcements = AnnouncementBar::orderBy('priority', 'desc')
@@ -41,6 +68,26 @@ class AdminAnnouncementController extends Controller
 }
 
 
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/admin/cms/announcements",
+ *         summary="Create announcement",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function store(Request $request)
     {
         $request->validate([
@@ -65,6 +112,33 @@ class AdminAnnouncementController extends Controller
         ], 201);
     }
 
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/admin/cms/announcements/{id}",
+ *         summary="Update announcement",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function update(Request $request, $id)
     {
         $announcement = AnnouncementBar::findOrFail($id);
@@ -92,6 +166,33 @@ class AdminAnnouncementController extends Controller
         ]);
     }
 
+        /**
+ *     @OA\Delete(
+ *         path="/api/v1/admin/cms/announcements/{id}",
+ *         summary="Delete announcement",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function destroy($id)
     {
         $announcement = AnnouncementBar::findOrFail($id);
@@ -103,6 +204,26 @@ class AdminAnnouncementController extends Controller
         ]);
     }
 
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/cms/announcements/current",
+ *         summary="Get current announcement",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function getCurrent()
     {
         $announcement = AnnouncementBar::getCurrent();

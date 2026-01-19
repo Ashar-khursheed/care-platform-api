@@ -12,9 +12,18 @@ use Illuminate\Support\Facades\Storage;
 
 class AdminDocumentController extends Controller
 {
-    /**
-     * Get all pending documents
-     */
+        /**
+         * @OA\Get(
+         *     path="/v1/admin/documents/pending",
+         *     operationId="admindocumentsGetpendingdocuments",
+         *     tags={"Admin - Documents"},
+         *     summary="Get pending",
+         *     security={{"bearerAuth":{}}},
+         *     @OA\Response(response=200, description="Success"),
+         *     @OA\Response(response=401, description="Unauthorized"),
+         *     @OA\Response(response=404, description="Not found")
+         * )
+         */
     public function getPendingDocuments(Request $request)
     {
         $query = ProfileDocument::with('user')
@@ -192,9 +201,33 @@ class AdminDocumentController extends Controller
         return Storage::disk('local')->download($filePath, $document->document_name);
     }
 
-    /**
-     * Approve document
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/admin/documents/{id}/approve",
+ *         summary="Approve document",
+ *         tags={""},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function approve(Request $request, $id)
     {
         $document = ProfileDocument::find($id);
@@ -234,9 +267,33 @@ class AdminDocumentController extends Controller
         }
     }
 
-    /**
-     * Reject document
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/admin/documents/{id}/reject",
+ *         summary="Reject document",
+ *         tags={""},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function reject(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -285,9 +342,33 @@ class AdminDocumentController extends Controller
         }
     }
 
-    /**
-     * Delete document
-     */
+        /**
+ *     @OA\Delete(
+ *         path="/api/v1/admin/documents/{id}",
+ *         summary="Delete document",
+ *         tags={""},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function destroy($id)
     {
         $document = ProfileDocument::find($id);

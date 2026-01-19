@@ -12,9 +12,25 @@ use Illuminate\Http\Request;
 
 class CmsController extends Controller
 {
-    /**
-     * Get all active sliders
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/cms/sliders",
+ *         summary="Get homepage sliders",
+ *         tags={"CMS"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function getSliders()
     {
         $sliders = Slider::active()->ordered()->get();
@@ -25,9 +41,25 @@ class CmsController extends Controller
         ]);
     }
 
-    /**
-     * Get current announcement bar
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/cms/announcement",
+ *         summary="Get announcement bar",
+ *         tags={"CMS"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function getAnnouncement()
     {
         $announcement = AnnouncementBar::getCurrent();
@@ -38,9 +70,25 @@ class CmsController extends Controller
         ]);
     }
 
-    /**
-     * Get site settings
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/cms/settings",
+ *         summary="Get site settings",
+ *         tags={"CMS"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function getSettings()
     {
         $settings = [
@@ -57,9 +105,25 @@ class CmsController extends Controller
         ]);
     }
 
-    /**
-     * Get header configuration
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/cms/header",
+ *         summary="Get header configuration",
+ *         tags={"CMS"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function getHeader()
     {
         $header = [
@@ -81,9 +145,25 @@ class CmsController extends Controller
         ]);
     }
 
-    /**
-     * Get footer configuration
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/cms/footer",
+ *         summary="Get footer configuration",
+ *         tags={"CMS"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function getFooter()
     {
         $footer = [
@@ -110,9 +190,32 @@ class CmsController extends Controller
         ]);
     }
 
-    /**
-     * Get page by slug
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/cms/pages/{slug}",
+ *         summary="Get page by slug",
+ *         tags={"CMS"},
+ *     @OA\Parameter(
+ *         name="slug",
+ *         in="path",
+ *         required=true,
+ *         description="The slug of the resource",
+ *         @OA\Schema(type="string")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function getPage($slug)
     {
         try {
@@ -149,9 +252,25 @@ class CmsController extends Controller
         }
     }
 
-    /**
-     * Get all published pages
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/cms/pages",
+ *         summary="Get all pages",
+ *         tags={"CMS"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function getPages()
     {
         $pages = Page::published()
@@ -165,9 +284,25 @@ class CmsController extends Controller
         ]);
     }
 
-    /**
-     * Get menu pages
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/cms/pages/menu",
+ *         summary="Get menu pages",
+ *         tags={"CMS"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function getMenuPages()
     {
         $pages = Page::published()
@@ -181,9 +316,32 @@ class CmsController extends Controller
         ]);
     }
 
-    /**
-     * Get SEO settings for page type
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/cms/seo/{pageType}",
+ *         summary="Get SEO settings",
+ *         tags={"CMS"},
+ *     @OA\Parameter(
+ *         name="pageType",
+ *         in="path",
+ *         required=true,
+ *         description="The pageType of the resource",
+ *         @OA\Schema(type="string")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function getSeo($pageType)
     {
         $seo = SeoSetting::getByPageType($pageType);
@@ -201,9 +359,25 @@ class CmsController extends Controller
         ]);
     }
 
-    /**
-     * Get complete frontend configuration
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/cms/config",
+ *         summary="Get frontend configuration",
+ *         tags={"CMS"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function getFrontendConfig()
     {
         $config = [

@@ -13,9 +13,18 @@ use Illuminate\Validation\Rules\Password;
 
 class AdminUserController extends Controller
 {
-    /**
-     * Get dashboard statistics
-     */
+        /**
+         * @OA\Get(
+         *     path="/v1/admin/dashboard",
+         *     operationId="adminusersDashboard",
+         *     tags={"Admin - Users"},
+         *     summary="Dashboard",
+         *     security={{"bearerAuth":{}}},
+         *     @OA\Response(response=200, description="Success"),
+         *     @OA\Response(response=401, description="Unauthorized"),
+         *     @OA\Response(response=404, description="Not found")
+         * )
+         */
     public function dashboard()
     {
         $stats = [
@@ -45,9 +54,26 @@ class AdminUserController extends Controller
         ], 200);
     }
 
-    /**
-     * Get all users with filters and pagination
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/users",
+ *         summary="Get all users",
+ *         tags={""},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function index(Request $request)
     {
         $query = User::query();
@@ -102,9 +128,33 @@ class AdminUserController extends Controller
         ], 200);
     }
 
-    /**
-     * Get specific user details
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/users/{id}",
+ *         summary="Get user details",
+ *         tags={""},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function show($id)
     {
         $user = User::find($id);
@@ -128,9 +178,33 @@ class AdminUserController extends Controller
         ], 200);
     }
 
-    /**
-     * Update user information
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/admin/users/{id}",
+ *         summary="Update user",
+ *         tags={""},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function update(Request $request, $id)
     {
         $user = User::find($id);
@@ -305,9 +379,33 @@ class AdminUserController extends Controller
         }
     }
 
-    /**
-     * Delete user (soft delete)
-     */
+        /**
+ *     @OA\Delete(
+ *         path="/api/v1/admin/users/{id}",
+ *         summary="Delete user",
+ *         tags={""},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function destroy($id)
     {
         $user = User::find($id);

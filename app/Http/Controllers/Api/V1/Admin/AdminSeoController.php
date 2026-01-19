@@ -13,6 +13,33 @@ use Illuminate\Support\Str;
 
 class AdminSeoController extends Controller
 {
+            /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/cms/seo/{pageType}",
+ *         summary="Get SEO by page type",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="pageType",
+ *         in="path",
+ *         required=true,
+ *         description="The pageType of the resource",
+ *         @OA\Schema(type="string")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function index()
     {
         $settings = SeoSetting::all();
@@ -33,6 +60,33 @@ class AdminSeoController extends Controller
         ]);
     }
 
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/admin/cms/seo/{pageType}",
+ *         summary="Update SEO settings",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="pageType",
+ *         in="path",
+ *         required=true,
+ *         description="The pageType of the resource",
+ *         @OA\Schema(type="string")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function update(Request $request, $pageType)
     {
         $request->validate([
@@ -58,6 +112,26 @@ class AdminSeoController extends Controller
         ]);
     }
 
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/admin/cms/seo/clear-cache",
+ *         summary="Clear SEO cache",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function clearCache()
     {
         SeoSetting::clearCache();

@@ -18,9 +18,26 @@ class AdminPaymentController extends Controller
         $this->stripeService = $stripeService;
     }
 
-    /**
-     * Get all payments
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/payments",
+ *         summary="Get all payments",
+ *         tags={"Payments"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function index(Request $request)
     {
         $query = Payment::with(['booking', 'client', 'provider']);
@@ -57,9 +74,33 @@ class AdminPaymentController extends Controller
         return response()->json($payments);
     }
 
-    /**
-     * View payment details
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/payments/{id}",
+ *         summary="Get payment details",
+ *         tags={"Payments"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function show($id)
     {
         $payment = Payment::with(['booking', 'client', 'provider', 'payout', 'transactions'])
@@ -71,9 +112,33 @@ class AdminPaymentController extends Controller
         ]);
     }
 
-    /**
-     * Process refund
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/admin/payments/{id}/refund",
+ *         summary="Process refund",
+ *         tags={"Payments"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function refund(Request $request, $id)
     {
         $request->validate([
@@ -157,9 +222,26 @@ class AdminPaymentController extends Controller
         ]);
     }
 
-    /**
-     * Get all transactions
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/transactions",
+ *         summary="Get transactions",
+ *         tags={""},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function transactions(Request $request)
     {
         $query = Transaction::with(['user', 'payment', 'payout', 'booking']);
@@ -185,9 +267,26 @@ class AdminPaymentController extends Controller
         return response()->json($transactions);
     }
 
-    /**
-     * Get payment statistics
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/payments/statistics",
+ *         summary="Get payment statistics",
+ *         tags={"Payments"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function statistics(Request $request)
     {
         // Date range

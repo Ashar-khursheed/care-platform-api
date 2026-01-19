@@ -9,9 +9,26 @@ use Illuminate\Http\Request;
 
 class AdminListingController extends Controller
 {
-    /**
-     * Get all listings with filters
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/listings",
+ *         summary="Get all listings",
+ *         tags={"Listings"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function index(Request $request)
     {
         $query = ServiceListing::with(['category', 'provider']);
@@ -58,9 +75,33 @@ class AdminListingController extends Controller
         ], 200);
     }
 
-    /**
-     * Show a specific listing
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/listings/{id}",
+ *         summary="Get listing details",
+ *         tags={"Listings"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function show($id)
     {
         $listing = ServiceListing::with(['category', 'provider'])->find($id);
@@ -103,9 +144,33 @@ class AdminListingController extends Controller
         ], 200);
     }
 
-    /**
-     * Approve listing
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/admin/listings/{id}/approve",
+ *         summary="Approve listing",
+ *         tags={"Listings"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function approve($id)
     {
         $listing = ServiceListing::find($id);
@@ -138,9 +203,33 @@ class AdminListingController extends Controller
         }
     }
 
-    /**
-     * Reject listing
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/admin/listings/{id}/reject",
+ *         summary="Reject listing",
+ *         tags={"Listings"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function reject(Request $request, $id)
     {
         $request->validate([
@@ -209,9 +298,33 @@ class AdminListingController extends Controller
         }
     }
 
-    /**
-     * Delete listing permanently
-     */
+        /**
+ *     @OA\Delete(
+ *         path="/api/v1/admin/listings/{id}",
+ *         summary="Delete listing",
+ *         tags={"Listings"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function destroy($id)
     {
         $listing = ServiceListing::find($id);
@@ -240,9 +353,33 @@ class AdminListingController extends Controller
         }
     }
 
-    /**
-     * Feature listing
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/admin/listings/{id}/feature",
+ *         summary="Feature listing",
+ *         tags={"Listings"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function feature(Request $request, $id)
     {
         $request->validate([

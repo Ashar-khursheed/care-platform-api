@@ -15,9 +15,19 @@ class AnalyticsController extends Controller
         $this->analyticsService = $analyticsService;
     }
 
-    /**
-     * Get provider dashboard analytics
-     */
+        /**
+         * @OA\Get(
+         *     path="/v1/analytics/provider/dashboard",
+         *     operationId="analyticsProviderdashboard",
+         *     tags={"Analytics"},
+         *     summary="Get provider dashboard analytics",
+         *     security={{"bearerAuth":{}}},
+         *     @OA\Response(response=200, description="Success"),
+         *     @OA\Response(response=401, description="Unauthorized"),
+         *     @OA\Response(response=404, description="Not found"),
+         *     @OA\Response(response=500, description="Server error")
+         * )
+         */
     public function providerDashboard(Request $request)
     {
         $user = $request->user();

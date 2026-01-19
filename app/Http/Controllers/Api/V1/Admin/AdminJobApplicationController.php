@@ -9,6 +9,26 @@ use Illuminate\Support\Facades\Storage;
 class AdminJobApplicationController extends Controller
 {
    
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/job-applications",
+ *         summary="Get all job applications",
+ *         tags={"Job Applications"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function index(Request $request)
 {
     $query = JobApplication::query();

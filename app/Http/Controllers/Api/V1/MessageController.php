@@ -13,10 +13,26 @@ use Illuminate\Support\Facades\Storage;
 
 class MessageController extends Controller
 {
-    /**
-     * Get all conversations for authenticated user
-     * USED BY: Clients & Providers
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/messages/conversations",
+ *         summary="Get user conversations",
+ *         tags={"Messages"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function conversations(Request $request)
     {
         $user = $request->user();
@@ -130,10 +146,33 @@ class MessageController extends Controller
         ], 201);
     }
 
-    /**
-     * Mark messages as read
-     * USED BY: Clients & Providers
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/messages/{id}/read",
+ *         summary="Mark message as read",
+ *         tags={"Messages"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function markAsRead(Request $request, $conversationId)
     {
         $conversation = Conversation::findOrFail($conversationId);
@@ -259,10 +298,26 @@ class MessageController extends Controller
         ]);
     }
 
-    /**
-     * Get unread message count
-     * USED BY: Clients & Providers
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/messages/unread",
+ *         summary="Get unread count",
+ *         tags={"Messages"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function unreadCount(Request $request)
     {
         $userId = $request->user()->id;

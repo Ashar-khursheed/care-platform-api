@@ -14,9 +14,25 @@ use Illuminate\Http\Request;
 
 class ReviewController extends Controller
 {
-    /**
-     * Get reviews (filterable by provider, listing, rating)
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/reviews",
+ *         summary="Get all reviews",
+ *         tags={"Reviews"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function index(Request $request)
     {
         $query = Review::with(['client', 'provider', 'listing.category', 'booking'])
@@ -48,9 +64,26 @@ class ReviewController extends Controller
         return ReviewResource::collection($reviews);
     }
 
-    /**
-     * Get my reviews (as client or provider)
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/my-reviews",
+ *         summary="Get my reviews",
+ *         tags={"Reviews"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function myReviews(Request $request)
     {
         $user = $request->user();
@@ -76,9 +109,32 @@ class ReviewController extends Controller
         return ReviewResource::collection($reviews);
     }
 
-    /**
-     * View single review
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/reviews/{id}",
+ *         summary="Get review details",
+ *         tags={"Reviews"},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function show(Request $request, $id)
     {
         $review = Review::with(['client', 'provider', 'listing.category', 'booking'])
@@ -87,9 +143,33 @@ class ReviewController extends Controller
         return new ReviewResource($review);
     }
 
-    /**
-     * Create review (clients only)
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/bookings/{id}/review",
+ *         summary="Create review",
+ *         tags={"Bookings"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function store(Request $request)
     {
         // Basic validation
@@ -152,9 +232,33 @@ class ReviewController extends Controller
         ], 201);
 
     }
-    /**
-     * Update review (client only, within 24 hours)
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/reviews/{id}",
+ *         summary="Update review",
+ *         tags={"Reviews"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function update(ReviewUpdateRequest $request, Review $review)
     {
         $review->update($request->validated());
@@ -162,9 +266,33 @@ class ReviewController extends Controller
         return new ReviewResource($review);
     }
 
-    /**
-     * Delete review (client only, within 48 hours)
-     */
+        /**
+ *     @OA\Delete(
+ *         path="/api/v1/reviews/{id}",
+ *         summary="Delete review",
+ *         tags={"Reviews"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function destroy(Request $request, Review $review)
     {
         // Check authorization

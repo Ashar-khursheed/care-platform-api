@@ -11,9 +11,26 @@ use Illuminate\Http\Request;
 
 class ListingController extends Controller
 {
-    /**
-     * Get provider's own listings
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/provider/listings",
+ *         summary="Get my listings",
+ *         tags={"Listings"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function myListings(Request $request)
     {
         $query = ServiceListing::with(['category', 'provider'])
@@ -45,9 +62,25 @@ class ListingController extends Controller
         ], 200);
     }
 
-    /**
-     * Browse all active listings (public)
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/listings",
+ *         summary="Get all listings",
+ *         tags={"Listings"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function index(Request $request)
     {
         $query = ServiceListing::with(['category', 'provider'])
@@ -119,9 +152,32 @@ class ListingController extends Controller
         ], 200);
     }
 
-    /**
-     * Get specific listing
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/listings/{id}",
+ *         summary="Get listing details",
+ *         tags={"Listings"},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function show($id)
     {
         $listing = ServiceListing::with(['category', 'provider'])->find($id);
@@ -142,9 +198,26 @@ class ListingController extends Controller
         ], 200);
     }
 
-    /**
-     * Create new listing
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/provider/listings",
+ *         summary="Create new listing",
+ *         tags={"Listings"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function store(ListingStoreRequest $request)
     {
         try {
@@ -182,9 +255,33 @@ class ListingController extends Controller
         }
     }
 
-    /**
-     * Update listing
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/provider/listings/{id}",
+ *         summary="Update listing",
+ *         tags={"Listings"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function update(ListingUpdateRequest $request, $id)
     {
         $listing = ServiceListing::where('id', $id)
@@ -255,9 +352,33 @@ class ListingController extends Controller
         }
     }
 
-    /**
-     * Delete listing
-     */
+        /**
+ *     @OA\Delete(
+ *         path="/api/v1/provider/listings/{id}",
+ *         summary="Delete listing",
+ *         tags={"Listings"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function destroy(Request $request, $id)
     {
         $listing = ServiceListing::where('id', $id)
@@ -288,9 +409,25 @@ class ListingController extends Controller
         }
     }
 
-    /**
-     * Get featured listings
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/listings/featured",
+ *         summary="Get featured listings",
+ *         tags={"Listings"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function featured()
     {
         $listings = ServiceListing::with(['category', 'provider'])

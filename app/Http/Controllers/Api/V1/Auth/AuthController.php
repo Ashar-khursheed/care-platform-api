@@ -34,6 +34,25 @@ class AuthController extends Controller
      *     @OA\Response(response=422, description="Validation error")
      * )
      */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/auth/register",
+ *         summary="Register new user",
+ *         tags={"Authentication"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -100,24 +119,25 @@ class AuthController extends Controller
         }
     }
 
-    /**
-     * @OA\Post(
-     *     path="/v1/auth/login",
-     *     operationId="authLogin",
-     *     tags={"Authentication"},
-     *     summary="User login",
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"email","password"},
-     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
-     *             @OA\Property(property="password", type="string", format="password", example="Password123!")
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Login successful"),
-     *     @OA\Response(response=401, description="Invalid credentials")
-     * )
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/auth/login",
+ *         summary="User login",
+ *         tags={"Authentication"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -154,17 +174,26 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/v1/auth/me",
-     *     operationId="authMe",
-     *     tags={"Authentication"},
-     *     summary="Get current user",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Response(response=200, description="User details"),
-     *     @OA\Response(response=401, description="Unauthorized")
-     * )
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/auth/me",
+ *         summary="Get authenticated user",
+ *         tags={"Authentication"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function me()
     {
         return response()->json([
@@ -173,16 +202,26 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/v1/auth/logout",
-     *     operationId="authLogout",
-     *     tags={"Authentication"},
-     *     summary="Logout user",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Response(response=200, description="Logged out successfully")
-     * )
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/auth/logout",
+ *         summary="Logout user",
+ *         tags={"Authentication"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function logout()
     {
         auth()->user()->currentAccessToken()->delete();
@@ -193,16 +232,26 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/v1/auth/logout-all",
-     *     operationId="authLogoutAll",
-     *     tags={"Authentication"},
-     *     summary="Logout from all devices",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Response(response=200, description="Logged out from all devices")
-     * )
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/auth/logout-all",
+ *         summary="Logout from all devices",
+ *         tags={"Authentication"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function logoutAll()
     {
         auth()->user()->tokens()->delete();
@@ -213,122 +262,148 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/v1/auth/forgot-password",
-     *     operationId="forgotPassword",
-     *     tags={"Authentication"},
-     *     summary="Request password reset",
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"email"},
-     *             @OA\Property(property="email", type="string", format="email", example="john@example.com")
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Reset link sent")
-     * )
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/auth/forgot-password",
+ *         summary="Request password reset",
+ *         tags={"Authentication"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function forgotPassword(Request $request)
     {
         return response()->json(['success' => true, 'message' => 'Reset link sent']);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/v1/auth/reset-password",
-     *     operationId="resetPassword",
-     *     tags={"Authentication"},
-     *     summary="Reset password",
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"email","password","password_confirmation","token"},
-     *             @OA\Property(property="email", type="string", format="email"),
-     *             @OA\Property(property="password", type="string", format="password"),
-     *             @OA\Property(property="password_confirmation", type="string", format="password"),
-     *             @OA\Property(property="token", type="string")
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Password reset successfully")
-     * )
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/auth/reset-password",
+ *         summary="Reset password",
+ *         tags={"Authentication"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function resetPassword(Request $request)
     {
         return response()->json(['success' => true, 'message' => 'Password reset']);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/v1/auth/verify-email",
-     *     operationId="verifyEmail",
-     *     tags={"Authentication"},
-     *     summary="Verify email",
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"email","code"},
-     *             @OA\Property(property="email", type="string", format="email"),
-     *             @OA\Property(property="code", type="string")
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Email verified")
-     * )
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/auth/verify-email",
+ *         summary="Verify email address",
+ *         tags={"Authentication"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function verifyEmail(Request $request)
     {
         return response()->json(['success' => true, 'message' => 'Email verified']);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/v1/auth/refresh",
-     *     operationId="refreshToken",
-     *     tags={"Authentication"},
-     *     summary="Refresh token",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Response(response=200, description="Token refreshed")
-     * )
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/auth/refresh",
+ *         summary="Refresh access token",
+ *         tags={"Authentication"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function refresh()
     {
         return response()->json(['success' => true]);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/v1/auth/change-password",
-     *     operationId="changePassword",
-     *     tags={"Authentication"},
-     *     summary="Change password",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"current_password","password","password_confirmation"},
-     *             @OA\Property(property="current_password", type="string", format="password"),
-     *             @OA\Property(property="password", type="string", format="password"),
-     *             @OA\Property(property="password_confirmation", type="string", format="password")
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Password changed")
-     * )
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/auth/change-password",
+ *         summary="Change password",
+ *         tags={"Authentication"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function changePassword(Request $request)
     {
         return response()->json(['success' => true]);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/v1/auth/user",
-     *     operationId="getAuthUser",
-     *     tags={"Authentication"},
-     *     summary="Get authenticated user",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Response(response=200, description="User data")
-     * )
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/auth/user",
+ *         summary="Get user details",
+ *         tags={"Authentication"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function user()
     {
         return response()->json([
@@ -337,16 +412,26 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/v1/auth/refresh-token",
-     *     operationId="refreshAccessToken",
-     *     tags={"Authentication"},
-     *     summary="Refresh access token",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Response(response=200, description="Token refreshed")
-     * )
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/auth/refresh-token",
+ *         summary="Refresh token",
+ *         tags={"Authentication"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function refreshToken()
     {
         return response()->json(['success' => true]);

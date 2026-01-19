@@ -12,9 +12,33 @@ use Illuminate\Http\Request;
 
 class AdminSubscriptionController extends Controller
 {
-    /**
-     * Get all subscription planssss
-     */
+            /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/subscriptions/plan/{id}",
+ *         summary="Get plan by ID",
+ *         tags={"Admin - Subscriptions"},
+ *     security={{"bearerAuth":{}}},
+ *          @OA\Parameter(
+         name="id",
+         in="path",
+         required=true,
+         description="The id of the resource",
+         @OA\Schema(type="integer")
+     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function plans(Request $request)
     {
         $query = SubscriptionPlan::with('features');
@@ -45,9 +69,26 @@ class AdminSubscriptionController extends Controller
     }
 
 
-    /**
-     * Create new plan
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/admin/subscriptions/plans",
+ *         summary="Create subscription plan",
+ *         tags={"Admin - Subscriptions"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function createPlan(Request $request)
     {
         $request->validate([
@@ -77,9 +118,33 @@ class AdminSubscriptionController extends Controller
         ], 201);
     }
 
-    /**
-     * Update plan
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/admin/subscriptions/plans/{id}",
+ *         summary="Update subscription plan",
+ *         tags={"Admin - Subscriptions"},
+ *     security={{"bearerAuth":{}}},
+ *          @OA\Parameter(
+         name="id",
+         in="path",
+         required=true,
+         description="The id of the resource",
+         @OA\Schema(type="integer")
+     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function updatePlan(Request $request, $id)
     {
         $plan = SubscriptionPlan::findOrFail($id);
@@ -108,9 +173,33 @@ class AdminSubscriptionController extends Controller
         ]);
     }
 
-    /**
-     * Delete plan
-     */
+        /**
+ *     @OA\Delete(
+ *         path="/api/v1/admin/subscriptions/plans/{id}",
+ *         summary="Delete subscription plan",
+ *         tags={"Admin - Subscriptions"},
+ *     security={{"bearerAuth":{}}},
+ *          @OA\Parameter(
+         name="id",
+         in="path",
+         required=true,
+         description="The id of the resource",
+         @OA\Schema(type="integer")
+     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function deletePlan($id)
     {
         $plan = SubscriptionPlan::findOrFail($id);
@@ -135,9 +224,33 @@ class AdminSubscriptionController extends Controller
         ]);
     }
 
-    /**
-     * Add feature to plan
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/admin/subscriptions/plans/{id}/features",
+ *         summary="Add plan feature",
+ *         tags={"Admin - Subscriptions"},
+ *     security={{"bearerAuth":{}}},
+ *          @OA\Parameter(
+         name="id",
+         in="path",
+         required=true,
+         description="The id of the resource",
+         @OA\Schema(type="integer")
+     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function addFeature(Request $request, $planId)
     {
         $request->validate([
@@ -162,9 +275,40 @@ class AdminSubscriptionController extends Controller
         ], 201);
     }
 
-    /**
-     * Remove feature from plan
-     */
+        /**
+ *     @OA\Delete(
+ *         path="/api/v1/admin/subscriptions/plans/{planId}/features/{featureId}",
+ *         summary="Remove plan feature",
+ *         tags={"Admin - Subscriptions"},
+ *     security={{"bearerAuth":{}}},
+ *          @OA\Parameter(
+         name="planId",
+         in="path",
+         required=true,
+         description="The plan ID",
+         @OA\Schema(type="integer")
+     ),
+ *          @OA\Parameter(
+         name="featureId",
+         in="path",
+         required=true,
+         description="The feature ID",
+         @OA\Schema(type="integer")
+     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function removeFeature($planId, $featureId)
     {
         $feature = SubscriptionFeature::where('subscription_plan_id', $planId)
@@ -179,9 +323,26 @@ class AdminSubscriptionController extends Controller
         ]);
     }
 
-    /**
-     * Get all subscriptions
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/subscriptions",
+ *         summary="Get all subscriptions",
+ *         tags={"Admin - Subscriptions"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function subscriptions(Request $request)
     {
         $query = UserSubscription::with(['user', 'plan']);
@@ -206,9 +367,33 @@ class AdminSubscriptionController extends Controller
         return UserSubscriptionResource::collection($subscriptions);
     }
 
-    /**
-     * Cancel user subscription (admin)
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/admin/subscriptions/{id}/cancel",
+ *         summary="Cancel user subscription",
+ *         tags={"Admin - Subscriptions"},
+ *     security={{"bearerAuth":{}}},
+ *          @OA\Parameter(
+         name="id",
+         in="path",
+         required=true,
+         description="The id of the resource",
+         @OA\Schema(type="integer")
+     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function cancelSubscription(Request $request, $id)
     {
         $request->validate([
@@ -226,9 +411,26 @@ class AdminSubscriptionController extends Controller
         ]);
     }
 
-    /**
-     * Get subscription statistics
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/subscriptions/statistics",
+ *         summary="Get subscription statistics",
+ *         tags={"Admin - Subscriptions"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function statistics()
     {
         $totalSubscriptions = UserSubscription::count();

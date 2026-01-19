@@ -21,9 +21,26 @@ class ProfileController extends Controller
         $this->imageUploadService = $imageUploadService;
     }
 
-    /**
-     * Get authenticated user profile
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/profile",
+ *         summary="Get user profile",
+ *         tags={"Profile"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function show(Request $request)
     {
         $user = $request->user();
@@ -34,9 +51,26 @@ class ProfileController extends Controller
         ], 200);
     }
 
-    /**
-     * Update user profile
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/profile",
+ *         summary="Update user profile",
+ *         tags={"Profile"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function update(ProfileUpdateRequest $request)
     {
         $user = $request->user();
@@ -134,9 +168,26 @@ class ProfileController extends Controller
         }
     }
 
-    /**
-     * Upload verification document
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/profile/documents",
+ *         summary="Upload verification document",
+ *         tags={"Profile"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function uploadDocument(DocumentUploadRequest $request)
     {
         $user = $request->user();
@@ -173,9 +224,26 @@ class ProfileController extends Controller
         }
     }
 
-    /**
-     * Get all verification documents
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/profile/documents",
+ *         summary="Get user documents",
+ *         tags={"Profile"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function getDocuments(Request $request)
     {
         $user = $request->user();
@@ -189,9 +257,33 @@ class ProfileController extends Controller
         ], 200);
     }
 
-    /**
-     * Delete verification document
-     */
+        /**
+ *     @OA\Delete(
+ *         path="/api/v1/profile/documents/{id}",
+ *         summary="Delete document",
+ *         tags={"Profile"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function deleteDocument(Request $request, $id)
     {
         $user = $request->user();

@@ -11,8 +11,25 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-/**
- * Admin Slider Controller
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/admin/cms/sliders",
+ *         summary="Create slider",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
  */
 class AdminSliderController extends Controller
 {
@@ -68,6 +85,33 @@ class AdminSliderController extends Controller
         ], 201);
     }
 
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/cms/sliders/{id}",
+ *         summary="Get slider details",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function show($id)
     {
         $slider = Slider::find($id);
@@ -85,6 +129,33 @@ class AdminSliderController extends Controller
         ]);
     }
 
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/admin/cms/sliders/{id}",
+ *         summary="Update slider",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function update(Request $request, $id)
     {
         $slider = Slider::findOrFail($id);
@@ -142,6 +213,33 @@ class AdminSliderController extends Controller
         ]);
     }
 
+        /**
+ *     @OA\Delete(
+ *         path="/api/v1/admin/cms/sliders/{id}",
+ *         summary="Delete slider",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function destroy($id)
     {
         $slider = Slider::findOrFail($id);
@@ -165,6 +263,26 @@ class AdminSliderController extends Controller
         ]);
     }
 
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/admin/cms/sliders/reorder",
+ *         summary="Reorder sliders",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function reorder(Request $request)
     {
         $request->validate([

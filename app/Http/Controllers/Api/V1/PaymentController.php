@@ -18,9 +18,26 @@ class PaymentController extends Controller
         $this->stripeService = $stripeService;
     }
 
-    /**
-     * Create payment intent for booking
-     */
+        /**
+         * @OA\Post(
+         *     path="/v1/payments/create-intent",
+         *     operationId="paymentsCreatepaymentintent",
+         *     tags={"Payments"},
+         *     summary="Create Stripe payment intent for booking",
+         *     security={{"bearerAuth":{}}},
+         *     @OA\RequestBody(
+         *         required=true,
+         *         description="Request payload",
+         *         @OA\JsonContent(
+         *             type="object"
+         *         )
+         *     ),
+         *     @OA\Response(response=201, description="Created successfully"),
+         *     @OA\Response(response=401, description="Unauthorized"),
+         *     @OA\Response(response=404, description="Not found"),
+         *     @OA\Response(response=500, description="Server error")
+         * )
+         */
     public function createPaymentIntent(Request $request)
     {
         $request->validate([
@@ -119,9 +136,33 @@ class PaymentController extends Controller
         ]);
     }
 
-    /**
-     * Get payment details
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/payments/{id}",
+ *         summary="Get payment details",
+ *         tags={"Payments"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function show(Request $request, $id)
     {
         $payment = Payment::with(['booking', 'client', 'provider'])->findOrFail($id);

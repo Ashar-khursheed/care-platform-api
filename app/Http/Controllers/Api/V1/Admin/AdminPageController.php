@@ -13,6 +13,26 @@ use Illuminate\Support\Str;
 
 class AdminPageController extends Controller
 {
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/cms/pages",
+ *         summary="Get all pages",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function index(Request $request)
     {
         $query = Page::with('author:id,first_name,last_name');
@@ -39,6 +59,26 @@ class AdminPageController extends Controller
         ]);
     }
 
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/admin/cms/pages",
+ *         summary="Create page",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function store(Request $request)
     {
         $request->validate([
@@ -86,6 +126,33 @@ class AdminPageController extends Controller
         ], 201);
     }
 
+            /**
+ *     @OA\Put(
+ *         path="/api/v1/admin/cms/pages/{id}",
+ *         summary="Update page",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function show($id)
     {
         $page = Page::with('author:id,first_name,last_name')->findOrFail($id);
@@ -149,6 +216,33 @@ class AdminPageController extends Controller
         ]);
     }
 
+        /**
+ *     @OA\Delete(
+ *         path="/api/v1/admin/cms/pages/{id}",
+ *         summary="Delete page",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function destroy($id)
     {
         $page = Page::findOrFail($id);

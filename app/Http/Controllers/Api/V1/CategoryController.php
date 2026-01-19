@@ -8,9 +8,25 @@ use App\Models\ServiceCategory;
 
 class CategoryController extends Controller
 {
-    /**
-     * Get all active categories
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/categories",
+ *         summary="Get all categories",
+ *         tags={"Categories"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function index()
     {
         $categories = ServiceCategory::active()
@@ -26,9 +42,32 @@ class CategoryController extends Controller
         ], 200);
     }
 
-    /**
-     * Get specific category with listings
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/categories/{slug}",
+ *         summary="Get category by slug",
+ *         tags={"Categories"},
+ *     @OA\Parameter(
+ *         name="slug",
+ *         in="path",
+ *         required=true,
+ *         description="The slug of the resource",
+ *         @OA\Schema(type="string")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function show($slug)
     {
         $category = ServiceCategory::where('slug', $slug)

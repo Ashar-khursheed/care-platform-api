@@ -19,9 +19,25 @@ class SubscriptionController extends Controller
         $this->subscriptionService = $subscriptionService;
     }
 
-    /**
-     * Get all available plans
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/subscription-plans",
+ *         summary="Get subscription plans",
+ *         tags={""},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function plans(Request $request)
     {
         $plans = SubscriptionPlan::active()
@@ -32,9 +48,26 @@ class SubscriptionController extends Controller
         return SubscriptionPlanResource::collection($plans);
     }
 
-    /**
-     * Get current user's subscription
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/subscriptions/current",
+ *         summary="Get current subscription",
+ *         tags={"Subscriptions"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function current(Request $request)
     {
         $subscription = UserSubscription::where('user_id', $request->user()->id)
@@ -52,9 +85,26 @@ class SubscriptionController extends Controller
         return new UserSubscriptionResource($subscription);
     }
 
-    /**
-     * Subscribe to a plan
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/subscriptions",
+ *         summary="Subscribe to plan",
+ *         tags={"Subscriptions"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function subscribe(Request $request)
     {
         $request->validate([
@@ -100,9 +150,26 @@ class SubscriptionController extends Controller
         ], 201);
     }
 
-    /**
-     * Upgrade subscription
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/subscriptions/upgrade",
+ *         summary="Upgrade subscription",
+ *         tags={"Subscriptions"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function upgrade(Request $request)
     {
         $request->validate([
@@ -202,9 +269,26 @@ class SubscriptionController extends Controller
         ]);
     }
 
-    /**
-     * Cancel subscription
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/subscriptions/cancel",
+ *         summary="Cancel subscription",
+ *         tags={"Subscriptions"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function cancel(Request $request)
     {
         $request->validate([
@@ -245,9 +329,26 @@ class SubscriptionController extends Controller
         ]);
     }
 
-    /**
-     * Resume canceled subscription
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/subscriptions/resume",
+ *         summary="Resume subscription",
+ *         tags={"Subscriptions"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function resume(Request $request)
     {
         $user = $request->user();

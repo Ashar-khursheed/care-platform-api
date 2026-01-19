@@ -8,63 +8,175 @@ use Illuminate\Routing\Controller as BaseController;
 
 /**
  * @OA\Info(
- *     version="1.0.0",
  *     title="Care Platform API",
- *     description="Complete API documentation for Care Platform",
- *     @OA\Contact(name="API Support", email="support@careplatform.com")
+ *     version="1.0.0",
+ *     description="Complete API documentation for Care Platform - A comprehensive marketplace connecting service providers with customers",
+ *     @OA\Contact(
+ *         email="support@careplatform.com",
+ *         name="Care Platform Support"
+ *     ),
+ *     @OA\License(
+ *         name="Proprietary",
+ *         url="https://careplatform.com/license"
+ *     )
  * )
- * 
- * @OA\Server(url=L5_SWAGGER_CONST_HOST, description="API Server")
- * 
+ *
+ * @OA\Server(
+ *     url="http://localhost:8000",
+ *     description="Local Development Server"
+ * )
+ *
+ * @OA\Server(
+ *     url="https://api.careplatform.com",
+ *     description="Production Server"
+ * )
+ *
  * @OA\SecurityScheme(
  *     securityScheme="bearerAuth",
  *     type="http",
  *     scheme="bearer",
- *     bearerFormat="JWT"
+ *     bearerFormat="JWT",
+ *     description="Enter your Bearer token in the format: Bearer {token}"
  * )
- * 
- * @OA\Tag(name="Authentication", description="Authentication endpoints")
- * @OA\Tag(name="Health", description="Health check")
- * 
- * @OA\Schema(
- *     schema="User",
- *     type="object",
- *     @OA\Property(property="id", type="integer", example=1),
- *     @OA\Property(property="first_name", type="string", example="John"),
- *     @OA\Property(property="last_name", type="string", example="Doe"),
- *     @OA\Property(property="email", type="string", example="john@example.com"),
- *     @OA\Property(property="user_type", type="string", example="provider")
+ *
+ * @OA\Tag(
+ *     name="Authentication",
+ *     description="User authentication and authorization endpoints"
  * )
- * 
- * @OA\Schema(
- *     schema="Error",
- *     type="object",
- *     @OA\Property(property="success", type="boolean", example=false),
- *     @OA\Property(property="message", type="string", example="Error message")
+ *
+ * @OA\Tag(
+ *     name="Profile",
+ *     description="User profile management"
  * )
- * 
- * @OA\Schema(
- *     schema="ValidationError",
- *     type="object",
- *     @OA\Property(property="success", type="boolean", example=false),
- *     @OA\Property(property="message", type="string", example="Validation failed"),
- *     @OA\Property(property="errors", type="object")
+ *
+ * @OA\Tag(
+ *     name="Categories",
+ *     description="Service category management"
  * )
- * 
- * @OA\Get(
- *     path="/health",
- *     operationId="healthCheck",
- *     tags={"Health"},
- *     summary="Health check endpoint",
- *     description="Check if API is running",
- *     @OA\Response(
- *         response=200,
- *         description="API is healthy",
- *         @OA\JsonContent(
- *             @OA\Property(property="status", type="string", example="healthy"),
- *             @OA\Property(property="timestamp", type="string", example="2024-01-18T10:00:00.000000Z")
- *         )
- *     )
+ *
+ * @OA\Tag(
+ *     name="Listings",
+ *     description="Service listing operations"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Bookings",
+ *     description="Booking management"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Reviews",
+ *     description="Review and rating system"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Payments",
+ *     description="Payment processing"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Payouts",
+ *     description="Provider payout management"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Messages",
+ *     description="Messaging system"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Notifications",
+ *     description="Notification management"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Subscriptions",
+ *     description="Subscription plan management"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Analytics",
+ *     description="Analytics and reporting"
+ * )
+ *
+ * @OA\Tag(
+ *     name="CMS",
+ *     description="Content Management System"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Job Applications",
+ *     description="Job application management"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Mobile",
+ *     description="Mobile app specific endpoints"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Admin - Users",
+ *     description="Admin user management"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Admin - Documents",
+ *     description="Admin document verification"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Admin - Listings",
+ *     description="Admin listing management"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Admin - Bookings",
+ *     description="Admin booking management"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Admin - Reviews",
+ *     description="Admin review moderation"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Admin - Payments",
+ *     description="Admin payment management"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Admin - Payouts",
+ *     description="Admin payout management"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Admin - Messages",
+ *     description="Admin message moderation"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Admin - Notifications",
+ *     description="Admin notification management"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Admin - Subscriptions",
+ *     description="Admin subscription management"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Admin - Analytics",
+ *     description="Admin analytics and reports"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Admin - CMS",
+ *     description="Admin CMS management"
+ * )
+ *
+ * @OA\Tag(
+ *     name="Admin - Job Applications",
+ *     description="Admin job application management"
  * )
  */
 class Controller extends BaseController

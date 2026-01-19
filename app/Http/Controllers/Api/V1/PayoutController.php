@@ -19,9 +19,19 @@ class PayoutController extends Controller
         $this->stripeService = $stripeService;
     }
 
-    /**
-     * Get provider's available balance and earnings
-     */
+        /**
+         * @OA\Get(
+         *     path="/v1/payouts/balance",
+         *     operationId="payoutsGetbalance",
+         *     tags={"Payouts"},
+         *     summary="Get provider's current balance",
+         *     security={{"bearerAuth":{}}},
+         *     @OA\Response(response=200, description="Success"),
+         *     @OA\Response(response=401, description="Unauthorized"),
+         *     @OA\Response(response=404, description="Not found"),
+         *     @OA\Response(response=500, description="Server error")
+         * )
+         */
     public function getBalance(Request $request)
     {
         $user = $request->user();
@@ -189,9 +199,33 @@ class PayoutController extends Controller
         ]);
     }
 
-    /**
-     * Get payout details
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/payouts/{id}",
+ *         summary="Get payout details",
+ *         tags={"Payouts"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function show(Request $request, $id)
     {
         $user = $request->user();

@@ -9,9 +9,26 @@ use Illuminate\Support\Facades\Storage;
 
 class AdminCmsController extends Controller
 {
-    /**
-     * Get all site settings
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/cms/settings",
+ *         summary="Get all CMS settings",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
   public function getSettings()
 {
     $settings = SiteSetting::all()
@@ -36,9 +53,26 @@ class AdminCmsController extends Controller
 }
 
 
-    /**
-     * Get settings by group
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/cms/settings/{group}",
+ *         summary="Get settings by group",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function getSettingsByGroup($group)
     {
         $settings = SiteSetting::where('group', $group)->get();
@@ -49,9 +83,26 @@ class AdminCmsController extends Controller
         ]);
     }
 
-    /**
-     * Update site settings
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/admin/cms/settings",
+ *         summary="Update CMS settings",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function updateSettings(Request $request)
     {
         $request->validate([
@@ -81,9 +132,26 @@ class AdminCmsController extends Controller
         ]);
     }
 
-    /**
-     * Update single setting
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/admin/cms/settings/single",
+ *         summary="Update single setting",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function updateSetting(Request $request)
     {
         $request->validate([
@@ -118,9 +186,26 @@ class AdminCmsController extends Controller
         ]);
     }
 
-    /**
-     * Get header menu
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/cms/header/menu",
+ *         summary="Get header menu",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function getHeaderMenu()
     {
         $menu = SiteSetting::get('header_menu', []);
@@ -131,9 +216,26 @@ class AdminCmsController extends Controller
         ]);
     }
 
-    /**
-     * Update header menu
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/admin/cms/header/menu",
+ *         summary="Update header menu",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function updateHeaderMenu(Request $request)
     {
         $request->validate([
@@ -151,9 +253,26 @@ class AdminCmsController extends Controller
         ]);
     }
 
-    /**
-     * Get footer links
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/cms/footer/links",
+ *         summary="Get footer links",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function getFooterLinks()
     {
         $links = SiteSetting::get('footer_links', []);
@@ -164,9 +283,26 @@ class AdminCmsController extends Controller
         ]);
     }
 
-    /**
-     * Update footer links
-     */
+        /**
+ *     @OA\Put(
+ *         path="/api/v1/admin/cms/footer/links",
+ *         summary="Update footer links",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function updateFooterLinks(Request $request)
     {
         $request->validate([
@@ -181,9 +317,26 @@ class AdminCmsController extends Controller
         ]);
     }
 
-    /**
-     * Clear settings cache
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/admin/cms/settings/clear-cache",
+ *         summary="Clear CMS cache",
+ *         tags={"CMS"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function clearCache()
     {
         SiteSetting::clearCache();

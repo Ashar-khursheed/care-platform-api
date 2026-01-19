@@ -19,9 +19,26 @@ class AdminPayoutController extends Controller
         $this->stripeService = $stripeService;
     }
 
-    /**
-     * Get all payout requests
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/payouts",
+ *         summary="Get all payouts",
+ *         tags={"Payouts"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function index(Request $request)
     {
         $query = Payout::with(['provider']);
@@ -58,9 +75,33 @@ class AdminPayoutController extends Controller
         ]);
     }
 
-    /**
-     * Get payout details
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/payouts/{id}",
+ *         summary="Get payout details",
+ *         tags={"Payouts"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function show($id)
     {
         $payout = Payout::with(['provider', 'transaction'])->findOrFail($id);
@@ -71,9 +112,33 @@ class AdminPayoutController extends Controller
         ]);
     }
 
-    /**
-     * Approve and process payout (Manual Payout by Admin)
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/admin/payouts/{id}/approve",
+ *         summary="Approve payout",
+ *         tags={"Payouts"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function approvePayout(Request $request, $id)
     {
         $payout = Payout::with('provider')->findOrFail($id);
@@ -137,9 +202,33 @@ class AdminPayoutController extends Controller
         }
     }
 
-    /**
-     * Reject payout request
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/admin/payouts/{id}/reject",
+ *         summary="Reject payout",
+ *         tags={"Payouts"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The id of the resource",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function rejectPayout(Request $request, $id)
     {
         $payout = Payout::findOrFail($id);
@@ -171,9 +260,26 @@ class AdminPayoutController extends Controller
         ]);
     }
 
-    /**
-     * Get payout statistics
-     */
+        /**
+ *     @OA\Get(
+ *         path="/api/v1/admin/payouts/statistics",
+ *         summary="Get payout statistics",
+ *         tags={"Payouts"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function statistics(Request $request)
     {
         $stats = [
@@ -192,9 +298,26 @@ class AdminPayoutController extends Controller
         ]);
     }
 
-    /**
-     * Bulk approve payouts
-     */
+        /**
+ *     @OA\Post(
+ *         path="/api/v1/admin/payouts/bulk-approve",
+ *         summary="Bulk approve payouts",
+ *         tags={"Payouts"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Resource not found"
+ *     )
+ *     )
+ */
     public function bulkApprove(Request $request)
     {
         $request->validate([
