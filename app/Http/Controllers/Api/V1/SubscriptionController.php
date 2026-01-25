@@ -23,7 +23,7 @@ class SubscriptionController extends Controller
  *     @OA\Get(
  *         path="/api/v1/subscription-plans",
  *         summary="Get subscription plans",
- *         tags={""},
+ *         tags={"Subscriptions"},
  *     @OA\Response(
  *         response=200,
  *         description="Successful operation"
@@ -220,7 +220,17 @@ class SubscriptionController extends Controller
     }
 
     /**
-     * Downgrade subscription
+     * @OA\Post(
+     *     path="/api/v1/subscriptions/downgrade",
+     *     summary="Downgrade subscription",
+     *     tags={"Subscriptions"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(@OA\Property(property="plan_id", type="integer"))
+     *     ),
+     *     @OA\Response(response=200, description="Success")
+     * )
      */
     public function downgrade(Request $request)
     {
@@ -381,7 +391,13 @@ class SubscriptionController extends Controller
     }
 
     /**
-     * Get subscription history
+     * @OA\Get(
+     *     path="/api/v1/subscriptions/history",
+     *     summary="Get subscription history",
+     *     tags={"Subscriptions"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="Success")
+     * )
      */
     public function history(Request $request)
     {
@@ -394,7 +410,13 @@ class SubscriptionController extends Controller
     }
 
     /**
-     * Get usage statistics
+     * @OA\Get(
+     *     path="/api/v1/subscriptions/usage",
+     *     summary="Get usage statistics",
+     *     tags={"Subscriptions"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="Success")
+     * )
      */
     public function usage(Request $request)
     {

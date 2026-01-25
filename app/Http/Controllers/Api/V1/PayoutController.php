@@ -75,7 +75,31 @@ class PayoutController extends Controller
     }
 
     /**
-     * Request withdrawal/payout
+     * @OA\Post(
+     *     path="/api/v1/payouts/request",
+     *     summary="Request a payout",
+     *     tags={"Payouts"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"amount", "password"},
+     *             @OA\Property(property="amount", type="number", format="float", example=100.00),
+     *             @OA\Property(property="password", type="string", format="password", example="secret123"),
+     *             @OA\Property(
+     *                 property="bank_account_details",
+     *                 type="object",
+     *                 @OA\Property(property="bank_name", type="string"),
+     *                 @OA\Property(property="account_number", type="string"),
+     *                 @OA\Property(property="routing_number", type="string")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Payout requested successfully"),
+     *     @OA\Response(response=400, description="Insufficient balance"),
+     *     @OA\Response(response=401, description="Invalid password"),
+     *     @OA\Response(response=403, description="Unauthorized")
+     * )
      */
     public function requestPayout(Request $request)
     {
@@ -90,11 +114,20 @@ class PayoutController extends Controller
 
         $request->validate([
             'amount' => 'required|numeric|min:10', // Minimum $10 payout
+            'password' => 'required|string', // Security check
             'bank_account_details' => 'sometimes|array',
             'bank_account_details.bank_name' => 'sometimes|string',
             'bank_account_details.account_number' => 'sometimes|string',
             'bank_account_details.routing_number' => 'sometimes|string',
         ]);
+
+        // Verify password for security
+        if (!\Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid password. Please verify your identity.',
+            ], 401);
+        }
 
         // Calculate available balance
         $totalEarnings = Payment::where('provider_id', $user->id)
@@ -160,7 +193,28 @@ class PayoutController extends Controller
     }
 
     /**
-     * Get my payout history
+     * @OA\Get(
+     *     path="/api/v1/payouts",
+     *     summary="Get my payout history",
+     *     tags={"Payouts"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="Filter by status (pending, paid, failed)",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Page number",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(response=200, description="Successful operation"),
+     *     @OA\Response(response=401, description="Unauthenticated")
+     * )
      */
     public function myPayouts(Request $request)
     {
@@ -247,7 +301,23 @@ class PayoutController extends Controller
     }
 
     /**
-     * Cancel pending payout request
+     * @OA\Post(
+     *     path="/api/v1/payouts/{id}/cancel",
+     *     summary="Cancel a pending payout request",
+     *     tags={"Payouts"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Payout ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(response=200, description="Payout cancelled successfully"),
+     *     @OA\Response(response=401, description="Unauthorized"),
+     *     @OA\Response(response=404, description="Payout not found"),
+     *     @OA\Response(response=400, description="Cannot cancel payout")
+     * )
      */
     public function cancel(Request $request, $id)
     {

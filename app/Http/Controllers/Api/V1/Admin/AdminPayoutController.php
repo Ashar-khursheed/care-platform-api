@@ -9,6 +9,7 @@ use App\Models\Transaction;
 use App\Services\StripeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use OpenApi\Attributes as OA;
 
 class AdminPayoutController extends Controller
 {
@@ -19,26 +20,14 @@ class AdminPayoutController extends Controller
         $this->stripeService = $stripeService;
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/payouts",
- *         summary="Get all payouts",
- *         tags={"Payouts"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/payouts',
+        summary: 'Get all payout requests',
+        tags: ['Admin - Payouts'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function index(Request $request)
     {
         $query = Payout::with(['provider']);
@@ -75,33 +64,15 @@ class AdminPayoutController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/payouts/{id}",
- *         summary="Get payout details",
- *         tags={"Payouts"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/payouts/{id}',
+        summary: 'Get payout details',
+        tags: ['Admin - Payouts'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function show($id)
     {
         $payout = Payout::with(['provider', 'transaction'])->findOrFail($id);
@@ -112,33 +83,15 @@ class AdminPayoutController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Post(
- *         path="/api/v1/admin/payouts/{id}/approve",
- *         summary="Approve payout",
- *         tags={"Payouts"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Post(
+        path: '/api/v1/admin/payouts/{id}/approve',
+        summary: 'Approve payout request',
+        tags: ['Admin - Payouts'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Approved successfully')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function approvePayout(Request $request, $id)
     {
         $payout = Payout::with('provider')->findOrFail($id);
@@ -202,33 +155,15 @@ class AdminPayoutController extends Controller
         }
     }
 
-        /**
- *     @OA\Post(
- *         path="/api/v1/admin/payouts/{id}/reject",
- *         summary="Reject payout",
- *         tags={"Payouts"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Post(
+        path: '/api/v1/admin/payouts/{id}/reject',
+        summary: 'Reject payout request',
+        tags: ['Admin - Payouts'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Rejected successfully')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function rejectPayout(Request $request, $id)
     {
         $payout = Payout::findOrFail($id);
@@ -260,26 +195,15 @@ class AdminPayoutController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/payouts/statistics",
- *         summary="Get payout statistics",
- *         tags={"Payouts"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/payouts/statistics',
+        summary: 'Get payout statistics',
+        tags: ['Admin - Payouts'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Successful operation')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 404, description: 'Resource not found')]
     public function statistics(Request $request)
     {
         $stats = [
@@ -298,26 +222,15 @@ class AdminPayoutController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Post(
- *         path="/api/v1/admin/payouts/bulk-approve",
- *         summary="Bulk approve payouts",
- *         tags={"Payouts"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Post(
+        path: '/api/v1/admin/payouts/bulk-approve',
+        summary: 'Bulk approve payouts',
+        tags: ['Admin - Payouts'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Successful operation')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 404, description: 'Resource not found')]
     public function bulkApprove(Request $request)
     {
         $request->validate([

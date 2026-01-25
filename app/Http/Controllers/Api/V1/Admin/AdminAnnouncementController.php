@@ -8,36 +8,17 @@ use App\Models\Page;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use OpenApi\Attributes as OA;
 
 class AdminAnnouncementController extends Controller
 {
-            /**
- *     @OA\Get(
- *         path="/api/v1/admin/cms/announcements/{id}",
- *         summary="Get announcement details",
- *         tags={"CMS"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/cms/announcements',
+        summary: 'Get all announcements',
+        tags: ['Admin - CMS'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function index()
     {
         $announcements = AnnouncementBar::orderBy('priority', 'desc')
@@ -50,6 +31,15 @@ class AdminAnnouncementController extends Controller
         ]);
     }
 
+    #[OA\Get(
+        path: '/api/v1/admin/cms/announcements/{id}',
+        summary: 'Get announcement details',
+        tags: ['Admin - CMS'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function show($id)
 {
     $announcement = AnnouncementBar::find($id);
@@ -68,26 +58,15 @@ class AdminAnnouncementController extends Controller
 }
 
 
-        /**
- *     @OA\Post(
- *         path="/api/v1/admin/cms/announcements",
- *         summary="Create announcement",
- *         tags={"CMS"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Post(
+        path: '/api/v1/admin/cms/announcements',
+        summary: 'Create announcement',
+        tags: ['Admin - CMS'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Successful operation')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 404, description: 'Resource not found')]
     public function store(Request $request)
     {
         $request->validate([
@@ -112,33 +91,16 @@ class AdminAnnouncementController extends Controller
         ], 201);
     }
 
-        /**
- *     @OA\Put(
- *         path="/api/v1/admin/cms/announcements/{id}",
- *         summary="Update announcement",
- *         tags={"CMS"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/admin/cms/announcements/{id}',
+        summary: 'Update announcement',
+        tags: ['Admin - CMS'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, description: 'The id of the resource', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Successful operation')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 404, description: 'Resource not found')]
     public function update(Request $request, $id)
     {
         $announcement = AnnouncementBar::findOrFail($id);
@@ -166,33 +128,16 @@ class AdminAnnouncementController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Delete(
- *         path="/api/v1/admin/cms/announcements/{id}",
- *         summary="Delete announcement",
- *         tags={"CMS"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Delete(
+        path: '/api/v1/admin/cms/announcements/{id}',
+        summary: 'Delete announcement',
+        tags: ['Admin - CMS'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, description: 'The id of the resource', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Successful operation')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 404, description: 'Resource not found')]
     public function destroy($id)
     {
         $announcement = AnnouncementBar::findOrFail($id);
@@ -204,26 +149,15 @@ class AdminAnnouncementController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/cms/announcements/current",
- *         summary="Get current announcement",
- *         tags={"CMS"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/cms/announcements/current',
+        summary: 'Get current announcement',
+        tags: ['Admin - CMS'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Successful operation')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 404, description: 'Resource not found')]
     public function getCurrent()
     {
         $announcement = AnnouncementBar::getCurrent();
@@ -235,167 +169,3 @@ class AdminAnnouncementController extends Controller
     }
 }
 
-/**
- * Admin Page Controller
- */
-class AdminPageController extends Controller
-{
-    public function index(Request $request)
-    {
-        $query = Page::with('author:id,first_name,last_name');
-
-        // Filter by published status
-        if ($request->has('is_published')) {
-            $query->where('is_published', $request->is_published);
-        }
-
-        // Search
-        if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('slug', 'like', "%{$search}%");
-            });
-        }
-
-        $pages = $query->latest()->paginate(20);
-
-        return response()->json([
-            'success' => true,
-            'data' => $pages,
-        ]);
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:pages,slug',
-            'content' => 'required|string',
-            'excerpt' => 'nullable|string',
-            'featured_image' => 'nullable|image|max:5120',
-            'template' => 'nullable|in:default,full-width,no-sidebar',
-            'is_published' => 'nullable|boolean',
-            'show_in_menu' => 'nullable|boolean',
-            'menu_order' => 'nullable|integer',
-            'meta_title' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string',
-            'meta_keywords' => 'nullable|string',
-            'og_image' => 'nullable|image|max:2048',
-        ]);
-
-        $data = $request->except(['featured_image', 'og_image']);
-        $data['author_id'] = $request->user()->id;
-
-        // Generate slug if not provided
-        if (empty($data['slug'])) {
-            $data['slug'] = Str::slug($request->title);
-        }
-
-        // Upload featured image
-        if ($request->hasFile('featured_image')) {
-            $path = $request->file('featured_image')->store('pages', 'public');
-            $data['featured_image'] = Storage::url($path);
-        }
-
-        // Upload OG image
-        if ($request->hasFile('og_image')) {
-            $path = $request->file('og_image')->store('pages/og', 'public');
-            $data['og_image'] = Storage::url($path);
-        }
-
-        $page = Page::create($data);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Page created successfully',
-            'data' => $page,
-        ], 201);
-    }
-
-    public function show($id)
-    {
-        $page = Page::with('author:id,first_name,last_name')->findOrFail($id);
-
-        return response()->json([
-            'success' => true,
-            'data' => $page,
-        ]);
-    }
-
-    public function update(Request $request, $id)
-    {
-        $page = Page::findOrFail($id);
-
-        $request->validate([
-            'title' => 'nullable|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:pages,slug,' . $id,
-            'content' => 'nullable|string',
-            'excerpt' => 'nullable|string',
-            'featured_image' => 'nullable|image|max:5120',
-            'template' => 'nullable|in:default,full-width,no-sidebar',
-            'is_published' => 'nullable|boolean',
-            'show_in_menu' => 'nullable|boolean',
-            'menu_order' => 'nullable|integer',
-            'meta_title' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string',
-            'meta_keywords' => 'nullable|string',
-            'og_image' => 'nullable|image|max:2048',
-        ]);
-
-        $data = $request->except(['featured_image', 'og_image']);
-
-        // Upload new featured image
-        if ($request->hasFile('featured_image')) {
-            if ($page->featured_image) {
-                $oldPath = str_replace('/storage/', '', parse_url($page->featured_image, PHP_URL_PATH));
-                Storage::disk('public')->delete($oldPath);
-            }
-
-            $path = $request->file('featured_image')->store('pages', 'public');
-            $data['featured_image'] = Storage::url($path);
-        }
-
-        // Upload new OG image
-        if ($request->hasFile('og_image')) {
-            if ($page->og_image) {
-                $oldPath = str_replace('/storage/', '', parse_url($page->og_image, PHP_URL_PATH));
-                Storage::disk('public')->delete($oldPath);
-            }
-
-            $path = $request->file('og_image')->store('pages/og', 'public');
-            $data['og_image'] = Storage::url($path);
-        }
-
-        $page->update($data);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Page updated successfully',
-            'data' => $page->fresh(),
-        ]);
-    }
-
-    public function destroy($id)
-    {
-        $page = Page::findOrFail($id);
-
-        // Delete images
-        if ($page->featured_image) {
-            $path = str_replace('/storage/', '', parse_url($page->featured_image, PHP_URL_PATH));
-            Storage::disk('public')->delete($path);
-        }
-
-        if ($page->og_image) {
-            $path = str_replace('/storage/', '', parse_url($page->og_image, PHP_URL_PATH));
-            Storage::disk('public')->delete($path);
-        }
-
-        $page->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Page deleted successfully',
-        ]);
-    }
-}

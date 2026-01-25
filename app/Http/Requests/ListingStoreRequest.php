@@ -11,8 +11,10 @@ class ListingStoreRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Only providers can create listings
-        return $this->user() && $this->user()->isProvider();
+        // Allow both providers and clients to create listings
+        // Providers create "Service Offerings"
+        // Clients create "Job Posts"
+        return $this->user() && ($this->user()->isProvider() || $this->user()->isClient());
     }
 
     /**
@@ -20,23 +22,36 @@ class ListingStoreRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'category_id' => 'required|exists:service_categories,id',
             'title' => 'required|string|max:255',
-            'description' => 'required|string|min:50|max:2000',
+            'description' => 'required|string|min:20|max:2000', // Reduced min length
             'hourly_rate' => 'required|numeric|min:0|max:999.99',
-            'years_of_experience' => 'required|integer|min:0|max:50',
-            'skills' => 'required|array|min:1',
-            'skills.*' => 'string|max:100',
-            'languages' => 'nullable|array',
-            'languages.*' => 'string|max:50',
-            'certifications' => 'nullable|array',
-            'certifications.*' => 'string|max:200',
-            'availability' => 'nullable|array',
             'service_location' => 'required|string|max:500',
             'service_radius' => 'nullable|numeric|min:0|max:100',
             'is_available' => 'boolean',
+            'availability' => 'nullable|array',
         ];
+
+        // Provider-specific requirements
+        if ($this->user()->isProvider()) {
+            $rules['years_of_experience'] = 'required|integer|min:0|max:50';
+            $rules['skills'] = 'required|array|min:1';
+            $rules['skills.*'] = 'string|max:100';
+            $rules['languages'] = 'nullable|array';
+            $rules['languages.*'] = 'string|max:50';
+            $rules['certifications'] = 'nullable|array';
+            $rules['certifications.*'] = 'string|max:200';
+        } else {
+            // Client-specific (Job Post) relaxation
+            $rules['years_of_experience'] = 'nullable|integer|min:0|max:50';
+            $rules['skills'] = 'nullable|array'; // Optional for job posts, but recommended
+            $rules['skills.*'] = 'string|max:100';
+            $rules['languages'] = 'nullable|array';
+            $rules['certifications'] = 'nullable|array';
+        }
+
+        return $rules;
     }
 
     /**

@@ -8,6 +8,7 @@ use App\Models\Booking;
 use App\Models\Transaction;
 use App\Services\StripeService;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class PaymentController extends Controller
 {
@@ -18,26 +19,24 @@ class PaymentController extends Controller
         $this->stripeService = $stripeService;
     }
 
-        /**
-         * @OA\Post(
-         *     path="/v1/payments/create-intent",
-         *     operationId="paymentsCreatepaymentintent",
-         *     tags={"Payments"},
-         *     summary="Create Stripe payment intent for booking",
-         *     security={{"bearerAuth":{}}},
-         *     @OA\RequestBody(
-         *         required=true,
-         *         description="Request payload",
-         *         @OA\JsonContent(
-         *             type="object"
-         *         )
-         *     ),
-         *     @OA\Response(response=201, description="Created successfully"),
-         *     @OA\Response(response=401, description="Unauthorized"),
-         *     @OA\Response(response=404, description="Not found"),
-         *     @OA\Response(response=500, description="Server error")
-         * )
-         */
+    #[OA\Post(
+        path: '/api/v1/payments/create-intent',
+        summary: 'Create Stripe payment intent for booking',
+        security: [['bearerAuth' => []]],
+        tags: ['Payments']
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['booking_id'],
+            properties: [
+                new OA\Property(property: 'booking_id', type: 'integer'),
+                new OA\Property(property: 'payment_method_id', type: 'string')
+            ]
+        )
+    )]
+    #[OA\Response(response: 201, description: 'Created successfully')]
+    #[OA\Response(response: 401, description: 'Unauthorized')]
     public function createPaymentIntent(Request $request)
     {
         $request->validate([
@@ -89,9 +88,22 @@ class PaymentController extends Controller
         ]);
     }
 
-    /**
-     * Confirm payment
-     */
+    #[OA\Post(
+        path: '/api/v1/payments/{id}/confirm',
+        summary: 'Confirm a payment',
+        security: [['bearerAuth' => []]],
+        tags: ['Payments']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'payment_method_id', type: 'string')
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Payment confirmed')]
+    #[OA\Response(response: 403, description: 'Unauthorized')]
     public function confirmPayment(Request $request, $id)
     {
         $payment = Payment::findOrFail($id);
@@ -136,33 +148,15 @@ class PaymentController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/payments/{id}",
- *         summary="Get payment details",
- *         tags={"Payments"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/payments/{id}',
+        summary: 'Get payment details',
+        security: [['bearerAuth' => []]],
+        tags: ['Payments']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function show(Request $request, $id)
     {
         $payment = Payment::with(['booking', 'client', 'provider'])->findOrFail($id);
@@ -196,9 +190,14 @@ class PaymentController extends Controller
         ]);
     }
 
-    /**
-     * Get my payments
-     */
+    #[OA\Get(
+        path: '/api/v1/payments',
+        summary: 'Get my payment history',
+        security: [['bearerAuth' => []]],
+        tags: ['Payments']
+    )]
+    #[OA\Parameter(name: 'status', in: 'query', required: false, schema: new OA\Schema(type: 'string'))]
+    #[OA\Response(response: 200, description: 'Success')]
     public function myPayments(Request $request)
     {
         $user = $request->user();
@@ -224,9 +223,14 @@ class PaymentController extends Controller
         return response()->json($payments);
     }
 
-    /**
-     * Get my transactions
-     */
+    #[OA\Get(
+        path: '/api/v1/transactions',
+        summary: 'Get my transaction history',
+        security: [['bearerAuth' => []]],
+        tags: ['Payments']
+    )]
+    #[OA\Parameter(name: 'type', in: 'query', required: false, schema: new OA\Schema(type: 'string'))]
+    #[OA\Response(response: 200, description: 'Success')]
     public function myTransactions(Request $request)
     {
         $user = $request->user();
@@ -247,9 +251,25 @@ class PaymentController extends Controller
         return response()->json($transactions);
     }
 
-    /**
-     * Request refund (client only)
-     */
+    #[OA\Post(
+        path: '/api/v1/payments/{id}/refund',
+        summary: 'Request a refund',
+        security: [['bearerAuth' => []]],
+        tags: ['Payments']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['reason'],
+            properties: [
+                new OA\Property(property: 'reason', type: 'string'),
+                new OA\Property(property: 'amount', type: 'number')
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Refund processed')]
+    #[OA\Response(response: 400, description: 'Cannot refund')]
     public function requestRefund(Request $request, $id)
     {
         $request->validate([
@@ -301,9 +321,13 @@ class PaymentController extends Controller
         ]);
     }
 
-    /**
-     * Get payment statistics
-     */
+    #[OA\Get(
+        path: '/api/v1/payments/statistics',
+        summary: 'Get payment statistics',
+        security: [['bearerAuth' => []]],
+        tags: ['Payments']
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function statistics(Request $request)
     {
         $user = $request->user();

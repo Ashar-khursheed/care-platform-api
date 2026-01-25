@@ -6,29 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ReviewResource;
 use App\Models\Review;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class AdminReviewController extends Controller
 {
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/reviews",
- *         summary="Get all reviews",
- *         tags={"Reviews"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/reviews',
+        summary: 'Get all reviews',
+        tags: ['Admin - Reviews'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function index(Request $request)
     {
         $query = Review::with(['client', 'provider', 'listing.category', 'booking', 'moderator']);
@@ -69,9 +58,13 @@ class AdminReviewController extends Controller
         return ReviewResource::collection($reviews);
     }
 
-    /**
-     * Get pending reviews
-     */
+    #[OA\Get(
+        path: '/api/v1/admin/reviews/pending',
+        summary: 'Get pending reviews',
+        tags: ['Admin - Reviews'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function pending(Request $request)
     {
         $reviews = Review::with(['client', 'provider', 'listing.category', 'booking'])
@@ -82,26 +75,13 @@ class AdminReviewController extends Controller
         return ReviewResource::collection($reviews);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/reviews/flagged",
- *         summary="Get flagged reviews",
- *         tags={"Reviews"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/reviews/flagged',
+        summary: 'Get flagged reviews',
+        tags: ['Admin - Reviews'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function flagged(Request $request)
     {
         $reviews = Review::with(['client', 'provider', 'listing.category', 'booking'])
@@ -112,33 +92,15 @@ class AdminReviewController extends Controller
         return ReviewResource::collection($reviews);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/reviews/{id}",
- *         summary="Get review details",
- *         tags={"Reviews"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/reviews/{id}',
+        summary: 'Get review details',
+        tags: ['Admin - Reviews'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function show($id)
     {
         $review = Review::with(['client', 'provider', 'listing.category', 'booking', 'moderator'])
@@ -147,33 +109,15 @@ class AdminReviewController extends Controller
         return new ReviewResource($review);
     }
 
-        /**
- *     @OA\Put(
- *         path="/api/v1/admin/reviews/{id}/approve",
- *         summary="Approve review",
- *         tags={"Reviews"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/admin/reviews/{id}/approve',
+        summary: 'Approve review',
+        tags: ['Admin - Reviews'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Approved successfully')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function approve(Request $request, $id)
     {
         $review = Review::findOrFail($id);
@@ -193,33 +137,23 @@ class AdminReviewController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Put(
- *         path="/api/v1/admin/reviews/{id}/reject",
- *         summary="Reject review",
- *         tags={"Reviews"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/admin/reviews/{id}/reject',
+        summary: 'Reject review',
+        tags: ['Admin - Reviews'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'reason', type: 'string')
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Rejected successfully')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function reject(Request $request, $id)
     {
         $request->validate([
@@ -242,9 +176,14 @@ class AdminReviewController extends Controller
         ]);
     }
 
-    /**
-     * Unflag review
-     */
+    #[OA\Put(
+        path: '/api/v1/admin/reviews/{id}/unflag',
+        summary: 'Unflag review',
+        tags: ['Admin - Reviews'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
     public function unflag(Request $request, $id)
     {
         $review = Review::findOrFail($id);
@@ -263,33 +202,14 @@ class AdminReviewController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Delete(
- *         path="/api/v1/admin/reviews/{id}",
- *         summary="Delete review",
- *         tags={"Reviews"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Delete(
+        path: '/api/v1/admin/reviews/{id}',
+        summary: 'Delete review',
+        tags: ['Admin - Reviews'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
     public function destroy($id)
     {
         $review = Review::findOrFail($id);
@@ -301,9 +221,13 @@ class AdminReviewController extends Controller
         ]);
     }
 
-    /**
-     * Get review statistics
-     */
+    #[OA\Get(
+        path: '/api/v1/admin/reviews/statistics',
+        summary: 'Get review statistics',
+        tags: ['Admin - Reviews'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function statistics()
     {
         $totalReviews = Review::count();

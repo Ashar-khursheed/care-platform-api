@@ -8,29 +8,18 @@ use App\Http\Resources\MessageResource;
 use App\Models\Conversation;
 use App\Models\Message;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class AdminMessageController extends Controller
 {
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/messages/conversations",
- *         summary="Get all conversations",
- *         tags={"Messages"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/messages/conversations',
+        summary: 'Get all conversations',
+        tags: ['Admin - Messages'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function conversations(Request $request)
     {
         $query = Conversation::with(['user1', 'user2', 'booking', 'lastMessageUser']);
@@ -56,26 +45,14 @@ class AdminMessageController extends Controller
         return ConversationResource::collection($conversations);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/messages",
- *         summary="Get all messages",
- *         tags={"Messages"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/messages',
+        summary: 'Get all messages',
+        tags: ['Admin - Messages'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function messages(Request $request)
     {
         $query = Message::with(['sender', 'receiver', 'conversation']);
@@ -107,26 +84,13 @@ class AdminMessageController extends Controller
         return MessageResource::collection($messages);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/messages/flagged",
- *         summary="Get flagged messages",
- *         tags={"Messages"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/messages/flagged',
+        summary: 'Get flagged messages',
+        tags: ['Admin - Messages'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function flaggedMessages(Request $request)
     {
         $messages = Message::with(['sender', 'receiver', 'conversation'])
@@ -137,33 +101,15 @@ class AdminMessageController extends Controller
         return MessageResource::collection($messages);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/messages/{id}",
- *         summary="Get message details",
- *         tags={"Messages"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/messages/{id}',
+        summary: 'Get message details',
+        tags: ['Admin - Messages'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function showMessage($id)
     {
         $message = Message::with(['sender', 'receiver', 'conversation'])
@@ -172,33 +118,15 @@ class AdminMessageController extends Controller
         return new MessageResource($message);
     }
 
-        /**
- *     @OA\Delete(
- *         path="/api/v1/admin/messages/{id}",
- *         summary="Delete message",
- *         tags={"Messages"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Delete(
+        path: '/api/v1/admin/messages/{id}',
+        summary: 'Delete message',
+        tags: ['Admin - Messages'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function deleteMessage($id)
     {
         $message = Message::findOrFail($id);
@@ -210,33 +138,15 @@ class AdminMessageController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Put(
- *         path="/api/v1/admin/messages/{id}/unflag",
- *         summary="Unflag message",
- *         tags={"Messages"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/admin/messages/{id}/unflag',
+        summary: 'Unflag message',
+        tags: ['Admin - Messages'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function unflagMessage($id)
     {
         $message = Message::findOrFail($id);
@@ -253,33 +163,15 @@ class AdminMessageController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Put(
- *         path="/api/v1/admin/messages/conversations/{id}/block",
- *         summary="Block conversation",
- *         tags={"Messages"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/admin/messages/conversations/{id}/block',
+        summary: 'Block conversation',
+        tags: ['Admin - Messages'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function blockConversation(Request $request, $id)
     {
         $conversation = Conversation::findOrFail($id);
@@ -296,33 +188,15 @@ class AdminMessageController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Put(
- *         path="/api/v1/admin/messages/conversations/{id}/unblock",
- *         summary="Unblock conversation",
- *         tags={"Messages"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/admin/messages/conversations/{id}/unblock',
+        summary: 'Unblock conversation',
+        tags: ['Admin - Messages'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function unblockConversation($id)
     {
         $conversation = Conversation::findOrFail($id);
@@ -339,26 +213,13 @@ class AdminMessageController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/messages/statistics",
- *         summary="Get message statistics",
- *         tags={"Messages"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/messages/statistics',
+        summary: 'Get message statistics',
+        tags: ['Admin - Messages'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function statistics()
     {
         $totalConversations = Conversation::count();

@@ -6,29 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ListingResource;
 use App\Models\ServiceListing;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class AdminListingController extends Controller
 {
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/listings",
- *         summary="Get all listings",
- *         tags={"Listings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/listings',
+        summary: 'Get all listings',
+        tags: ['Admin - Listings'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function index(Request $request)
     {
         $query = ServiceListing::with(['category', 'provider']);
@@ -75,33 +63,15 @@ class AdminListingController extends Controller
         ], 200);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/listings/{id}",
- *         summary="Get listing details",
- *         tags={"Listings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/listings/{id}',
+        summary: 'Get listing details',
+        tags: ['Admin - Listings'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function show($id)
     {
         $listing = ServiceListing::with(['category', 'provider'])->find($id);
@@ -120,9 +90,13 @@ class AdminListingController extends Controller
     }
 
 
-    /**
-     * Get pending listings
-     */
+    #[OA\Get(
+        path: '/api/v1/admin/listings/pending',
+        summary: 'Get pending listings',
+        tags: ['Admin - Listings'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function getPendingListings(Request $request)
     {
         $listings = ServiceListing::with(['category', 'provider'])
@@ -144,33 +118,15 @@ class AdminListingController extends Controller
         ], 200);
     }
 
-        /**
- *     @OA\Put(
- *         path="/api/v1/admin/listings/{id}/approve",
- *         summary="Approve listing",
- *         tags={"Listings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/admin/listings/{id}/approve',
+        summary: 'Approve listing',
+        tags: ['Admin - Listings'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Approved successfully')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function approve($id)
     {
         $listing = ServiceListing::find($id);
@@ -203,33 +159,23 @@ class AdminListingController extends Controller
         }
     }
 
-        /**
- *     @OA\Put(
- *         path="/api/v1/admin/listings/{id}/reject",
- *         summary="Reject listing",
- *         tags={"Listings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/admin/listings/{id}/reject',
+        summary: 'Reject listing',
+        tags: ['Admin - Listings'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'reason', type: 'string')
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Rejected successfully')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function reject(Request $request, $id)
     {
         $request->validate([
@@ -267,9 +213,14 @@ class AdminListingController extends Controller
         }
     }
 
-    /**
-     * Suspend listing
-     */
+    #[OA\Put(
+        path: '/api/v1/admin/listings/{id}/suspend',
+        summary: 'Suspend listing',
+        tags: ['Admin - Listings'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
     public function suspend($id)
     {
         $listing = ServiceListing::find($id);
@@ -298,33 +249,15 @@ class AdminListingController extends Controller
         }
     }
 
-        /**
- *     @OA\Delete(
- *         path="/api/v1/admin/listings/{id}",
- *         summary="Delete listing",
- *         tags={"Listings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Delete(
+        path: '/api/v1/admin/listings/{id}',
+        summary: 'Delete listing',
+        tags: ['Admin - Listings'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Deleted successfully')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function destroy($id)
     {
         $listing = ServiceListing::find($id);
@@ -353,33 +286,23 @@ class AdminListingController extends Controller
         }
     }
 
-        /**
- *     @OA\Put(
- *         path="/api/v1/admin/listings/{id}/feature",
- *         summary="Feature listing",
- *         tags={"Listings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/admin/listings/{id}/feature',
+        summary: 'Feature listing',
+        tags: ['Admin - Listings'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'featured_days', type: 'integer')
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Featured successfully')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function feature(Request $request, $id)
     {
         $request->validate([

@@ -6,29 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\BookingResource;
 use App\Models\Booking;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class AdminBookingController extends Controller
 {
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/bookings",
- *         summary="Get all bookings",
- *         tags={"Bookings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/bookings',
+        summary: 'Get all bookings',
+        tags: ['Admin - Bookings'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function index(Request $request)
     {
         $query = Booking::with(['client', 'provider', 'listing.category']);
@@ -83,26 +72,13 @@ class AdminBookingController extends Controller
         ], 200);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/bookings/statistics",
- *         summary="Get booking statistics",
- *         tags={"Bookings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/bookings/statistics',
+        summary: 'Get booking statistics',
+        tags: ['Admin - Bookings'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function statistics()
     {
         $stats = [
@@ -144,33 +120,15 @@ class AdminBookingController extends Controller
         ], 200);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/bookings/{id}",
- *         summary="Get booking details",
- *         tags={"Bookings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/bookings/{id}',
+        summary: 'Get booking details',
+        tags: ['Admin - Bookings'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function show($id)
     {
         $booking = Booking::with(['client', 'provider', 'listing.category'])->find($id);
@@ -188,33 +146,23 @@ class AdminBookingController extends Controller
         ], 200);
     }
 
-        /**
- *     @OA\Put(
- *         path="/api/v1/admin/bookings/{id}/cancel",
- *         summary="Cancel booking",
- *         tags={"Bookings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/admin/bookings/{id}/cancel',
+        summary: 'Cancel booking',
+        tags: ['Admin - Bookings'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'reason', type: 'string')
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Cancelled successfully')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function cancel(Request $request, $id)
     {
         $request->validate([
@@ -261,9 +209,14 @@ class AdminBookingController extends Controller
         }
     }
 
-    /**
-     * Delete booking permanently
-     */
+    #[OA\Delete(
+        path: '/api/v1/admin/bookings/{id}',
+        summary: 'Delete booking permanently',
+        tags: ['Admin - Bookings'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
     public function destroy($id)
     {
         $booking = Booking::find($id);

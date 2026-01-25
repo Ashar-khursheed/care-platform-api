@@ -94,7 +94,22 @@ class ProfileController extends Controller
     }
 
     /**
-     * Upload profile photo
+     * @OA\Post(
+     *     path="/api/v1/profile/photo",
+     *     summary="Upload profile photo",
+     *     tags={"Profile"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(property="photo", type="string", format="binary")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Photo uploaded")
+     * )
      */
     public function uploadPhoto(Request $request)
     {
@@ -134,7 +149,13 @@ class ProfileController extends Controller
     }
 
     /**
-     * Delete profile photo
+     * @OA\Delete(
+     *     path="/api/v1/profile/photo",
+     *     summary="Delete profile photo",
+     *     tags={"Profile"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="Photo deleted")
+     * )
      */
     public function deletePhoto(Request $request)
     {
@@ -329,7 +350,13 @@ class ProfileController extends Controller
     }
 
     /**
-     * Get verification status
+     * @OA\Get(
+     *     path="/api/v1/profile/verification-status",
+     *     summary="Get verification status",
+     *     tags={"Profile"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="Success")
+     * )
      */
     public function verificationStatus(Request $request)
     {

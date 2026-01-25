@@ -90,7 +90,13 @@ class NotificationController extends Controller
     }
 
     /**
-     * Get unread notifications count
+     * @OA\Get(
+     *     path="/api/v1/notifications/unread-count",
+     *     summary="Get unread notifications count",
+     *     tags={"Notifications"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="Success")
+     * )
      */
     public function unreadCount(Request $request)
     {
@@ -109,7 +115,14 @@ class NotificationController extends Controller
     }
 
     /**
-     * Get recent notifications
+     * @OA\Get(
+     *     path="/api/v1/notifications/recent",
+     *     summary="Get recent notifications",
+     *     tags={"Notifications"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(name="days", in="query", required=false, @OA\Schema(type="integer", default=7)),
+     *     @OA\Response(response=200, description="Success")
+     * )
      */
     public function recent(Request $request)
     {
@@ -191,7 +204,14 @@ class NotificationController extends Controller
     }
 
     /**
-     * Mark notification as unread
+     * @OA\Put(
+     *     path="/api/v1/notifications/{id}/unread",
+     *     summary="Mark notification as unread",
+     *     tags={"Notifications"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Success")
+     * )
      */
     public function markAsUnread(Request $request, $id)
     {
@@ -336,7 +356,13 @@ class NotificationController extends Controller
     }
 
     /**
-     * Get notification preferences
+     * @OA\Get(
+     *     path="/api/v1/notifications/preferences",
+     *     summary="Get notification preferences",
+     *     tags={"Notifications"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="Success")
+     * )
      */
     public function getPreferences(Request $request)
     {
@@ -374,7 +400,20 @@ class NotificationController extends Controller
     }
 
     /**
-     * Update notification preferences
+     * @OA\Put(
+     *     path="/api/v1/notifications/preferences",
+     *     summary="Update notification preferences",
+     *     tags={"Notifications"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="email_notifications", type="boolean"),
+     *             @OA\Property(property="push_notifications", type="boolean")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Success")
+     * )
      */
     public function updatePreferences(Request $request)
     {

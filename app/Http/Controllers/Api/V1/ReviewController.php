@@ -11,28 +11,17 @@ use App\Http\Resources\ReviewResource;
 use App\Models\Review;
 use App\Models\Booking;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class ReviewController extends Controller
 {
-        /**
- *     @OA\Get(
- *         path="/api/v1/reviews",
- *         summary="Get all reviews",
- *         tags={"Reviews"},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/reviews',
+        summary: 'Get all reviews',
+        tags: ['Reviews']
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function index(Request $request)
     {
         $query = Review::with(['client', 'provider', 'listing.category', 'booking'])
@@ -64,26 +53,14 @@ class ReviewController extends Controller
         return ReviewResource::collection($reviews);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/my-reviews",
- *         summary="Get my reviews",
- *         tags={"Reviews"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/my-reviews',
+        summary: 'Get my reviews',
+        security: [['bearerAuth' => []]],
+        tags: ['Reviews']
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function myReviews(Request $request)
     {
         $user = $request->user();
@@ -109,32 +86,14 @@ class ReviewController extends Controller
         return ReviewResource::collection($reviews);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/reviews/{id}",
- *         summary="Get review details",
- *         tags={"Reviews"},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/reviews/{id}',
+        summary: 'Get review details',
+        tags: ['Reviews']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function show(Request $request, $id)
     {
         $review = Review::with(['client', 'provider', 'listing.category', 'booking'])
@@ -143,33 +102,15 @@ class ReviewController extends Controller
         return new ReviewResource($review);
     }
 
-        /**
- *     @OA\Post(
- *         path="/api/v1/bookings/{id}/review",
- *         summary="Create review",
- *         tags={"Bookings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Post(
+        path: '/api/v1/bookings/{id}/review',
+        summary: 'Create review',
+        security: [['bearerAuth' => []]],
+        tags: ['Reviews']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 201, description: 'Created')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function store(Request $request)
     {
         // Basic validation
@@ -232,33 +173,15 @@ class ReviewController extends Controller
         ], 201);
 
     }
-        /**
- *     @OA\Put(
- *         path="/api/v1/reviews/{id}",
- *         summary="Update review",
- *         tags={"Reviews"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/reviews/{id}',
+        summary: 'Update review',
+        security: [['bearerAuth' => []]],
+        tags: ['Reviews']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function update(ReviewUpdateRequest $request, Review $review)
     {
         $review->update($request->validated());
@@ -266,33 +189,15 @@ class ReviewController extends Controller
         return new ReviewResource($review);
     }
 
-        /**
- *     @OA\Delete(
- *         path="/api/v1/reviews/{id}",
- *         summary="Delete review",
- *         tags={"Reviews"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Delete(
+        path: '/api/v1/reviews/{id}',
+        summary: 'Delete review',
+        security: [['bearerAuth' => []]],
+        tags: ['Reviews']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 403, description: 'Unauthorized')]
     public function destroy(Request $request, Review $review)
     {
         // Check authorization
@@ -318,9 +223,18 @@ class ReviewController extends Controller
         ]);
     }
 
-    /**
-     * Add provider response to review
-     */
+    #[OA\Post(
+        path: '/api/v1/reviews/{id}/response',
+        summary: 'Add provider response to review',
+        security: [['bearerAuth' => []]],
+        tags: ['Reviews']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(properties: [new OA\Property(property: 'response', type: 'string')])
+    )]
+    #[OA\Response(response: 200, description: 'Response added')]
     public function addResponse(ReviewResponseRequest $request, Review $review)
     {
         $review->update([
@@ -383,9 +297,18 @@ class ReviewController extends Controller
         ]);
     }
 
-    /**
-     * Flag review as inappropriate
-     */
+    #[OA\Post(
+        path: '/api/v1/reviews/{id}/flag',
+        summary: 'Flag review as inappropriate',
+        security: [['bearerAuth' => []]],
+        tags: ['Reviews']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(properties: [new OA\Property(property: 'reason', type: 'string')])
+    )]
+    #[OA\Response(response: 200, description: 'Flagged')]
     public function flag(Request $request, Review $review)
     {
         $request->validate([
@@ -403,9 +326,14 @@ class ReviewController extends Controller
         ]);
     }
 
-    /**
-     * Mark review as helpful
-     */
+    #[OA\Post(
+        path: '/api/v1/reviews/{id}/helpful',
+        summary: 'Mark review as helpful',
+        security: [['bearerAuth' => []]],
+        tags: ['Reviews']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Incremented')]
     public function markHelpful(Request $request, Review $review)
     {
         $review->increment('helpful_count');
@@ -416,9 +344,13 @@ class ReviewController extends Controller
         ]);
     }
 
-    /**
-     * Get review statistics for current user
-     */
+    #[OA\Get(
+        path: '/api/v1/reviews/statistics',
+        summary: 'Get review statistics',
+        security: [['bearerAuth' => []]],
+        tags: ['Reviews']
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function statistics(Request $request)
     {
         $user = $request->user();

@@ -8,29 +8,18 @@ use App\Http\Requests\ListingUpdateRequest;
 use App\Http\Resources\ListingResource;
 use App\Models\ServiceListing;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class ListingController extends Controller
 {
-        /**
- *     @OA\Get(
- *         path="/api/v1/provider/listings",
- *         summary="Get my listings",
- *         tags={"Listings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/provider/listings',
+        summary: 'Get my listings',
+        security: [['bearerAuth' => []]],
+        tags: ['Listings']
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function myListings(Request $request)
     {
         $query = ServiceListing::with(['category', 'provider'])
@@ -62,25 +51,13 @@ class ListingController extends Controller
         ], 200);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/listings",
- *         summary="Get all listings",
- *         tags={"Listings"},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/listings',
+        summary: 'Get all listings',
+        tags: ['Listings']
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function index(Request $request)
     {
         $query = ServiceListing::with(['category', 'provider'])
@@ -152,32 +129,14 @@ class ListingController extends Controller
         ], 200);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/listings/{id}",
- *         summary="Get listing details",
- *         tags={"Listings"},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/listings/{id}',
+        summary: 'Get listing details',
+        tags: ['Listings']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function show($id)
     {
         $listing = ServiceListing::with(['category', 'provider'])->find($id);
@@ -198,26 +157,33 @@ class ListingController extends Controller
         ], 200);
     }
 
-        /**
- *     @OA\Post(
- *         path="/api/v1/provider/listings",
- *         summary="Create new listing",
- *         tags={"Listings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Post(
+        path: '/api/v1/provider/listings',
+        summary: 'Create new listing',
+        security: [['bearerAuth' => []]],
+        tags: ['Listings']
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['category_id', 'title', 'description', 'hourly_rate', 'service_location'],
+            properties: [
+                new OA\Property(property: 'category_id', type: 'integer', example: 1),
+                new OA\Property(property: 'title', type: 'string', example: 'Need a plumber'),
+                new OA\Property(property: 'description', type: 'string', example: 'Fixing a leak...'),
+                new OA\Property(property: 'hourly_rate', type: 'number', format: 'float', example: 50.00),
+                new OA\Property(property: 'years_of_experience', type: 'integer', example: 5),
+                new OA\Property(property: 'service_location', type: 'string'),
+                new OA\Property(property: 'service_radius', type: 'number'),
+                new OA\Property(property: 'skills', type: 'array', items: new OA\Items(type: 'string')),
+                new OA\Property(property: 'languages', type: 'array', items: new OA\Items(type: 'string')),
+                new OA\Property(property: 'certifications', type: 'array', items: new OA\Items(type: 'string')),
+                new OA\Property(property: 'availability', type: 'object')
+            ]
+        )
+    )]
+    #[OA\Response(response: 201, description: 'Created')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function store(ListingStoreRequest $request)
     {
         try {
@@ -227,7 +193,7 @@ class ListingController extends Controller
                 'title' => $request->title,
                 'description' => $request->description,
                 'hourly_rate' => $request->hourly_rate,
-                'years_of_experience' => $request->years_of_experience,
+                'years_of_experience' => $request->years_of_experience ?? 0, // Default to 0 for jobs
                 'skills' => $request->skills,
                 'languages' => $request->languages,
                 'certifications' => $request->certifications,
@@ -255,33 +221,31 @@ class ListingController extends Controller
         }
     }
 
-        /**
- *     @OA\Put(
- *         path="/api/v1/provider/listings/{id}",
- *         summary="Update listing",
- *         tags={"Listings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/provider/listings/{id}',
+        summary: 'Update listing',
+        security: [['bearerAuth' => []]],
+        tags: ['Listings']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'category_id', type: 'integer'),
+                new OA\Property(property: 'title', type: 'string'),
+                new OA\Property(property: 'description', type: 'string'),
+                new OA\Property(property: 'hourly_rate', type: 'number'),
+                new OA\Property(property: 'service_location', type: 'string'),
+                new OA\Property(property: 'is_available', type: 'boolean'),
+                new OA\Property(property: 'skills', type: 'array', items: new OA\Items(type: 'string')),
+                new OA\Property(property: 'availability', type: 'object')
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function update(ListingUpdateRequest $request, $id)
     {
         $listing = ServiceListing::where('id', $id)
@@ -314,9 +278,16 @@ class ListingController extends Controller
         }
     }
 
-    /**
-     * Toggle listing availability
-     */
+    #[OA\Put(
+        path: '/api/v1/provider/listings/{id}/toggle-availability',
+        summary: 'Toggle listing availability',
+        security: [['bearerAuth' => []]],
+        tags: ['Listings']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function toggleAvailability(Request $request, $id)
     {
         $listing = ServiceListing::where('id', $id)
@@ -352,33 +323,16 @@ class ListingController extends Controller
         }
     }
 
-        /**
- *     @OA\Delete(
- *         path="/api/v1/provider/listings/{id}",
- *         summary="Delete listing",
- *         tags={"Listings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Delete(
+        path: '/api/v1/provider/listings/{id}',
+        summary: 'Delete listing',
+        security: [['bearerAuth' => []]],
+        tags: ['Listings']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function destroy(Request $request, $id)
     {
         $listing = ServiceListing::where('id', $id)
@@ -409,25 +363,12 @@ class ListingController extends Controller
         }
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/listings/featured",
- *         summary="Get featured listings",
- *         tags={"Listings"},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/listings/featured',
+        summary: 'Get featured listings',
+        tags: ['Listings']
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function featured()
     {
         $listings = ServiceListing::with(['category', 'provider'])

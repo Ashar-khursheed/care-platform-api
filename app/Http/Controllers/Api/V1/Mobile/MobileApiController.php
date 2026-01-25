@@ -22,7 +22,7 @@ class MobileApiController extends Controller
 
         /**
          * @OA\Get(
-         *     path="/v1/mobile/home",
+         *     path="/api/v1/mobile/home",
          *     operationId="mobileGethomedata",
          *     tags={"Mobile"},
          *     summary="Get home data",
@@ -77,7 +77,13 @@ class MobileApiController extends Controller
     }
 
     /**
-     * Get listings with infinite scroll
+     * @OA\Get(
+     *     path="/api/v1/mobile/listings",
+     *     summary="Get listings for mobile",
+     *     tags={"Mobile"},
+     *     @OA\Parameter(name="page", in="query", required=false, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Success")
+     * )
      */
     public function getListings(Request $request)
     {
@@ -218,7 +224,13 @@ class MobileApiController extends Controller
     }
 
     /**
-     * Get user bookings (lightweight)
+     * @OA\Get(
+     *     path="/api/v1/mobile/bookings",
+     *     summary="Get user bookings for mobile",
+     *     tags={"Mobile"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="Success")
+     * )
      */
     public function getUserBookings(Request $request)
     {
@@ -334,7 +346,12 @@ class MobileApiController extends Controller
     }
 
     /**
-     * Get app configuration
+     * @OA\Get(
+     *     path="/api/v1/mobile/config",
+     *     summary="Get mobile app config",
+     *     tags={"Mobile"},
+     *     @OA\Response(response=200, description="Success")
+     * )
      */
     public function getAppConfig()
     {

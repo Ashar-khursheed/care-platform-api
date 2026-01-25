@@ -32,7 +32,7 @@ class Payout extends Model
         'scheduled_at' => 'datetime',
         'paid_at' => 'datetime',
         'failed_at' => 'datetime',
-        'metadata' => 'array',
+        'metadata' => 'encrypted:array', // Encrypt sensitive bank details
     ];
 
     /**

@@ -10,29 +10,18 @@ use App\Models\ServiceListing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use OpenApi\Attributes as OA;
 
 class BookingController extends Controller
 {
-        /**
- *     @OA\Get(
- *         path="/api/v1/bookings",
- *         summary="Get user bookings",
- *         tags={"Bookings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/bookings',
+        summary: 'Get user bookings',
+        security: [['bearerAuth' => []]],
+        tags: ['Bookings']
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function index(Request $request)
     {
         $user = $request->user();
@@ -84,33 +73,15 @@ class BookingController extends Controller
         ], 200);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/bookings/{id}",
- *         summary="Get booking details",
- *         tags={"Bookings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/bookings/{id}',
+        summary: 'Get booking details',
+        security: [['bearerAuth' => []]],
+        tags: ['Bookings']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function show(Request $request, $id)
     {
         $user = $request->user();
@@ -137,153 +108,166 @@ class BookingController extends Controller
         ], 200);
     }
 
-        /**
- *     @OA\Post(
- *         path="/api/v1/bookings",
- *         summary="Create new booking",
- *         tags={"Bookings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
-   public function store(Request $request)
-{
-    try {
-        $user = $request->user();
+    #[OA\Post(
+        path: '/api/v1/bookings',
+        summary: 'Create new booking (or apply to job)',
+        security: [['bearerAuth' => []]],
+        tags: ['Bookings']
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['listing_id', 'start_date', 'end_date', 'start_time', 'end_time', 'service_location'],
+            properties: [
+                new OA\Property(property: 'listing_id', type: 'integer', example: 1),
+                new OA\Property(property: 'start_date', type: 'string', format: 'date', example: '2024-01-01'),
+                new OA\Property(property: 'end_date', type: 'string', format: 'date', example: '2024-01-01'),
+                new OA\Property(property: 'start_time', type: 'string', example: '09:00:00'),
+                new OA\Property(property: 'end_time', type: 'string', example: '17:00:00'),
+                new OA\Property(property: 'service_location', type: 'string', example: '123 Main St'),
+                new OA\Property(property: 'special_requirements', type: 'string', example: 'Bring own tools')
+            ]
+        )
+    )]
+    #[OA\Response(response: 201, description: 'Booking created')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 404, description: 'Listing not found')]
+    public function store(Request $request)
+    {
+        try {
+            $user = $request->user();
 
-        if (!$user) {
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 401);
+            }
+
+            // -------------------
+            // Validate input
+            // -------------------
+            $validated = $request->validate([
+                'listing_id' => 'required|exists:service_listings,id',
+                'start_date' => 'required|date|after_or_equal:today',
+                'end_date' => 'required|date|after_or_equal:start_date',
+                'start_time' => 'required|string',
+                'end_time' => 'required|string',
+                'service_location' => 'required|string|max:500',
+                'special_requirements' => 'nullable|string|max:1000',
+            ]);
+
+            // -------------------
+            // Find listing
+            // -------------------
+            $listing = ServiceListing::with('provider')->find($validated['listing_id']);
+
+            if (!$listing || !$listing->isActive()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Service listing is not available'
+                ], 400);
+            }
+
+            // -------------------
+            // Parse start & end datetime
+            // -------------------
+            $start = Carbon::parse($validated['start_date'] . ' ' . $validated['start_time']);
+            $end = Carbon::parse($validated['end_date'] . ' ' . $validated['end_time']);
+
+            // Calculate total hours
+            $hours = $end->diffInMinutes($start) / 60;
+
+
+            if ($hours > 12 * ($end->diffInDays($start) + 1)) { // max 12 hours per day
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Booking cannot exceed 12 hours per day.'
+                ], 400);
+            }
+
+            $totalAmount = $hours * $listing->hourly_rate;
+
+            // -------------------
+            // Determine Roles (Bidirectional)
+            // -------------------
+            // If Listing Creator is a Client -> This is a JOB POST. Auth User (Provider) is applying.
+            // If Listing Creator is a Provider -> This is a SERVICE. Auth User (Client) is booking.
+
+            $listingCreator = $listing->provider; // Relation is named 'provider' but means 'creator'
+
+            if ($listingCreator->user_type === 'client') {
+                // Case 1: Job Application (Provider applying to Client's Job)
+                $clientId = $listingCreator->id; // The Job Poster
+                $providerId = $user->id;         // The Applicant
+
+                if ($user->user_type !== 'provider') {
+                    return response()->json(['success' => false, 'message' => 'Only providers can apply to jobs.'], 403);
+                }
+            } else {
+                // Case 2: Service Booking (Client booking Provider's Service)
+                $clientId = $user->id;           // The Booker
+                $providerId = $listingCreator->id; // The Service Provider
+
+                // Allow providers to book other providers? Maybe not.
+                if ($user->id === $providerId) {
+                    return response()->json(['success' => false, 'message' => 'You cannot book your own listing.'], 400);
+                }
+            }
+
+            // -------------------
+            // Create booking
+            // -------------------
+            $booking = Booking::create([
+                'client_id' => $clientId,
+                'provider_id' => $providerId,
+                'booking_date' => $validated['start_date'], // must include
+                'listing_id' => $listing->id,
+                'start_date' => $validated['start_date'],
+                'end_date' => $validated['end_date'],
+                'start_time' => $start->format('H:i:s'),
+                'end_time' => $end->format('H:i:s'),
+                'hours' => $hours,
+                'hourly_rate' => $listing->hourly_rate,
+                'total_amount' => $totalAmount,
+                'service_location' => $validated['service_location'],
+                'special_requirements' => $validated['special_requirements'] ?? null,
+                'status' => 'pending',
+            ]);
+
+            $booking->load(['client', 'provider', 'listing.category']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Booking request sent successfully',
+                'data' => new BookingResource($booking)
+            ], 201);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
-        // -------------------
-        // Validate input
-        // -------------------
-        $validated = $request->validate([
-            'listing_id' => 'required|exists:service_listings,id',
-            'start_date' => 'required|date|after_or_equal:today',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'start_time' => 'required|string',
-            'end_time' => 'required|string',
-            'service_location' => 'required|string|max:500',
-            'special_requirements' => 'nullable|string|max:1000',
-        ]);
-
-        // -------------------
-        // Find listing
-        // -------------------
-        $listing = ServiceListing::with('provider')->find($validated['listing_id']);
-
-        if (!$listing || !$listing->isActive()) {
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Service listing is not available'
-            ], 400);
+                'message' => 'Failed to create booking',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        // -------------------
-        // Parse start & end datetime
-        // -------------------
-       $start = Carbon::parse($validated['start_date'] . ' ' . $validated['start_time']);
-$end = Carbon::parse($validated['end_date'] . ' ' . $validated['end_time']);
-
-// Calculate total hours
-$hours = $end->diffInMinutes($start) / 60;
-
-
-        if ($hours > 12 * ($end->diffInDays($start) + 1)) { // max 12 hours per day
-            return response()->json([
-                'success' => false,
-                'message' => 'Booking cannot exceed 12 hours per day.'
-            ], 400);
-        }
-
-        $totalAmount = $hours * $listing->hourly_rate;
-
-        // -------------------
-        // Create booking
-        // -------------------
-        $booking = Booking::create([
-            'client_id' => $user->id,
-            'provider_id' => $listing->provider_id,
-            'booking_date' => $validated['start_date'], // must include
-            'listing_id' => $listing->id,
-            'start_date' => $validated['start_date'],
-            'end_date' => $validated['end_date'],
-            'start_time' => $start->format('H:i:s'),
-            'end_time' => $end->format('H:i:s'),
-            'hours' => $hours,
-            'hourly_rate' => $listing->hourly_rate,
-            'total_amount' => $totalAmount,
-            'service_location' => $validated['service_location'],
-            'special_requirements' => $validated['special_requirements'] ?? null,
-            'status' => 'pending',
-        ]);
-
-        $booking->load(['client', 'provider', 'listing.category']);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Booking request sent successfully',
-            'data' => new BookingResource($booking)
-        ], 201);
-
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Validation failed',
-            'errors' => $e->errors()
-        ], 422);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to create booking',
-            'error' => $e->getMessage()
-        ], 500);
     }
-}
 
-
-        /**
- *     @OA\Put(
- *         path="/api/v1/provider/bookings/{id}/accept",
- *         summary="Accept booking",
- *         tags={"Bookings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/provider/bookings/{id}/accept',
+        summary: 'Accept booking',
+        security: [['bearerAuth' => []]],
+        tags: ['Bookings']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 404, description: 'Resource not found')]
     public function accept(Request $request, $id)
     {
         $booking = Booking::find($id);
@@ -335,33 +319,25 @@ $hours = $end->diffInMinutes($start) / 60;
         }
     }
 
-        /**
- *     @OA\Put(
- *         path="/api/v1/provider/bookings/{id}/reject",
- *         summary="Reject booking",
- *         tags={"Bookings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/provider/bookings/{id}/reject',
+        summary: 'Reject booking',
+        security: [['bearerAuth' => []]],
+        tags: ['Bookings']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['reason'],
+            properties: [
+                new OA\Property(property: 'reason', type: 'string', example: 'Scheduling conflict')
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 404, description: 'Resource not found')]
     public function reject(Request $request, $id)
     {
         $request->validate([
@@ -418,33 +394,25 @@ $hours = $end->diffInMinutes($start) / 60;
         }
     }
 
-        /**
- *     @OA\Put(
- *         path="/api/v1/bookings/{id}/cancel",
- *         summary="Cancel booking",
- *         tags={"Bookings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/bookings/{id}/cancel',
+        summary: 'Cancel booking',
+        security: [['bearerAuth' => []]],
+        tags: ['Bookings']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['reason'],
+            properties: [
+                new OA\Property(property: 'reason', type: 'string', example: 'Plans changed')
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function cancel(Request $request, $id)
     {
         $request->validate([
@@ -499,9 +467,16 @@ $hours = $end->diffInMinutes($start) / 60;
         }
     }
 
-    /**
-     * Mark booking as in progress (Provider only)
-     */
+    #[OA\Put(
+        path: '/api/v1/bookings/{id}/in-progress',
+        summary: 'Mark booking as in progress',
+        security: [['bearerAuth' => []]],
+        tags: ['Bookings']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 400, description: 'Bad Request')]
+    #[OA\Response(response: 403, description: 'Unauthorized')]
     public function markInProgress(Request $request, $id)
     {
         $booking = Booking::find($id);
@@ -544,9 +519,16 @@ $hours = $end->diffInMinutes($start) / 60;
         }
     }
 
-    /**
-     * Mark booking as completed (Provider only)
-     */
+    #[OA\Put(
+        path: '/api/v1/bookings/{id}/complete',
+        summary: 'Mark booking as completed',
+        security: [['bearerAuth' => []]],
+        tags: ['Bookings']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 400, description: 'Bad Request')]
+    #[OA\Response(response: 403, description: 'Unauthorized')]
     public function markCompleted(Request $request, $id)
     {
         $booking = Booking::find($id);
@@ -594,9 +576,114 @@ $hours = $end->diffInMinutes($start) / 60;
         }
     }
 
-    /**
-     * Get booking statistics
-     */
+    #[OA\Put(
+        path: '/api/v1/bookings/{id}',
+        summary: 'Update booking details',
+        security: [['bearerAuth' => []]],
+        tags: ['Bookings']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'service_location', type: 'string'),
+                new OA\Property(property: 'special_requirements', type: 'string')
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 403, description: 'Unauthorized')]
+    public function update(Request $request, $id)
+    {
+        $booking = Booking::findOrFail($id);
+        if ($booking->client_id !== $request->user()->id) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+        $booking->update($request->only(['service_location', 'special_requirements']));
+        return response()->json(['success' => true, 'data' => new BookingResource($booking)]);
+    }
+
+    #[OA\Put(
+        path: '/api/v1/bookings/{id}/start',
+        summary: 'Start the booking',
+        security: [['bearerAuth' => []]],
+        tags: ['Bookings']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 403, description: 'Unauthorized')]
+    public function start(Request $request, $id)
+    {
+        return $this->markInProgress($request, $id);
+    }
+
+    #[OA\Delete(
+        path: '/api/v1/bookings/{id}',
+        summary: 'Delete a booking',
+        security: [['bearerAuth' => []]],
+        tags: ['Bookings']
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Deleted')]
+    #[OA\Response(response: 403, description: 'Unauthorized')]
+    public function destroy(Request $request, $id)
+    {
+        $booking = Booking::findOrFail($id);
+        if ($booking->client_id !== $request->user()->id && !$request->user()->isAdmin()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+        $booking->delete();
+        return response()->json(['success' => true, 'message' => 'Booking deleted']);
+    }
+
+    #[OA\Get(
+        path: '/api/v1/bookings/provider/pending',
+        summary: 'Get pending bookings for provider',
+        security: [['bearerAuth' => []]],
+        tags: ['Bookings']
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    public function providerPending(Request $request)
+    {
+        $request->merge(['status' => 'pending']);
+        return $this->index($request);
+    }
+
+    #[OA\Get(
+        path: '/api/v1/bookings/provider/upcoming',
+        summary: 'Get upcoming bookings for provider',
+        security: [['bearerAuth' => []]],
+        tags: ['Bookings']
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    public function providerUpcoming(Request $request)
+    {
+        $request->merge(['type' => 'upcoming']);
+        return $this->index($request);
+    }
+
+    #[OA\Get(
+        path: '/api/v1/bookings/client/upcoming',
+        summary: 'Get upcoming bookings for client',
+        security: [['bearerAuth' => []]],
+        tags: ['Bookings']
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    public function clientUpcoming(Request $request)
+    {
+        $request->merge(['type' => 'upcoming']);
+        return $this->index($request);
+    }
+
+    #[OA\Get(
+        path: '/api/v1/bookings/statistics',
+        summary: 'Get booking statistics',
+        security: [['bearerAuth' => []]],
+        tags: ['Bookings']
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function statistics(Request $request)
     {
         $user = $request->user();

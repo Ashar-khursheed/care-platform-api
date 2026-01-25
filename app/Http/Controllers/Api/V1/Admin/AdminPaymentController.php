@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Payment;
-use App\Models\Payout;
-use App\Models\Transaction;
 use App\Services\StripeService;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class AdminPaymentController extends Controller
 {
@@ -18,26 +16,14 @@ class AdminPaymentController extends Controller
         $this->stripeService = $stripeService;
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/payments",
- *         summary="Get all payments",
- *         tags={"Payments"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/payments',
+        summary: 'Get all payments',
+        tags: ['Admin - Payments'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function index(Request $request)
     {
         $query = Payment::with(['booking', 'client', 'provider']);
@@ -74,33 +60,15 @@ class AdminPaymentController extends Controller
         return response()->json($payments);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/payments/{id}",
- *         summary="Get payment details",
- *         tags={"Payments"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/payments/{id}',
+        summary: 'Get payment details',
+        tags: ['Admin - Payments'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function show($id)
     {
         $payment = Payment::with(['booking', 'client', 'provider', 'payout', 'transactions'])
@@ -112,33 +80,16 @@ class AdminPaymentController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Post(
- *         path="/api/v1/admin/payments/{id}/refund",
- *         summary="Process refund",
- *         tags={"Payments"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Post(
+        path: '/api/v1/admin/payments/{id}/refund',
+        summary: 'Process refund',
+        tags: ['Admin - Payments'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Successful operation')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 404, description: 'Resource not found')]
     public function refund(Request $request, $id)
     {
         $request->validate([
@@ -174,9 +125,6 @@ class AdminPaymentController extends Controller
         ]);
     }
 
-    /**
-     * Get all payouts
-     */
     public function payouts(Request $request)
     {
         $query = Payout::with(['provider', 'payment']);
@@ -198,9 +146,6 @@ class AdminPaymentController extends Controller
         return response()->json($payouts);
     }
 
-    /**
-     * Process payout
-     */
     public function processPayout(Request $request, $id)
     {
         $payout = Payout::findOrFail($id);
@@ -222,26 +167,15 @@ class AdminPaymentController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/transactions",
- *         summary="Get transactions",
- *         tags={""},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/transactions',
+        summary: 'Get transactions',
+        tags: ['Admin - Payments'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Successful operation')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 404, description: 'Resource not found')]
     public function transactions(Request $request)
     {
         $query = Transaction::with(['user', 'payment', 'payout', 'booking']);
@@ -267,26 +201,15 @@ class AdminPaymentController extends Controller
         return response()->json($transactions);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/payments/statistics",
- *         summary="Get payment statistics",
- *         tags={"Payments"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/payments/statistics',
+        summary: 'Get payment statistics',
+        tags: ['Admin - Payments'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Successful operation')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 404, description: 'Resource not found')]
     public function statistics(Request $request)
     {
         // Date range

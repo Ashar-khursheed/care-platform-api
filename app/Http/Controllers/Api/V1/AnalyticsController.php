@@ -17,7 +17,7 @@ class AnalyticsController extends Controller
 
         /**
          * @OA\Get(
-         *     path="/v1/analytics/provider/dashboard",
+         *     path="/api/v1/analytics/provider/dashboard",
          *     operationId="analyticsProviderdashboard",
          *     tags={"Analytics"},
          *     summary="Get provider dashboard analytics",
@@ -55,7 +55,15 @@ class AnalyticsController extends Controller
     }
 
     /**
-     * Get provider earnings report
+     * @OA\Get(
+     *     path="/api/v1/analytics/provider/earnings",
+     *     summary="Get provider earnings report",
+     *     tags={"Analytics"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(name="start_date", in="query", required=false, @OA\Schema(type="string", format="date")),
+     *     @OA\Parameter(name="end_date", in="query", required=false, @OA\Schema(type="string", format="date")),
+     *     @OA\Response(response=200, description="Success")
+     * )
      */
     public function providerEarnings(Request $request)
     {
@@ -113,7 +121,13 @@ class AnalyticsController extends Controller
     }
 
     /**
-     * Get provider booking statistics
+     * @OA\Get(
+     *     path="/api/v1/analytics/provider/bookings",
+     *     summary="Get provider booking statistics",
+     *     tags={"Analytics"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="Success")
+     * )
      */
     public function providerBookingStats(Request $request)
     {
@@ -224,7 +238,13 @@ class AnalyticsController extends Controller
     }
 
     /**
-     * Get client spending analytics
+     * @OA\Get(
+     *     path="/api/v1/analytics/client/spending",
+     *     summary="Get client spending analytics",
+     *     tags={"Analytics"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="Success")
+     * )
      */
     public function clientSpending(Request $request)
     {

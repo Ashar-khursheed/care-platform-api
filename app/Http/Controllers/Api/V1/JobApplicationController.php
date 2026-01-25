@@ -42,6 +42,26 @@ class JobApplicationController extends Controller
  *         path="/api/v1/job-applications",
  *         summary="Submit job application",
  *         tags={"Job Applications"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\MediaType(
+ *             mediaType="multipart/form-data",
+ *             @OA\Schema(
+ *                 type="object",
+ *                 required={"first_name", "last_name", "email", "phone_number", "position", "experience", "availability", "video", "resume"},
+ *                 @OA\Property(property="first_name", type="string"),
+ *                 @OA\Property(property="last_name", type="string"),
+ *                 @OA\Property(property="email", type="string", format="email"),
+ *                 @OA\Property(property="phone_number", type="string"),
+ *                 @OA\Property(property="position", type="string"),
+ *                 @OA\Property(property="experience", type="string"),
+ *                 @OA\Property(property="availability", type="string"),
+ *                 @OA\Property(property="message", type="string"),
+ *                 @OA\Property(property="video", type="string", format="binary"),
+ *                 @OA\Property(property="resume", type="string", format="binary")
+ *             )
+ *         )
+ *     ),
  *     @OA\Response(
  *         response=200,
  *         description="Successful operation"

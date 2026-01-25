@@ -6,73 +6,49 @@ use App\Http\Controllers\Controller;
 use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use OpenApi\Attributes as OA;
 
 class AdminCmsController extends Controller
 {
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/cms/settings",
- *         summary="Get all CMS settings",
- *         tags={"CMS"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
-  public function getSettings()
-{
-    $settings = SiteSetting::all()
-        ->map(function ($setting) {
+    #[OA\Get(
+        path: '/api/v1/admin/cms/settings',
+        summary: 'Get all site settings',
+        tags: ['Admin - CMS'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    public function getSettings()
+    {
+        $settings = SiteSetting::all()
+            ->map(function ($setting) {
+                if ($setting->type === 'json' && is_string($setting->value)) {
+                    $setting->value = json_decode($setting->value, true);
+                }
 
-            if ($setting->type === 'json' && is_string($setting->value)) {
-                $setting->value = json_decode($setting->value, true);
-            }
+                if ($setting->type === 'boolean') {
+                    $setting->value = filter_var($setting->value, FILTER_VALIDATE_BOOLEAN);
+                }
 
-            if ($setting->type === 'boolean') {
-                $setting->value = filter_var($setting->value, FILTER_VALIDATE_BOOLEAN);
-            }
+                return $setting;
+            })
+            ->groupBy('group');
 
-            return $setting;
-        })
-        ->groupBy('group');
+        return response()->json([
+            'success' => true,
+            'data' => $settings,
+        ]);
+    }
 
-    return response()->json([
-        'success' => true,
-        'data' => $settings,
-    ]);
-}
-
-
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/cms/settings/{group}",
- *         summary="Get settings by group",
- *         tags={"CMS"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/cms/settings/{group}',
+        summary: 'Get settings by group',
+        tags: ['Admin - CMS'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'group', in: 'path', required: true, schema: new OA\Schema(type: 'string'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function getSettingsByGroup($group)
     {
         $settings = SiteSetting::where('group', $group)->get();
@@ -83,26 +59,14 @@ class AdminCmsController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Post(
- *         path="/api/v1/admin/cms/settings",
- *         summary="Update CMS settings",
- *         tags={"CMS"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Post(
+        path: '/api/v1/admin/cms/settings',
+        summary: 'Update CMS settings',
+        tags: ['Admin - CMS'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 400, description: 'Bad Request')]
     public function updateSettings(Request $request)
     {
         $request->validate([
@@ -116,7 +80,6 @@ class AdminCmsController extends Controller
             $type = $setting['type'] ?? 'text';
             $value = $setting['value'];
 
-            // Handle image uploads
             if ($type === 'image' && $request->hasFile("image_{$setting['key']}")) {
                 $file = $request->file("image_{$setting['key']}");
                 $path = $file->store('settings', 'public');
@@ -132,26 +95,14 @@ class AdminCmsController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Put(
- *         path="/api/v1/admin/cms/settings/single",
- *         summary="Update single setting",
- *         tags={"CMS"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/admin/cms/settings/single',
+        summary: 'Update single setting',
+        tags: ['Admin - CMS'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function updateSetting(Request $request)
     {
         $request->validate([
@@ -163,9 +114,7 @@ class AdminCmsController extends Controller
         $type = $request->get('type', 'text');
         $value = $request->value;
 
-        // Handle image upload
         if ($type === 'image' && $request->hasFile('image')) {
-            // Delete old image
             $oldSetting = SiteSetting::where('key', $request->key)->first();
             if ($oldSetting && $oldSetting->value) {
                 $oldPath = str_replace('/storage/', '', parse_url($oldSetting->value, PHP_URL_PATH));
@@ -186,26 +135,13 @@ class AdminCmsController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/cms/header/menu",
- *         summary="Get header menu",
- *         tags={"CMS"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/cms/header/menu',
+        summary: 'Get header menu',
+        tags: ['Admin - CMS'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function getHeaderMenu()
     {
         $menu = SiteSetting::get('header_menu', []);
@@ -216,26 +152,13 @@ class AdminCmsController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Put(
- *         path="/api/v1/admin/cms/header/menu",
- *         summary="Update header menu",
- *         tags={"CMS"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/admin/cms/header/menu',
+        summary: 'Update header menu',
+        tags: ['Admin - CMS'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function updateHeaderMenu(Request $request)
     {
         $request->validate([
@@ -253,26 +176,13 @@ class AdminCmsController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/cms/footer/links",
- *         summary="Get footer links",
- *         tags={"CMS"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/cms/footer/links',
+        summary: 'Get footer links',
+        tags: ['Admin - CMS'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function getFooterLinks()
     {
         $links = SiteSetting::get('footer_links', []);
@@ -283,26 +193,13 @@ class AdminCmsController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Put(
- *         path="/api/v1/admin/cms/footer/links",
- *         summary="Update footer links",
- *         tags={"CMS"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/admin/cms/footer/links',
+        summary: 'Update footer links',
+        tags: ['Admin - CMS'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function updateFooterLinks(Request $request)
     {
         $request->validate([
@@ -317,26 +214,13 @@ class AdminCmsController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Post(
- *         path="/api/v1/admin/cms/settings/clear-cache",
- *         summary="Clear CMS cache",
- *         tags={"CMS"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Post(
+        path: '/api/v1/admin/cms/settings/clear-cache',
+        summary: 'Clear CMS cache',
+        tags: ['Admin - CMS'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function clearCache()
     {
         SiteSetting::clearCache();

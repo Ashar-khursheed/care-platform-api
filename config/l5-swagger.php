@@ -13,7 +13,7 @@ return [
             'paths' => [
                 'docs_json' => 'api-docs.json',
                 'docs_yaml' => 'api-docs.yaml',
-                'format_to_use_for_docs' => env('L5_FORMAT_TO_USE_FOR_DOCS', 'yaml'),
+                'format_to_use_for_docs' => env('L5_FORMAT_TO_USE_FOR_DOCS', 'json'),
                 'annotations' => [
                     base_path('app'),
                 ],
@@ -47,7 +47,7 @@ return [
             'security' => [],
         ],
         'generate_always' => env('L5_SWAGGER_GENERATE_ALWAYS', false),
-        'generate_yaml_copy' => env('L5_SWAGGER_GENERATE_YAML_COPY', false),
+        'generate_yaml_copy' => env('L5_SWAGGER_GENERATE_YAML_COPY', true),
         'proxy' => false,
         'additional_config_url' => null,
         'operations_sort' => env('L5_SWAGGER_OPERATIONS_SORT', null),

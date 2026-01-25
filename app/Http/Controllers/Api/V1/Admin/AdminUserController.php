@@ -10,21 +10,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
+use OpenApi\Attributes as OA;
 
 class AdminUserController extends Controller
 {
-        /**
-         * @OA\Get(
-         *     path="/v1/admin/dashboard",
-         *     operationId="adminusersDashboard",
-         *     tags={"Admin - Users"},
-         *     summary="Dashboard",
-         *     security={{"bearerAuth":{}}},
-         *     @OA\Response(response=200, description="Success"),
-         *     @OA\Response(response=401, description="Unauthorized"),
-         *     @OA\Response(response=404, description="Not found")
-         * )
-         */
+    #[OA\Get(
+        path: '/api/v1/admin/dashboard',
+        summary: 'Dashboard',
+        tags: ['Admin - Users'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthorized')]
     public function dashboard()
     {
         $stats = [
@@ -54,26 +51,14 @@ class AdminUserController extends Controller
         ], 200);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/users",
- *         summary="Get all users",
- *         tags={""},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/users',
+        summary: 'Get all users',
+        tags: ['Admin - Users'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Successful operation')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function index(Request $request)
     {
         $query = User::query();
@@ -128,33 +113,15 @@ class AdminUserController extends Controller
         ], 200);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/users/{id}",
- *         summary="Get user details",
- *         tags={""},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/users/{id}',
+        summary: 'Get user details',
+        tags: ['Admin - Users'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function show($id)
     {
         $user = User::find($id);
@@ -178,33 +145,24 @@ class AdminUserController extends Controller
         ], 200);
     }
 
-        /**
- *     @OA\Put(
- *         path="/api/v1/admin/users/{id}",
- *         summary="Update user",
- *         tags={""},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Put(
+        path: '/api/v1/admin/users/{id}',
+        summary: 'Update user details',
+        tags: ['Admin - Users'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'first_name', type: 'string'),
+                new OA\Property(property: 'last_name', type: 'string')
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Update success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function update(Request $request, $id)
     {
         $user = User::find($id);
@@ -256,9 +214,15 @@ class AdminUserController extends Controller
         }
     }
 
-    /**
-     * Verify user
-     */
+    #[OA\Post(
+        path: '/api/v1/admin/users/{id}/verify',
+        summary: 'Verify user',
+        tags: ['Admin - Users'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'User verified successfully')]
+    #[OA\Response(response: 404, description: 'User not found')]
     public function verifyUser($id)
     {
         $user = User::find($id);
@@ -294,9 +258,22 @@ class AdminUserController extends Controller
         }
     }
 
-    /**
-     * Suspend user
-     */
+    #[OA\Post(
+        path: '/api/v1/admin/users/{id}/suspend',
+        summary: 'Suspend user',
+        tags: ['Admin - Users'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'reason', type: 'string')
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function suspendUser(Request $request, $id)
     {
         $user = User::find($id);
@@ -343,9 +320,15 @@ class AdminUserController extends Controller
         }
     }
 
-    /**
-     * Activate user
-     */
+    #[OA\Post(
+        path: '/api/v1/admin/users/{id}/activate',
+        summary: 'Activate user',
+        tags: ['Admin - Users'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'User activated successfully')]
+    #[OA\Response(response: 404, description: 'User not found')]
     public function activateUser($id)
     {
         $user = User::find($id);
@@ -379,33 +362,15 @@ class AdminUserController extends Controller
         }
     }
 
-        /**
- *     @OA\Delete(
- *         path="/api/v1/admin/users/{id}",
- *         summary="Delete user",
- *         tags={""},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Delete(
+        path: '/api/v1/admin/users/{id}',
+        summary: 'Delete user',
+        tags: ['Admin - Users'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Delete success')]
+    #[OA\Response(response: 404, description: 'Not found')]
     public function destroy($id)
     {
         $user = User::find($id);
@@ -442,9 +407,22 @@ class AdminUserController extends Controller
         }
     }
 
-    /**
-     * Reset user password
-     */
+    #[OA\Post(
+        path: '/api/v1/admin/users/{id}/reset-password',
+        summary: 'Reset user password',
+        tags: ['Admin - Users'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'password', type: 'string')
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function resetPassword(Request $request, $id)
     {
         $user = User::find($id);

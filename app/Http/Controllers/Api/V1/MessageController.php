@@ -46,9 +46,21 @@ class MessageController extends Controller
     }
 
     /**
-     * Get messages for a conversation
-     * USED BY: Clients & Providers
-     * Must be participant in conversation
+     * @OA\Get(
+     *     path="/api/v1/messages/conversations/{id}/messages",
+     *     summary="Get messages for a conversation",
+     *     tags={"Messages"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Conversation ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(response=200, description="Successful operation"),
+     *     @OA\Response(response=403, description="Unauthorized")
+     * )
      */
     public function messages(Request $request, $conversationId)
     {
@@ -83,10 +95,27 @@ class MessageController extends Controller
     }
 
     /**
-     * Send a message
-     * USED BY: Clients & Providers
-     * - Clients can message Providers
-     * - Providers can message Clients
+     * @OA\Post(
+     *     path="/api/v1/messages/send",
+     *     summary="Send a message",
+     *     tags={"Messages"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"receiver_id", "message"},
+     *                 @OA\Property(property="receiver_id", type="integer"),
+     *                 @OA\Property(property="booking_id", type="integer"),
+     *                 @OA\Property(property="message", type="string"),
+     *                 @OA\Property(property="attachment", type="string", format="binary")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Message sent"),
+     *     @OA\Response(response=403, description="Blocked")
+     * )
      */
     public function send(MessageStoreRequest $request)
     {
@@ -333,8 +362,20 @@ class MessageController extends Controller
     }
 
     /**
-     * Search messages
-     * USED BY: Clients & Providers
+     * @OA\Get(
+     *     path="/api/v1/messages/search",
+     *     summary="Search messages",
+     *     tags={"Messages"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="query",
+     *         in="query",
+     *         required=true,
+     *         description="Search term",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response=200, description="Successful operation")
+     * )
      */
     public function search(Request $request)
     {

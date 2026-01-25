@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\AnalyticsService;
 use App\Services\ReportExportService;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class AdminAnalyticsController extends Controller
 {
@@ -18,26 +19,14 @@ class AdminAnalyticsController extends Controller
         $this->reportService = $reportService;
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/analytics/dashboard",
- *         summary="Get admin dashboard",
- *         tags={"Analytics"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/analytics/dashboard',
+        summary: 'Get admin dashboard analytics',
+        tags: ['Admin - Analytics'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function dashboard()
     {
         $overview = $this->analyticsService->getDashboardOverview();
@@ -48,26 +37,13 @@ class AdminAnalyticsController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/analytics/users",
- *         summary="Get user analytics",
- *         tags={"Analytics"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/analytics/users',
+        summary: 'Get user analytics',
+        tags: ['Admin - Analytics'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function userAnalytics(Request $request)
     {
         $request->validate([
@@ -86,26 +62,13 @@ class AdminAnalyticsController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/analytics/revenue",
- *         summary="Get revenue analytics",
- *         tags={"Analytics"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/analytics/revenue',
+        summary: 'Get revenue analytics',
+        tags: ['Admin - Analytics'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function revenueAnalytics(Request $request)
     {
         $request->validate([
@@ -124,26 +87,13 @@ class AdminAnalyticsController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/analytics/bookings",
- *         summary="Get booking analytics",
- *         tags={"Bookings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/analytics/bookings',
+        summary: 'Get booking analytics',
+        tags: ['Admin - Analytics'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function bookingAnalytics(Request $request)
     {
         $request->validate([
@@ -162,26 +112,13 @@ class AdminAnalyticsController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/analytics/reviews",
- *         summary="Get review analytics",
- *         tags={"Reviews"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/analytics/reviews',
+        summary: 'Get review analytics',
+        tags: ['Admin - Analytics'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function reviewAnalytics(Request $request)
     {
         $request->validate([
@@ -200,26 +137,13 @@ class AdminAnalyticsController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/analytics/providers",
- *         summary="Get provider analytics",
- *         tags={"Analytics"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/analytics/providers',
+        summary: 'Get provider analytics',
+        tags: ['Admin - Analytics'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function providerAnalytics(Request $request)
     {
         $request->validate([
@@ -240,26 +164,13 @@ class AdminAnalyticsController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/analytics/export/bookings",
- *         summary="Export bookings report",
- *         tags={"Bookings"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/analytics/export/bookings',
+        summary: 'Export bookings report',
+        tags: ['Admin - Analytics'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'File download')]
     public function exportBookings(Request $request)
     {
         $request->validate([
@@ -275,26 +186,13 @@ class AdminAnalyticsController extends Controller
         );
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/analytics/export/payments",
- *         summary="Export payments report",
- *         tags={"Payments"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/analytics/export/payments',
+        summary: 'Export payments report',
+        tags: ['Admin - Analytics'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'File download')]
     public function exportPayments(Request $request)
     {
         $request->validate([
@@ -310,26 +208,13 @@ class AdminAnalyticsController extends Controller
         );
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/analytics/export/reviews",
- *         summary="Export reviews report",
- *         tags={"Reviews"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/analytics/export/reviews',
+        summary: 'Export reviews report',
+        tags: ['Admin - Analytics'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'File download')]
     public function exportReviews(Request $request)
     {
         $request->validate([
@@ -345,26 +230,13 @@ class AdminAnalyticsController extends Controller
         );
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/analytics/export/users",
- *         summary="Export users report",
- *         tags={"Analytics"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/analytics/export/users',
+        summary: 'Export users report',
+        tags: ['Admin - Analytics'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'File download')]
     public function exportUsers(Request $request)
     {
         $request->validate([
@@ -380,26 +252,15 @@ class AdminAnalyticsController extends Controller
         );
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/analytics/export/revenue-summary",
- *         summary="Export revenue summary",
- *         tags={"Analytics"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/analytics/export/revenue-summary',
+        summary: 'Export revenue summary',
+        tags: ['Admin - Analytics'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Successful operation')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 404, description: 'Resource not found')]
     public function exportRevenueSummary(Request $request)
     {
         $request->validate([

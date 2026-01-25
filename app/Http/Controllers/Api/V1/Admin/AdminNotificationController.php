@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class AdminNotificationController extends Controller
 {
@@ -16,26 +17,14 @@ class AdminNotificationController extends Controller
         $this->notificationService = $notificationService;
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/notifications",
- *         summary="Get all notifications",
- *         tags={"Notifications"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/notifications',
+        summary: 'Get all notifications',
+        tags: ['Admin - Notifications'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function index(Request $request)
     {
         $query = Notification::with('user');
@@ -69,26 +58,14 @@ class AdminNotificationController extends Controller
         return response()->json($notifications);
     }
 
-        /**
- *     @OA\Post(
- *         path="/api/v1/admin/notifications/announcement",
- *         summary="Send announcement",
- *         tags={"Notifications"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Post(
+        path: '/api/v1/admin/notifications/announcement',
+        summary: 'Send announcement',
+        tags: ['Admin - Notifications'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function sendAnnouncement(Request $request)
     {
         $request->validate([
@@ -110,26 +87,14 @@ class AdminNotificationController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Post(
- *         path="/api/v1/admin/notifications/send-to-users",
- *         summary="Send to specific users",
- *         tags={"Notifications"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Post(
+        path: '/api/v1/admin/notifications/send-to-users',
+        summary: 'Send to specific users',
+        tags: ['Admin - Notifications'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function sendToUsers(Request $request)
     {
         $request->validate([
@@ -157,33 +122,15 @@ class AdminNotificationController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Delete(
- *         path="/api/v1/admin/notifications/{id}",
- *         summary="Delete notification",
- *         tags={"Notifications"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Delete(
+        path: '/api/v1/admin/notifications/{id}',
+        summary: 'Delete notification',
+        tags: ['Admin - Notifications'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function destroy($id)
     {
         $notification = Notification::findOrFail($id);
@@ -195,26 +142,13 @@ class AdminNotificationController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/admin/notifications/statistics",
- *         summary="Get notification statistics",
- *         tags={"Notifications"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/admin/notifications/statistics',
+        summary: 'Get notification statistics',
+        tags: ['Admin - Notifications'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function statistics()
     {
         $totalNotifications = Notification::count();
@@ -289,26 +223,15 @@ class AdminNotificationController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Post(
- *         path="/api/v1/admin/notifications/test",
- *         summary="Test notification",
- *         tags={"Notifications"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Post(
+        path: '/api/v1/admin/notifications/test',
+        summary: 'Test notification',
+        tags: ['Admin - Notifications'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Successful operation')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 404, description: 'Resource not found')]
     public function test(Request $request)
     {
         $request->validate([
