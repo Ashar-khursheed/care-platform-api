@@ -247,11 +247,19 @@ class Payment extends Model
     {
         static::saved(function ($payment) {
             if ($payment->booking) {
+                // Map detailed Stripe statuses to Booking-compatible statuses
                 $status = $payment->status;
-                if ($status === 'succeeded') {
-                    $status = 'paid';
-                }
-                $payment->booking->update(['payment_status' => $status]);
+                
+                // Keep the mapping strict to avoid enum errors in the bookings table
+                $bookingStatus = match($status) {
+                    'succeeded' => 'paid',
+                    'refunded' => 'refunded',
+                    'partially_refunded' => 'partially_refunded',
+                    'failed' => 'failed',
+                    default => 'pending', // handles requires_payment_method, processing, etc.
+                };
+
+                $payment->booking->update(['payment_status' => $bookingStatus]);
             }
         });
     }
