@@ -62,13 +62,13 @@ class PaymentController extends Controller
             ], 400);
         }
 
-        // Check if booking is accepted
-        if ($booking->status !== 'accepted') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Booking must be accepted by provider before payment.',
-            ], 400);
-        }
+        // Check if booking is accepted - REMOVED for Upfront Payment
+        // if ($booking->status !== 'accepted') {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Booking must be accepted by provider before payment.',
+        //     ], 400);
+        // }
 
         $result = $this->stripeService->createPaymentIntent($booking, $request->payment_method_id);
 

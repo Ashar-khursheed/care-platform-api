@@ -11,9 +11,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use OpenApi\Attributes as OA;
+use App\Services\StripeService;
+use App\Models\Payment;
 
 class BookingController extends Controller
 {
+    protected $stripeService;
+
+    public function __construct(StripeService $stripeService)
+    {
+        $this->stripeService = $stripeService;
+    }
     #[OA\Get(
         path: '/api/v1/bookings',
         summary: 'Get user bookings',
@@ -369,6 +377,13 @@ class BookingController extends Controller
                 'rejection_reason' => $request->reason,
             ]);
 
+            // Process refund if payment exists
+            $payment = Payment::where('booking_id', $booking->id)->where('status', 'succeeded')->first();
+            if ($payment) {
+                $this->stripeService->processRefund($payment, null, 'Booking rejected by provider');
+                $payment->update(['status' => 'refunded', 'refunded_at' => now(), 'refund_amount' => $payment->amount]);
+            }
+
             // TODO: Send notification to client
 
             return response()->json([
@@ -444,6 +459,15 @@ class BookingController extends Controller
                 'cancelled_by' => $request->user()->id,
                 'cancelled_at' => now(),
             ]);
+
+            // Process refund if payment exists and it's appropriate (e.g. within policy)
+            // For now, simple logic: if paid, refund.
+            $payment = Payment::where('booking_id', $booking->id)->where('status', 'succeeded')->first();
+            if ($payment) {
+                 // Determine refund amount? Full refund for now.
+                $this->stripeService->processRefund($payment, null, 'Booking cancelled');
+                $payment->update(['status' => 'refunded', 'refunded_at' => now(), 'refund_amount' => $payment->amount]);
+            }
 
             // TODO: Send notification to other party
 
