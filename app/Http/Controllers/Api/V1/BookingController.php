@@ -187,14 +187,6 @@ class BookingController extends Controller
             // Calculate total hours
             $hours = abs($end->diffInMinutes($start) / 60);
 
-
-            if ($hours > 12 * ($end->diffInDays($start) + 1)) { // max 12 hours per day
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Booking cannot exceed 12 hours per day.'
-                ], 400);
-            }
-
             $totalAmount = abs($hours * $listing->hourly_rate);
 
             // -------------------
