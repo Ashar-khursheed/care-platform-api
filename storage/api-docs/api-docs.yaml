@@ -5,10 +5,10 @@ info:
   version: 1.0.0
 servers:
   -
-    url: 'http://localhost:8000/api'
+    url: 'http://localhost:8000'
     description: 'Local Development Server'
   -
-    url: 'https://careapi.in-sourceit.com/api'
+    url: 'https://careapi.in-sourceit.com'
     description: 'Production Server'
 paths:
   /api/v1/admin/analytics/dashboard:
