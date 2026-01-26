@@ -14,26 +14,29 @@ class BookingResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'client' => [
+
+            'client' => $this->client ? [
                 'id' => $this->client->id,
                 'name' => $this->client->full_name,
                 'email' => $this->client->email,
                 'phone' => $this->client->phone,
                 'profile_photo' => $this->client->profile_photo ? url('storage/' . $this->client->profile_photo) : null,
-            ],
-            'provider' => [
+            ] : null,
+        
+            'provider' => $this->provider ? [
                 'id' => $this->provider->id,
                 'name' => $this->provider->full_name,
                 'email' => $this->provider->email,
                 'phone' => $this->provider->phone,
                 'profile_photo' => $this->provider->profile_photo ? url('storage/' . $this->provider->profile_photo) : null,
                 'is_verified' => $this->provider->is_verified,
-            ],
-            'listing' => [
+            ] : null,
+        
+            'listing' => $this->listing ? [
                 'id' => $this->listing->id,
                 'title' => $this->listing->title,
-                'category' => $this->listing->category->name,
-            ],
+                'category' => $this->listing->category?->name,
+            ] : null,
             'booking_date' => $this->booking_date->format('Y-m-d'),
             'start_time' => $this->start_time->format('H:i'),
             'end_time' => $this->end_time->format('H:i'),
