@@ -84,6 +84,22 @@ class Booking extends Model
     }
 
     /**
+     * Get the payments for this booking
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'booking_id');
+    }
+
+    /**
+     * Get the latest payment for this booking
+     */
+    public function latestPayment()
+    {
+        return $this->hasOne(Payment::class, 'booking_id')->latestOfMany();
+    }
+
+    /**
      * Check if booking is pending
      */
     public function isPending(): bool
