@@ -185,7 +185,7 @@ class BookingController extends Controller
             }
 
             // Calculate total hours
-            $hours = $end->diffInMinutes($start) / 60;
+            $hours = abs($end->diffInMinutes($start) / 60);
 
 
             if ($hours > 12 * ($end->diffInDays($start) + 1)) { // max 12 hours per day
@@ -195,7 +195,7 @@ class BookingController extends Controller
                 ], 400);
             }
 
-            $totalAmount = $hours * $listing->hourly_rate;
+            $totalAmount = abs($hours * $listing->hourly_rate);
 
             // -------------------
             // Determine Roles (Bidirectional)

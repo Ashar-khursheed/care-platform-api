@@ -173,12 +173,6 @@ class Payment extends Model
             'paid_at' => now(),
         ]);
 
-        // Update booking payment status
-        $this->booking->update([
-            'payment_status' => 'paid',
-            'paid_at' => now(),
-        ]);
-
         // Create transaction record
         Transaction::create([
             'user_id' => $this->client_id,
@@ -216,11 +210,6 @@ class Payment extends Model
             'stripe_error' => $errorMessage,
             'failed_at' => now(),
         ]);
-
-        // Update booking payment status
-        $this->booking->update([
-            'payment_status' => 'failed',
-        ]);
     }
 
     /**
@@ -238,12 +227,6 @@ class Payment extends Model
             'refunded_at' => now(),
         ]);
 
-        // Update booking payment status
-        $this->booking->update([
-            'payment_status' => $isPartialRefund ? 'partially_refunded' : 'refunded',
-            'refunded_at' => now(),
-        ]);
-
         // Create refund transaction
         Transaction::create([
             'user_id' => $this->client_id,
@@ -256,5 +239,20 @@ class Payment extends Model
             'status' => 'completed',
             'description' => "Refund for booking #{$this->booking_id}",
         ]);
+    }
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted()
+    {
+        static::saved(function ($payment) {
+            if ($payment->booking) {
+                $status = $payment->status;
+                if ($status === 'succeeded') {
+                    $status = 'paid';
+                }
+                $payment->booking->update(['payment_status' => $status]);
+            }
+        });
     }
 }
