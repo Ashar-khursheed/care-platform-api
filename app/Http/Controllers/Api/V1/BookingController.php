@@ -177,6 +177,13 @@ class BookingController extends Controller
             $start = Carbon::parse($validated['start_date'] . ' ' . $validated['start_time']);
             $end = Carbon::parse($validated['end_date'] . ' ' . $validated['end_time']);
 
+            if ($end->lessThanOrEqualTo($start)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'The end time must be after the start time.'
+                ], 400);
+            }
+
             // Calculate total hours
             $hours = $end->diffInMinutes($start) / 60;
 
