@@ -31,6 +31,7 @@ class PaymentController extends Controller
             required: ['booking_id'],
             properties: [
                 new OA\Property(property: 'booking_id', type: 'integer'),
+                new OA\Property(property: 'amount', type: 'number', description: 'Optional: Overwrite booking amount'),
                 new OA\Property(property: 'payment_method_id', type: 'string')
             ]
         )
@@ -41,6 +42,7 @@ class PaymentController extends Controller
     {
         $request->validate([
             'booking_id' => 'required|exists:bookings,id',
+            'amount' => 'nullable|numeric|min:0.50',
             'payment_method_id' => 'nullable|string',
         ]);
 
@@ -63,7 +65,8 @@ class PaymentController extends Controller
         }
 
         // Validate Minimum Amount for Stripe (approx $0.50 USD)
-        if ($booking->total_amount < 0.50) {
+        $amount = $request->amount ?? $booking->total_amount;
+        if ($amount < 0.50) {
              return response()->json([
                 'success' => false,
                 'message' => 'Booking amount is too small to process payment via Stripe (Min $0.50).',
@@ -78,7 +81,7 @@ class PaymentController extends Controller
         //     ], 400);
         // }
 
-        $result = $this->stripeService->createPaymentIntent($booking, $request->payment_method_id);
+        $result = $this->stripeService->createPaymentIntent($booking, $request->payment_method_id, $request->amount);
 
         if (!$result['success']) {
             return response()->json([

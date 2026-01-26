@@ -20,10 +20,10 @@ class StripeService
     /**
      * Create payment intent for booking
      */
-    public function createPaymentIntent(Booking $booking, $paymentMethodId = null)
+    public function createPaymentIntent(Booking $booking, $paymentMethodId = null, $amount = null)
     {
         try {
-            $amount = $booking->total_amount;
+            $amount = $amount ?? $booking->total_amount;
             $platformFee = Payment::calculatePlatformFee($amount);
             $providerAmount = Payment::calculateProviderAmount($amount);
 
