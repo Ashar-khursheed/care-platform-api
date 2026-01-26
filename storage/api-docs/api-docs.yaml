@@ -6,7 +6,10 @@ info:
 servers:
   -
     url: 'http://localhost:8000/api'
-    description: 'Care Platform API Server'
+    description: 'Local Development Server'
+  -
+    url: 'https://careapi.in-sourceit.com/api'
+    description: 'Production Server'
 paths:
   /api/v1/admin/analytics/dashboard:
     get:
