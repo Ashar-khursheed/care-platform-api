@@ -46,7 +46,9 @@ class BookingResource extends JsonResource
             'service_location' => $this->service_location,
             'special_requirements' => $this->special_requirements,
             'status' => $this->status,
-            'payment_status' => $this->latestPayment ? $this->latestPayment->status : $this->payment_status,
+            'payment_status' => $this->latestPayment 
+                ? ($this->latestPayment->status === 'succeeded' ? 'paid' : $this->latestPayment->status) 
+                : $this->payment_status,
             'cancellation_reason' => $this->cancellation_reason,
             'cancelled_by' => $this->cancelled_by ? [
                 'id' => $this->cancelled_by,
