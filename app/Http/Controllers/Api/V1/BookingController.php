@@ -27,17 +27,11 @@ class BookingController extends Controller
         $user = $request->user();
         $query = Booking::with(['client', 'provider', 'listing.category']);
 
-        // Filter by role
-        if ($user->isClient()) {
-            $query->where('client_id', $user->id);
-        } elseif ($user->isProvider()) {
-            $query->where('provider_id', $user->id);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized'
-            ], 403);
-        }
+        // Filter by role - allow user to see bookings where they are client OR provider
+        $query->where(function($q) use ($user) {
+            $q->where('client_id', $user->id)
+              ->orWhere('provider_id', $user->id);
+        });
 
         // Filter by status
         if ($request->has('status')) {
