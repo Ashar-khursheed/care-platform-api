@@ -2855,6 +2855,9 @@ paths:
               properties:
                 booking_id:
                   type: integer
+                amount:
+                  description: 'Optional: Overwrite booking amount'
+                  type: number
                 payment_method_id:
                   type: string
               type: object
