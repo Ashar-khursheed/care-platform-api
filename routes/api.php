@@ -173,7 +173,7 @@ Route::prefix('v1')->group(function () {
         // MODULE 3: PROVIDER LISTINGS (10 endpoints)
         // ====================================================
         
-        Route::prefix('my-listings')->group(function () {
+        Route::prefix('provider/listings')->group(function () {
             Route::get('/', [ListingController::class, 'myListings']);
             Route::post('/', [ListingController::class, 'store']);
             Route::put('/{id}', [ListingController::class, 'update']);

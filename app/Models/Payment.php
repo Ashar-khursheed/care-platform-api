@@ -259,7 +259,17 @@ class Payment extends Model
                     default => 'pending', // handles requires_payment_method, processing, etc.
                 };
 
-                $payment->booking->update(['payment_status' => $bookingStatus]);
+                $updateData = ['payment_status' => $bookingStatus];
+
+                // Sync timestamps and transaction ID
+                if ($status === 'succeeded') {
+                    $updateData['paid_at'] = $payment->paid_at ?? now();
+                    $updateData['transaction_id'] = $payment->stripe_payment_intent_id;
+                } elseif (in_array($status, ['refunded', 'partially_refunded'])) {
+                    $updateData['refunded_at'] = $payment->refunded_at ?? now();
+                }
+
+                $payment->booking->update($updateData);
             }
         });
     }

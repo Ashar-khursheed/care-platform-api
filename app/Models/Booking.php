@@ -33,6 +33,8 @@ class Booking extends Model
         'payment_status',
         'payment_method',
         'transaction_id',
+        'paid_at',
+        'refunded_at',
     ];
 
     protected $casts = [
@@ -46,6 +48,8 @@ class Booking extends Model
         'accepted_at' => 'datetime',
         'rejected_at' => 'datetime',
         'completed_at' => 'datetime',
+        'paid_at' => 'datetime',
+        'refunded_at' => 'datetime',
     ];
 
     /**
