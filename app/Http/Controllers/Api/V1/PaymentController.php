@@ -62,6 +62,14 @@ class PaymentController extends Controller
             ], 400);
         }
 
+        // Validate Minimum Amount for Stripe (approx $0.50 USD)
+        if ($booking->total_amount < 0.50) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Booking amount is too small to process payment via Stripe (Min $0.50).',
+            ], 400);
+        }
+
         // Check if booking is accepted - REMOVED for Upfront Payment
         // if ($booking->status !== 'accepted') {
         //     return response()->json([
