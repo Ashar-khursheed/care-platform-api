@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Payment;
+use App\Models\Payout;
+use App\Models\Transaction;
 use App\Services\StripeService;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
