@@ -148,6 +148,18 @@ class AdminNotificationController extends Controller
         tags: ['Admin - Notifications'],
         security: [['bearerAuth' => []]]
     )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['title', 'message'],
+            properties: [
+                new OA\Property(property: 'title', type: 'string', example: 'Maintenance Alert'),
+                new OA\Property(property: 'message', type: 'string', example: 'System will be down for maintenance.'),
+                new OA\Property(property: 'user_type', type: 'string', enum: ['client', 'provider', 'admin'], nullable: true, example: 'provider'),
+                new OA\Property(property: 'priority', type: 'string', enum: ['low', 'medium', 'high', 'urgent'], nullable: true, example: 'high')
+            ]
+        )
+    )]
     #[OA\Response(response: 201, description: 'Created successfully')]
     #[OA\Response(response: 401, description: 'Unauthenticated')]
     #[OA\Response(response: 500, description: 'Server Error')]
@@ -185,6 +197,19 @@ class AdminNotificationController extends Controller
         summary: 'Send to specific users',
         tags: ['Admin - Notifications'],
         security: [['bearerAuth' => []]]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['user_ids', 'type', 'title', 'message'],
+            properties: [
+                new OA\Property(property: 'user_ids', type: 'array', items: new OA\Items(type: 'integer'), example: [1, 2, 3]),
+                new OA\Property(property: 'type', type: 'string', example: 'promotional'),
+                new OA\Property(property: 'title', type: 'string', example: 'Test Notification'),
+                new OA\Property(property: 'message', type: 'string', example: 'This is a test notification.'),
+                new OA\Property(property: 'priority', type: 'string', enum: ['low', 'medium', 'high', 'urgent'], nullable: true, example: 'medium')
+            ]
+        )
     )]
     #[OA\Response(response: 201, description: 'Created successfully')]
     #[OA\Response(response: 401, description: 'Unauthenticated')]
@@ -342,6 +367,15 @@ class AdminNotificationController extends Controller
         summary: 'Test notification',
         tags: ['Admin - Notifications'],
         security: [['bearerAuth' => []]]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['user_id'],
+            properties: [
+                new OA\Property(property: 'user_id', type: 'integer', example: 1)
+            ]
+        )
     )]
     #[OA\Response(response: 201, description: 'Successful operation')]
     #[OA\Response(response: 401, description: 'Unauthenticated')]
