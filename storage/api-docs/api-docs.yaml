@@ -973,11 +973,46 @@ paths:
         - 'Admin - Notifications'
       summary: 'Send announcement'
       operationId: 2148778de01b98c6bdf9a16695b991e6
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - title
+                - message
+              properties:
+                title:
+                  type: string
+                  example: 'Maintenance Alert'
+                message:
+                  type: string
+                  example: 'System will be down for maintenance.'
+                user_type:
+                  type: string
+                  enum:
+                    - client
+                    - provider
+                    - admin
+                  example: provider
+                  nullable: true
+                priority:
+                  type: string
+                  enum:
+                    - low
+                    - medium
+                    - high
+                    - urgent
+                  example: high
+                  nullable: true
+              type: object
       responses:
-        200:
-          description: Success
+        201:
+          description: 'Created successfully'
         401:
           description: Unauthenticated
+        500:
+          description: 'Server Error'
       security:
         -
           bearerAuth: []
@@ -987,9 +1022,47 @@ paths:
         - 'Admin - Notifications'
       summary: 'Send to specific users'
       operationId: adfb03b57e6755874be965b7ac80c207
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - user_ids
+                - type
+                - title
+                - message
+              properties:
+                user_ids:
+                  type: array
+                  items:
+                    type: integer
+                  example:
+                    - 1
+                    - 2
+                    - 3
+                type:
+                  type: string
+                  example: promotional
+                title:
+                  type: string
+                  example: 'Test Notification'
+                message:
+                  type: string
+                  example: 'This is a test notification.'
+                priority:
+                  type: string
+                  enum:
+                    - low
+                    - medium
+                    - high
+                    - urgent
+                  example: medium
+                  nullable: true
+              type: object
       responses:
-        200:
-          description: Success
+        201:
+          description: 'Created successfully'
         401:
           description: Unauthenticated
       security:
@@ -1034,8 +1107,20 @@ paths:
         - 'Admin - Notifications'
       summary: 'Test notification'
       operationId: 15c14521b321a0b084061b3a614c943f
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - user_id
+              properties:
+                user_id:
+                  type: integer
+                  example: 1
+              type: object
       responses:
-        200:
+        201:
           description: 'Successful operation'
         401:
           description: Unauthenticated
