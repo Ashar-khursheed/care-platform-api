@@ -50,6 +50,70 @@ class AdminPayoutController extends Controller
         $perPage = $request->get('per_page', 20);
         $payouts = $query->paginate($perPage);
 
+        // Dummy data for integration if empty
+        if ($payouts->isEmpty()) {
+            $dummyData = collect([
+                [
+                    'id' => 1,
+                    'provider_id' => 101,
+                    'amount' => 1500.00,
+                    'currency' => 'USD',
+                    'status' => 'pending',
+                    'created_at' => now()->subHours(2)->toIso8601String(),
+                    'provider' => [
+                        'id' => 101,
+                        'first_name' => 'John',
+                        'last_name' => 'Doe',
+                        'email' => 'john.doe@example.com',
+                        'avatar_url' => 'https://ui-avatars.com/api/?name=John+Doe',
+                    ]
+                ],
+                [
+                    'id' => 2,
+                    'provider_id' => 102,
+                    'amount' => 2450.50,
+                    'currency' => 'USD',
+                    'status' => 'paid',
+                    'created_at' => now()->subDays(1)->toIso8601String(),
+                    'provider' => [
+                        'id' => 102,
+                        'first_name' => 'Sarah',
+                        'last_name' => 'Smith',
+                        'email' => 'sarah.smith@example.com',
+                        'avatar_url' => 'https://ui-avatars.com/api/?name=Sarah+Smith',
+                    ]
+                ],
+                [
+                    'id' => 3,
+                    'provider_id' => 103,
+                    'amount' => 750.00,
+                    'currency' => 'USD',
+                    'status' => 'rejected',
+                    'created_at' => now()->subDays(2)->toIso8601String(),
+                    'provider' => [
+                        'id' => 103,
+                        'first_name' => 'Mike',
+                        'last_name' => 'Johnson',
+                        'email' => 'mike.j@example.com',
+                        'avatar_url' => 'https://ui-avatars.com/api/?name=Mike+Johnson',
+                    ]
+                ],
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'payouts' => $dummyData,
+                    'pagination' => [
+                        'total' => $dummyData->count(),
+                        'per_page' => $perPage,
+                        'current_page' => 1,
+                        'last_page' => 1,
+                    ]
+                ]
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
