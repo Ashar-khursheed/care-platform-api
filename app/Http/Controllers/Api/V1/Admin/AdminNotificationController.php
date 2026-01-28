@@ -148,8 +148,9 @@ class AdminNotificationController extends Controller
         tags: ['Admin - Notifications'],
         security: [['bearerAuth' => []]]
     )]
-    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 201, description: 'Created successfully')]
     #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 500, description: 'Server Error')]
     public function sendAnnouncement(Request $request)
     {
         $request->validate([
@@ -159,16 +160,24 @@ class AdminNotificationController extends Controller
             'priority' => 'nullable|in:low,medium,high,urgent',
         ]);
 
-        $this->notificationService->sendAnnouncement(
-            $request->title,
-            $request->message,
-            $request->user_type
-        );
+        try {
+            $this->notificationService->sendAnnouncement(
+                $request->title,
+                $request->message,
+                $request->user_type
+            );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Announcement sent successfully.',
-        ], 201);
+            return response()->json([
+                'success' => true,
+                'message' => 'Announcement sent successfully.',
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send announcement: ' . $e->getMessage(),
+                // 'trace' => $e->getTraceAsString() // debug use only
+            ], 500);
+        }
     }
 
     #[OA\Post(
@@ -177,7 +186,7 @@ class AdminNotificationController extends Controller
         tags: ['Admin - Notifications'],
         security: [['bearerAuth' => []]]
     )]
-    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 201, description: 'Created successfully')]
     #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function sendToUsers(Request $request)
     {
@@ -190,20 +199,27 @@ class AdminNotificationController extends Controller
             'priority' => 'nullable|in:low,medium,high,urgent',
         ]);
 
-        $this->notificationService->sendBatch(
-            $request->user_ids,
-            $request->type,
-            $request->title,
-            $request->message,
-            [
-                'priority' => $request->priority ?? 'medium',
-            ]
-        );
+        try {
+            $this->notificationService->sendBatch(
+                $request->user_ids,
+                $request->type,
+                $request->title,
+                $request->message,
+                [
+                    'priority' => $request->priority ?? 'medium',
+                ]
+            );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Notifications sent to ' . count($request->user_ids) . ' users.',
-        ], 201);
+            return response()->json([
+                'success' => true,
+                'message' => 'Notifications sent to ' . count($request->user_ids) . ' users.',
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send notifications: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     #[OA\Delete(
@@ -217,13 +233,20 @@ class AdminNotificationController extends Controller
     #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function destroy($id)
     {
-        $notification = Notification::findOrFail($id);
-        $notification->forceDelete();
+        try {
+            $notification = Notification::findOrFail($id);
+            $notification->forceDelete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Notification deleted permanently.',
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification deleted permanently.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete notification.',
+            ], 500);
+        }
     }
 
     #[OA\Get(
@@ -235,76 +258,83 @@ class AdminNotificationController extends Controller
     #[OA\Response(response: 200, description: 'Success')]
     public function statistics()
     {
-        $totalNotifications = Notification::count();
-        $unreadNotifications = Notification::unread()->count();
-        $readNotifications = Notification::read()->count();
+        try {
+            $totalNotifications = Notification::count();
+            $unreadNotifications = Notification::unread()->count();
+            $readNotifications = Notification::read()->count();
 
-        // Notifications by type
-        $byType = Notification::selectRaw('type, COUNT(*) as count')
-            ->groupBy('type')
-            ->orderBy('count', 'desc')
-            ->get()
-            ->pluck('count', 'type');
+            // Notifications by type
+            $byType = Notification::selectRaw('type, COUNT(*) as count')
+                ->groupBy('type')
+                ->orderBy('count', 'desc')
+                ->get()
+                ->pluck('count', 'type');
 
-        // Notifications by priority
-        $byPriority = Notification::selectRaw('priority, COUNT(*) as count')
-            ->groupBy('priority')
-            ->get()
-            ->pluck('count', 'priority');
+            // Notifications by priority
+            $byPriority = Notification::selectRaw('priority, COUNT(*) as count')
+                ->groupBy('priority')
+                ->get()
+                ->pluck('count', 'priority');
 
-        // Recent notifications (last 7 days grouped by date)
-        $recentNotifications = Notification::where('created_at', '>=', now()->subDays(7))
-            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
-            ->groupBy('date')
-            ->orderBy('date', 'desc')
-            ->get();
+            // Recent notifications (last 7 days grouped by date)
+            $recentNotifications = Notification::where('created_at', '>=', now()->subDays(7))
+                ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+                ->groupBy('date')
+                ->orderBy('date', 'desc')
+                ->get();
 
-        // Delivery statistics
-        $emailsSent = Notification::where('sent_email', true)->count();
-        $pushesSent = Notification::where('sent_push', true)->count();
-        $smsSent = Notification::where('sent_sms', true)->count();
+            // Delivery statistics
+            $emailsSent = Notification::where('sent_email', true)->count();
+            $pushesSent = Notification::where('sent_push', true)->count();
+            $smsSent = Notification::where('sent_sms', true)->count();
 
-        // Most engaged users (users with most read notifications)
-        $mostEngagedUsers = Notification::selectRaw('user_id, COUNT(*) as notifications_read')
-            ->read()
-            ->groupBy('user_id')
-            ->orderBy('notifications_read', 'desc')
-            ->limit(10)
-            ->with('user')
-            ->get()
-            ->map(function ($notification) {
-                return [
-                    'user_id' => $notification->user_id,
-                    'user_name' => $notification->user->first_name . ' ' . $notification->user->last_name,
-                    'notifications_read' => $notification->notifications_read,
-                ];
-            });
+            // Most engaged users (users with most read notifications)
+            $mostEngagedUsers = Notification::selectRaw('user_id, COUNT(*) as notifications_read')
+                ->read()
+                ->groupBy('user_id')
+                ->orderBy('notifications_read', 'desc')
+                ->limit(10)
+                ->with('user')
+                ->get()
+                ->map(function ($notification) {
+                    return [
+                        'user_id' => $notification->user_id,
+                        'user_name' => $notification->user ? ($notification->user->first_name . ' ' . $notification->user->last_name) : 'Unknown User',
+                        'notifications_read' => $notification->notifications_read,
+                    ];
+                });
 
-        // Read rate
-        $readRate = $totalNotifications > 0 
-            ? round(($readNotifications / $totalNotifications) * 100, 2) 
-            : 0;
+            // Read rate
+            $readRate = $totalNotifications > 0 
+                ? round(($readNotifications / $totalNotifications) * 100, 2) 
+                : 0;
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'overview' => [
-                    'total_notifications' => $totalNotifications,
-                    'unread_notifications' => $unreadNotifications,
-                    'read_notifications' => $readNotifications,
-                    'read_rate' => $readRate . '%',
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'overview' => [
+                        'total_notifications' => $totalNotifications,
+                        'unread_notifications' => $unreadNotifications,
+                        'read_notifications' => $readNotifications,
+                        'read_rate' => $readRate . '%',
+                    ],
+                    'by_type' => $byType,
+                    'by_priority' => $byPriority,
+                    'delivery' => [
+                        'emails_sent' => $emailsSent,
+                        'pushes_sent' => $pushesSent,
+                        'sms_sent' => $smsSent,
+                    ],
+                    'recent_notifications' => $recentNotifications,
+                    'most_engaged_users' => $mostEngagedUsers,
                 ],
-                'by_type' => $byType,
-                'by_priority' => $byPriority,
-                'delivery' => [
-                    'emails_sent' => $emailsSent,
-                    'pushes_sent' => $pushesSent,
-                    'sms_sent' => $smsSent,
-                ],
-                'recent_notifications' => $recentNotifications,
-                'most_engaged_users' => $mostEngagedUsers,
-            ],
-        ]);
+            ]);
+        } catch (\Exception $e) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch statistics: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     #[OA\Post(
@@ -313,7 +343,7 @@ class AdminNotificationController extends Controller
         tags: ['Admin - Notifications'],
         security: [['bearerAuth' => []]]
     )]
-    #[OA\Response(response: 200, description: 'Successful operation')]
+    #[OA\Response(response: 201, description: 'Successful operation')]
     #[OA\Response(response: 401, description: 'Unauthenticated')]
     #[OA\Response(response: 404, description: 'Resource not found')]
     public function test(Request $request)
@@ -322,21 +352,28 @@ class AdminNotificationController extends Controller
             'user_id' => 'required|exists:users,id',
         ]);
 
-        $user = \App\Models\User::find($request->user_id);
+        try {
+            $user = \App\Models\User::find($request->user_id);
 
-        $this->notificationService->send(
-            $user,
-            'system_announcement',
-            'Test Notification',
-            'This is a test notification from the admin panel.',
-            [
-                'priority' => 'low',
-            ]
-        );
+            $this->notificationService->send(
+                $user,
+                'system_announcement',
+                'Test Notification',
+                'This is a test notification from the admin panel.',
+                [
+                    'priority' => 'low',
+                ]
+            );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Test notification sent.',
-        ], 201);
+            return response()->json([
+                'success' => true,
+                'message' => 'Test notification sent.',
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send test notification: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }
