@@ -168,7 +168,7 @@ class AdminNotificationController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Announcement sent successfully.',
-        ]);
+        ], 201);
     }
 
     #[OA\Post(
@@ -203,7 +203,7 @@ class AdminNotificationController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Notifications sent to ' . count($request->user_ids) . ' users.',
-        ]);
+        ], 201);
     }
 
     #[OA\Delete(
@@ -337,6 +337,6 @@ class AdminNotificationController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Test notification sent.',
-        ]);
+        ], 201);
     }
 }
