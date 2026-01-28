@@ -29,4 +29,27 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 401);
             }
         });
+
+        // Force JSON response for all API exceptions
+        $exceptions->render(function (\Throwable $e, $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                // Return generic 500 error for unexpected server errors
+                $status = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
+                
+                // For validation errors (status 422), keep the original structure if possible, or standardize
+                if ($status === 422 && method_exists($e, 'errors')) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Validation failed.',
+                        'errors' => $e->errors(),
+                    ], 422);
+                }
+
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage() ?: 'Server Error',
+                    'trace' => config('app.debug') ? $e->getTrace() : [], // Optional: add trace for debugging
+                ], $status);
+            }
+        });
     })->create();
