@@ -116,6 +116,36 @@ class S3StorageService
     }
 
     /**
+     * Upload job application video to S3
+     * Path: job-applications/videos/
+     */
+    public function uploadJobApplicationVideo(UploadedFile $file): string
+    {
+        $extension = $file->getClientOriginalExtension();
+        $filename = 'video_' . Str::random(20) . '_' . time() . ".{$extension}";
+        $path = "job-applications/videos/{$filename}";
+        
+        Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+        
+        return $path;
+    }
+
+    /**
+     * Upload job application resume to S3
+     * Path: job-applications/resumes/
+     */
+    public function uploadJobApplicationResume(UploadedFile $file): string
+    {
+        $extension = $file->getClientOriginalExtension();
+        $filename = 'resume_' . Str::random(20) . '_' . time() . ".{$extension}";
+        $path = "job-applications/resumes/{$filename}";
+        
+        Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+        
+        return $path;
+    }
+
+    /**
      * Delete file from S3
      */
     public function deleteFile(string $path): bool
