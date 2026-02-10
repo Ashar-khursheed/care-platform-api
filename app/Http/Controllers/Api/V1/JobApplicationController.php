@@ -98,14 +98,14 @@ class JobApplicationController extends Controller
         $videoExtension = $videoFile->getClientOriginalExtension();
         $videoFilename = 'video_' . \Illuminate\Support\Str::random(20) . '_' . time() . '.' . $videoExtension;
         $videoPath = "job-applications/videos/{$videoFilename}";
-        Storage::disk('s3')->put($videoPath, file_get_contents($videoFile), 'public');
+        Storage::disk('s3')->put($videoPath, file_get_contents($videoFile));
         
         // Upload resume to S3
         $resumeFile = $request->file('resume');
         $resumeExtension = $resumeFile->getClientOriginalExtension();
         $resumeFilename = 'resume_' . \Illuminate\Support\Str::random(20) . '_' . time() . '.' . $resumeExtension;
         $resumePath = "job-applications/resumes/{$resumeFilename}";
-        Storage::disk('s3')->put($resumePath, file_get_contents($resumeFile), 'public');
+        Storage::disk('s3')->put($resumePath, file_get_contents($resumeFile));
 
         $application = JobApplication::create([
             'first_name'   => $request->first_name,
