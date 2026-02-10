@@ -144,10 +144,21 @@ class MessageController extends Controller
 
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
-            $path = $file->store('message_attachments', 'public');
+            $mimeType = $file->getMimeType();
+            
+            // Determine attachment type and folder
+            $attachmentType = $this->getAttachmentType($mimeType);
+            $typeFolder = $this->getAttachmentTypeFolder($mimeType);
+            
+            // Generate filename
+            $extension = $file->getClientOriginalExtension();
+            $filename = \Illuminate\Support\Str::random(20) . '_' . time() . '.' . $extension;
+            
+            // Upload to S3: messages/{type}/{conversation_id}/
+            $path = "messages/{$typeFolder}/{$conversation->id}/{$filename}";
+            Storage::disk('s3')->put($path, file_get_contents($file), 'public');
             
             $attachmentPath = $path;
-            $attachmentType = $this->getAttachmentType($file->getMimeType());
             $attachmentName = $file->getClientOriginalName();
             $attachmentSize = round($file->getSize() / 1024); // Convert to KB
         }
@@ -411,6 +422,23 @@ class MessageController extends Controller
             return 'audio';
         } else {
             return 'document';
+        }
+    }
+
+    /**
+     * Get attachment type folder for S3 storage
+     * HELPER METHOD
+     */
+    protected function getAttachmentTypeFolder($mimeType)
+    {
+        if (str_contains($mimeType, 'image')) {
+            return 'images';
+        } elseif (str_contains($mimeType, 'video')) {
+            return 'videos';
+        } elseif (str_contains($mimeType, 'audio')) {
+            return 'audio';
+        } else {
+            return 'documents';
         }
     }
 }

@@ -135,7 +135,7 @@ class ProfileController extends Controller
                 'success' => true,
                 'message' => 'Profile photo uploaded successfully',
                 'data' => [
-                    'profile_photo' => url('storage/' . $path)
+                    'profile_photo' => Storage::disk('s3')->url($path)
                 ]
             ], 200);
 
@@ -330,7 +330,7 @@ class ProfileController extends Controller
             }
 
             // Delete file from storage
-            $this->imageUploadService->deleteFile($document->document_path, 'local');
+            $this->imageUploadService->deleteFile($document->document_path, 's3');
 
             // Delete record
             $document->delete();

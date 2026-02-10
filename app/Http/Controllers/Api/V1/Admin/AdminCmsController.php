@@ -82,8 +82,12 @@ class AdminCmsController extends Controller
 
             if ($type === 'image' && $request->hasFile("image_{$setting['key']}")) {
                 $file = $request->file("image_{$setting['key']}");
-                $path = $file->store('settings', 'public');
-                $value = Storage::url($path);
+                $extension = $file->getClientOriginalExtension();
+                $filename = $setting['key'] . '_' . time() . '.' . $extension;
+                $path = "cms/settings/{$setting['key']}/{$filename}";
+                
+                Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+                $value = Storage::disk('s3')->url($path);
             }
 
             SiteSetting::set($setting['key'], $value, $type);
@@ -117,13 +121,18 @@ class AdminCmsController extends Controller
         if ($type === 'image' && $request->hasFile('image')) {
             $oldSetting = SiteSetting::where('key', $request->key)->first();
             if ($oldSetting && $oldSetting->value) {
-                $oldPath = str_replace('/storage/', '', parse_url($oldSetting->value, PHP_URL_PATH));
-                Storage::disk('public')->delete($oldPath);
+                $oldPath = parse_url($oldSetting->value, PHP_URL_PATH);
+                $oldPath = ltrim($oldPath, '/');
+                Storage::disk('s3')->delete($oldPath);
             }
 
             $file = $request->file('image');
-            $path = $file->store('settings', 'public');
-            $value = Storage::url($path);
+            $extension = $file->getClientOriginalExtension();
+            $filename = $request->key . '_' . time() . '.' . $extension;
+            $path = "cms/settings/{$request->key}/{$filename}";
+            
+            Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+            $value = Storage::disk('s3')->url($path);
         }
 
         SiteSetting::set($request->key, $value, $type);

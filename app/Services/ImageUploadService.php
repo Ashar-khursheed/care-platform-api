@@ -15,16 +15,17 @@ class ImageUploadService
     public function uploadProfilePhoto(UploadedFile $file, $userId): string
     {
         // Generate unique filename
-        $filename = 'profile_' . $userId . '_' . time() . '.' . $file->getClientOriginalExtension();
+        $extension = $file->getClientOriginalExtension();
+        $filename = 'profile_' . $userId . '_' . time() . '.' . $extension;
         
         // Resize and optimize image
         $image = Image::make($file)
             ->fit(500, 500) // Resize to 500x500
-            ->encode($file->getClientOriginalExtension(), 80); // Compress to 80% quality
+            ->encode($extension, 80); // Compress to 80% quality
 
-        // Store in public/storage/profile_photos
-        $path = 'profile_photos/' . $filename;
-        Storage::disk('public')->put($path, $image);
+        // Store in S3: profile-photos/{user_id}/
+        $path = "profile-photos/{$userId}/{$filename}";
+        Storage::disk('s3')->put($path, $image, 'public');
 
         return $path;
     }
@@ -38,10 +39,10 @@ class ImageUploadService
         $extension = $file->getClientOriginalExtension();
         $filename = $documentType . '_' . $userId . '_' . time() . '.' . $extension;
         
-        // Store in private storage (not publicly accessible)
-        $path = 'documents/' . $userId . '/' . $filename;
+        // Store in S3: documents/verification/{user_id}/
+        $path = "documents/verification/{$userId}/{$filename}";
         
-        Storage::disk('local')->put($path, file_get_contents($file));
+        Storage::disk('s3')->put($path, file_get_contents($file), 'public');
 
         return $path;
     }
@@ -49,7 +50,7 @@ class ImageUploadService
     /**
      * Delete file from storage
      */
-    public function deleteFile(string $path, string $disk = 'public'): bool
+    public function deleteFile(string $path, string $disk = 's3'): bool
     {
         if (Storage::disk($disk)->exists($path)) {
             return Storage::disk($disk)->delete($path);
@@ -61,7 +62,7 @@ class ImageUploadService
     /**
      * Get file URL
      */
-    public function getFileUrl(string $path, string $disk = 'public'): ?string
+    public function getFileUrl(string $path, string $disk = 's3'): ?string
     {
         if (Storage::disk($disk)->exists($path)) {
             return Storage::disk($disk)->url($path);

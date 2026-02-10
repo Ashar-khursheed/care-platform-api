@@ -61,14 +61,24 @@ class AdminSliderController extends Controller
 
         // Upload main image
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('sliders', 'public');
-            $data['image'] = Storage::url($path);
+            $file = $request->file('image');
+            $extension = $file->getClientOriginalExtension();
+            $filename = 'slider_' . \Illuminate\Support\Str::random(15) . '_' . time() . '.' . $extension;
+            $path = "cms/sliders/desktop/{$filename}";
+            
+            Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+            $data['image'] = Storage::disk('s3')->url($path);
         }
 
         // Upload mobile image
         if ($request->hasFile('mobile_image')) {
-            $path = $request->file('mobile_image')->store('sliders/mobile', 'public');
-            $data['mobile_image'] = Storage::url($path);
+            $file = $request->file('mobile_image');
+            $extension = $file->getClientOriginalExtension();
+            $filename = 'slider_mobile_' . \Illuminate\Support\Str::random(15) . '_' . time() . '.' . $extension;
+            $path = "cms/sliders/mobile/{$filename}";
+            
+            Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+            $data['mobile_image'] = Storage::disk('s3')->url($path);
         }
 
         $slider = Slider::create($data);
@@ -142,26 +152,38 @@ class AdminSliderController extends Controller
 
         // Upload new main image
         if ($request->hasFile('image')) {
-            // Delete old image
+            // Delete old image from S3
             if ($slider->image) {
-                $oldPath = str_replace('/storage/', '', parse_url($slider->image, PHP_URL_PATH));
-                Storage::disk('public')->delete($oldPath);
+                $oldPath = parse_url($slider->image, PHP_URL_PATH);
+                $oldPath = ltrim($oldPath, '/');
+                Storage::disk('s3')->delete($oldPath);
             }
 
-            $path = $request->file('image')->store('sliders', 'public');
-            $data['image'] = Storage::url($path);
+            $file = $request->file('image');
+            $extension = $file->getClientOriginalExtension();
+            $filename = 'slider_' . \Illuminate\Support\Str::random(15) . '_' . time() . '.' . $extension;
+            $path = "cms/sliders/desktop/{$filename}";
+            
+            Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+            $data['image'] = Storage::disk('s3')->url($path);
         }
 
         // Upload new mobile image
         if ($request->hasFile('mobile_image')) {
-            // Delete old mobile image
+            // Delete old mobile image from S3
             if ($slider->mobile_image) {
-                $oldPath = str_replace('/storage/', '', parse_url($slider->mobile_image, PHP_URL_PATH));
-                Storage::disk('public')->delete($oldPath);
+                $oldPath = parse_url($slider->mobile_image, PHP_URL_PATH);
+                $oldPath = ltrim($oldPath, '/');
+                Storage::disk('s3')->delete($oldPath);
             }
 
-            $path = $request->file('mobile_image')->store('sliders/mobile', 'public');
-            $data['mobile_image'] = Storage::url($path);
+            $file = $request->file('mobile_image');
+            $extension = $file->getClientOriginalExtension();
+            $filename = 'slider_mobile_' . \Illuminate\Support\Str::random(15) . '_' . time() . '.' . $extension;
+            $path = "cms/sliders/mobile/{$filename}";
+            
+            Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+            $data['mobile_image'] = Storage::disk('s3')->url($path);
         }
 
         $slider->update($data);
@@ -187,15 +209,17 @@ class AdminSliderController extends Controller
     {
         $slider = Slider::findOrFail($id);
 
-        // Delete images
+        // Delete images from S3
         if ($slider->image) {
-            $path = str_replace('/storage/', '', parse_url($slider->image, PHP_URL_PATH));
-            Storage::disk('public')->delete($path);
+            $path = parse_url($slider->image, PHP_URL_PATH);
+            $path = ltrim($path, '/');
+            Storage::disk('s3')->delete($path);
         }
 
         if ($slider->mobile_image) {
-            $path = str_replace('/storage/', '', parse_url($slider->mobile_image, PHP_URL_PATH));
-            Storage::disk('public')->delete($path);
+            $path = parse_url($slider->mobile_image, PHP_URL_PATH);
+            $path = ltrim($path, '/');
+            Storage::disk('s3')->delete($path);
         }
 
         $slider->delete();
