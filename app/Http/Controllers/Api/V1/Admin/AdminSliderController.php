@@ -66,7 +66,7 @@ class AdminSliderController extends Controller
             $filename = 'slider_' . \Illuminate\Support\Str::random(15) . '_' . time() . '.' . $extension;
             $path = "cms/sliders/desktop/{$filename}";
             
-            Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+            Storage::disk('s3')->put($path, file_get_contents($file));
             $data['image'] = Storage::disk('s3')->url($path);
         }
 
@@ -77,7 +77,7 @@ class AdminSliderController extends Controller
             $filename = 'slider_mobile_' . \Illuminate\Support\Str::random(15) . '_' . time() . '.' . $extension;
             $path = "cms/sliders/mobile/{$filename}";
             
-            Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+            Storage::disk('s3')->put($path, file_get_contents($file));
             $data['mobile_image'] = Storage::disk('s3')->url($path);
         }
 
@@ -164,7 +164,7 @@ class AdminSliderController extends Controller
             $filename = 'slider_' . \Illuminate\Support\Str::random(15) . '_' . time() . '.' . $extension;
             $path = "cms/sliders/desktop/{$filename}";
             
-            Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+            Storage::disk('s3')->put($path, file_get_contents($file));
             $data['image'] = Storage::disk('s3')->url($path);
         }
 
@@ -182,7 +182,7 @@ class AdminSliderController extends Controller
             $filename = 'slider_mobile_' . \Illuminate\Support\Str::random(15) . '_' . time() . '.' . $extension;
             $path = "cms/sliders/mobile/{$filename}";
             
-            Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+            Storage::disk('s3')->put($path, file_get_contents($file));
             $data['mobile_image'] = Storage::disk('s3')->url($path);
         }
 

@@ -86,7 +86,7 @@ class AdminCmsController extends Controller
                 $filename = $setting['key'] . '_' . time() . '.' . $extension;
                 $path = "cms/settings/{$setting['key']}/{$filename}";
                 
-                Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+                Storage::disk('s3')->put($path, file_get_contents($file));
                 $value = Storage::disk('s3')->url($path);
             }
 
@@ -131,7 +131,7 @@ class AdminCmsController extends Controller
             $filename = $request->key . '_' . time() . '.' . $extension;
             $path = "cms/settings/{$request->key}/{$filename}";
             
-            Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+            Storage::disk('s3')->put($path, file_get_contents($file));
             $value = Storage::disk('s3')->url($path);
         }
 

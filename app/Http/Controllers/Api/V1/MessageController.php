@@ -156,7 +156,7 @@ class MessageController extends Controller
             
             // Upload to S3: messages/{type}/{conversation_id}/
             $path = "messages/{$typeFolder}/{$conversation->id}/{$filename}";
-            Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+            Storage::disk('s3')->put($path, file_get_contents($file));
             
             $attachmentPath = $path;
             $attachmentName = $file->getClientOriginalName();

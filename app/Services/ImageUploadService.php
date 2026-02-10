@@ -25,7 +25,7 @@ class ImageUploadService
 
         // Store in S3: profile-photos/{user_id}/
         $path = "profile-photos/{$userId}/{$filename}";
-        Storage::disk('s3')->put($path, $image, 'public');
+        Storage::disk('s3')->put($path, $image);
 
         return $path;
     }
@@ -42,7 +42,7 @@ class ImageUploadService
         // Store in S3: documents/verification/{user_id}/
         $path = "documents/verification/{$userId}/{$filename}";
         
-        Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+        Storage::disk('s3')->put($path, file_get_contents($file));
 
         return $path;
     }

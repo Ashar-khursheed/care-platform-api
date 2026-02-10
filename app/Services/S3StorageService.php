@@ -18,7 +18,7 @@ class S3StorageService
         $filename = "profile_{$userId}_" . time() . ".{$extension}";
         $path = "profile-photos/{$userId}/{$filename}";
         
-        Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+        Storage::disk('s3')->put($path, file_get_contents($file));
         
         return $path;
     }
@@ -33,7 +33,7 @@ class S3StorageService
         $filename = "{$documentType}_{$userId}_" . time() . ".{$extension}";
         $path = "documents/verification/{$userId}/{$filename}";
         
-        Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+        Storage::disk('s3')->put($path, file_get_contents($file));
         
         return $path;
     }
@@ -49,7 +49,7 @@ class S3StorageService
         $filename = Str::random(20) . '_' . time() . ".{$extension}";
         $path = "messages/{$type}/{$conversationId}/{$filename}";
         
-        Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+        Storage::disk('s3')->put($path, file_get_contents($file));
         
         return $path;
     }
@@ -65,7 +65,7 @@ class S3StorageService
         $folder = $isMobile ? 'cms/sliders/mobile' : 'cms/sliders/desktop';
         $path = "{$folder}/{$filename}";
         
-        Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+        Storage::disk('s3')->put($path, file_get_contents($file));
         
         return $path;
     }
@@ -80,7 +80,7 @@ class S3StorageService
         $filename = $settingKey . '_' . time() . ".{$extension}";
         $path = "cms/settings/{$settingKey}/{$filename}";
         
-        Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+        Storage::disk('s3')->put($path, file_get_contents($file));
         
         return $path;
     }
@@ -95,7 +95,7 @@ class S3StorageService
         $filename = 'listing_' . Str::random(10) . '_' . time() . ".{$extension}";
         $path = "listings/images/{$listingId}/{$filename}";
         
-        Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+        Storage::disk('s3')->put($path, file_get_contents($file));
         
         return $path;
     }
@@ -110,7 +110,7 @@ class S3StorageService
         $filename = 'review_' . Str::random(10) . '_' . time() . ".{$extension}";
         $path = "reviews/images/{$reviewId}/{$filename}";
         
-        Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+        Storage::disk('s3')->put($path, file_get_contents($file));
         
         return $path;
     }
@@ -125,7 +125,7 @@ class S3StorageService
         $filename = 'video_' . Str::random(20) . '_' . time() . ".{$extension}";
         $path = "job-applications/videos/{$filename}";
         
-        Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+        Storage::disk('s3')->put($path, file_get_contents($file));
         
         return $path;
     }
@@ -140,7 +140,7 @@ class S3StorageService
         $filename = 'resume_' . Str::random(20) . '_' . time() . ".{$extension}";
         $path = "job-applications/resumes/{$filename}";
         
-        Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+        Storage::disk('s3')->put($path, file_get_contents($file));
         
         return $path;
     }
