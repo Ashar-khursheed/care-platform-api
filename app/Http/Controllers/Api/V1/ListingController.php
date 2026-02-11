@@ -88,11 +88,27 @@ class ListingController extends Controller
         }
 
         // Filter by location
-        if ($request->has('location')) {
-            $query->where('service_location', 'like', "%{$request->location}%");
-        }
+    if ($request->has('location')) {
+        $query->where('service_location', 'like', "%{$request->location}%");
+    }
 
-        // Filter by price range
+    // Filter by availability (if date and time are provided)
+    if ($request->has('booking_date') && $request->has('start_time') && $request->has('end_time')) {
+        $date = $request->booking_date;
+        $start = $request->start_time;
+        $end = $request->end_time;
+
+        $query->whereDoesntHave('provider.bookingsAsProvider', function($q) use ($date, $start, $end) {
+            $q->whereDate('booking_date', $date)
+              ->whereIn('status', ['pending', 'accepted', 'in_progress'])
+              ->where(function($sub) use ($start, $end) {
+                  $sub->where('start_time', '<', $end)
+                      ->where('end_time', '>', $start);
+              });
+        });
+    }
+
+    // Filter by price range
         if ($request->has('min_price') && $request->has('max_price')) {
             $query->priceRange($request->min_price, $request->max_price);
         }
