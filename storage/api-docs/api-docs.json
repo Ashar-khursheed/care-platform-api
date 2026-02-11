@@ -3645,6 +3645,25 @@
                 ]
             }
         },
+        "/api/v1/my-bids": {
+            "get": {
+                "tags": [
+                    "Bids"
+                ],
+                "summary": "Get all my bids (Provider only)",
+                "operationId": "5ce8f96f781bfbef7768a25efaeb08c9",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/bookings": {
             "get": {
                 "tags": [

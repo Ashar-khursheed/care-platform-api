@@ -17,6 +17,10 @@ class Bid extends Model
         'status',
     ];
 
+    protected $casts = [
+        'amount' => 'decimal:2',
+    ];
+
     /**
      * Get the listing that was bid on
      */

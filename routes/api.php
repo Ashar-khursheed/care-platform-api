@@ -232,6 +232,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/{id}/accept', [BidController::class, 'accept']); // Accept a bid (Client)
         });
 
+        Route::get('/my-bids', [BidController::class, 'myBids']);
         Route::get('/my-jobs', [JobController::class, 'myJobs']);
 
         // ====================================================

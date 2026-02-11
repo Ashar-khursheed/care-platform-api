@@ -117,4 +117,36 @@ class JobBiddingTest extends TestCase
             'status' => 'accepted',
         ]);
     }
+
+    public function test_provider_can_see_their_bids()
+    {
+        $client = User::factory()->create(['user_type' => 'client']);
+        $provider = User::factory()->create(['user_type' => 'provider']);
+        $category = ServiceCategory::create(['name' => 'Plumbing', 'slug' => 'plumbing', 'is_active' => true]);
+        
+        $job = ServiceListing::create([
+            'provider_id' => $client->id,
+            'category_id' => $category->id,
+            'title' => 'Fix my sink',
+            'description' => 'Leaking sink needs urgent repair. Please bring your own tools and parts. This is a very serious issue.',
+            'hourly_rate' => 50,
+            'service_location' => 'New York',
+            'is_available' => true,
+            'status' => 'active',
+        ]);
+
+        Bid::create([
+            'listing_id' => $job->id,
+            'provider_id' => $provider->id,
+            'amount' => 45,
+            'message' => 'I can fix it',
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($provider)->getJson('/api/v1/my-bids');
+
+        $response->assertStatus(200)
+            ->assertJsonCount(1, 'data.bids')
+            ->assertJsonPath('data.bids.0.amount', "45.00");
+    }
 }

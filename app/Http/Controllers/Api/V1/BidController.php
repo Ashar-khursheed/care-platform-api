@@ -160,4 +160,32 @@ class BidController extends Controller
             ], 500);
         }
     }
+
+    #[OA\Get(
+        path: '/api/v1/my-bids',
+        summary: 'Get all my bids (Provider only)',
+        security: [['bearerAuth' => []]],
+        tags: ['Bids']
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
+    public function myBids(Request $request)
+    {
+        $bids = Bid::with(['listing.category', 'listing.provider'])
+            ->where('provider_id', $request->user()->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate($request->get('per_page', 10));
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'bids' => $bids->items(),
+                'pagination' => [
+                    'total' => $bids->total(),
+                    'per_page' => $bids->perPage(),
+                    'current_page' => $bids->currentPage(),
+                    'last_page' => $bids->lastPage(),
+                ]
+            ]
+        ], 200);
+    }
 }
