@@ -2766,6 +2766,165 @@ paths:
           description: Success
         404:
           description: 'Not found'
+  /api/v1/cms/sliders:
+    get:
+      tags:
+        - CMS
+      summary: 'Get homepage sliders'
+      operationId: 817c8f3c394ef56d776cfdcb82d79fbc
+      responses:
+        200:
+          description: 'Successful operation'
+        401:
+          description: Unauthenticated
+        404:
+          description: 'Resource not found'
+  /api/v1/cms/announcement:
+    get:
+      tags:
+        - CMS
+      summary: 'Get announcement bar'
+      operationId: 176bcf2a0c829c458b1e8de9992702d9
+      responses:
+        200:
+          description: 'Successful operation'
+        401:
+          description: Unauthenticated
+        404:
+          description: 'Resource not found'
+  /api/v1/cms/settings:
+    get:
+      tags:
+        - CMS
+      summary: 'Get site settings'
+      operationId: cb21d660df799869a2d3e139baea0eb4
+      responses:
+        200:
+          description: 'Successful operation'
+        401:
+          description: Unauthenticated
+        404:
+          description: 'Resource not found'
+  /api/v1/cms/header:
+    get:
+      tags:
+        - CMS
+      summary: 'Get header configuration'
+      operationId: 499cfce56c0afea91aa12bb8ab4c4249
+      responses:
+        200:
+          description: 'Successful operation'
+        401:
+          description: Unauthenticated
+        404:
+          description: 'Resource not found'
+  /api/v1/cms/footer:
+    get:
+      tags:
+        - CMS
+      summary: 'Get footer configuration'
+      operationId: adc5f30668a6954e7d461ff1568ac4c0
+      responses:
+        200:
+          description: 'Successful operation'
+        401:
+          description: Unauthenticated
+        404:
+          description: 'Resource not found'
+  '/api/v1/cms/pages/{slug}':
+    get:
+      tags:
+        - CMS
+      summary: 'Get page by slug'
+      operationId: 1db6913ea35a3640796d72c20cace013
+      parameters:
+        -
+          name: slug
+          in: path
+          description: 'The slug of the resource'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful operation'
+        401:
+          description: Unauthenticated
+        404:
+          description: 'Resource not found'
+  /api/v1/cms/pages:
+    get:
+      tags:
+        - CMS
+      summary: 'Get all pages (paginated)'
+      operationId: 99f7b4dfc7f7f5a96a59f2a4f571a357
+      responses:
+        200:
+          description: 'Successful operation'
+        401:
+          description: Unauthenticated
+        404:
+          description: 'Resource not found'
+  /api/v1/cms/pages/all:
+    get:
+      tags:
+        - CMS
+      summary: 'Get all pages with content'
+      operationId: 6fa94159c9acc958323023be2d3bbbab
+      responses:
+        200:
+          description: 'Successful operation'
+        401:
+          description: Unauthenticated
+        404:
+          description: 'Resource not found'
+  /api/v1/cms/pages/menu:
+    get:
+      tags:
+        - CMS
+      summary: 'Get menu pages'
+      operationId: 6acc42e78bfe54fad24d308a64634f50
+      responses:
+        200:
+          description: 'Successful operation'
+        401:
+          description: Unauthenticated
+        404:
+          description: 'Resource not found'
+  '/api/v1/cms/seo/{pageType}':
+    get:
+      tags:
+        - CMS
+      summary: 'Get SEO settings'
+      operationId: 6540f261b3d2fe569cfd05da7283d66d
+      parameters:
+        -
+          name: pageType
+          in: path
+          description: 'The pageType of the resource'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful operation'
+        401:
+          description: Unauthenticated
+        404:
+          description: 'Resource not found'
+  /api/v1/cms/config:
+    get:
+      tags:
+        - CMS
+      summary: 'Get frontend configuration'
+      operationId: c769023bd1a9b3af68b9633c592560b0
+      responses:
+        200:
+          description: 'Successful operation'
+        401:
+          description: Unauthenticated
+        404:
+          description: 'Resource not found'
   /api/v1/jobs:
     get:
       tags:
@@ -3392,6 +3551,9 @@ tags:
   -
     name: Payments
     description: 'Payment processing'
+  -
+    name: CMS
+    description: 'Content Management System'
   -
     name: 'Admin - Users'
     description: 'Admin user management'
