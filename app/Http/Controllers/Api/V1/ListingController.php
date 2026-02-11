@@ -87,6 +87,11 @@ class ListingController extends Controller
             $query->search($request->search);
         }
 
+        // Filter by location
+        if ($request->has('location')) {
+            $query->where('service_location', 'like', "%{$request->location}%");
+        }
+
         // Filter by price range
         if ($request->has('min_price') && $request->has('max_price')) {
             $query->priceRange($request->min_price, $request->max_price);

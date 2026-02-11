@@ -127,7 +127,8 @@ class ServiceListing extends Model
     {
         return $query->where(function($q) use ($search) {
             $q->where('title', 'like', "%{$search}%")
-              ->orWhere('description', 'like', "%{$search}%");
+              ->orWhere('description', 'like', "%{$search}%")
+              ->orWhere('service_location', 'like', "%{$search}%");
         });
     }
 
