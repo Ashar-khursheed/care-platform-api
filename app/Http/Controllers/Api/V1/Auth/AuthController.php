@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 use OpenApi\Attributes as OA;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\User\WelcomeEmail;
+use App\Mail\User\VerifyEmail;
+use Illuminate\Support\Facades\URL;
 
 
 class AuthController extends Controller
@@ -68,6 +72,13 @@ class AuthController extends Controller
 
         // Generate token
         $token = $user->createToken('auth_token')->plainTextToken;
+
+        // Send Welcome Email
+        Mail::to($user->email)->queue(new WelcomeEmail($user));
+
+        // Send Verification Email
+        $verificationUrl = config('app.frontend_url') . '/verify-email?token=' . bin2hex(random_bytes(32)); // Simple token for now
+        Mail::to($user->email)->queue(new VerifyEmail($user, $verificationUrl));
 
         return response()->json([
             'success' => true,

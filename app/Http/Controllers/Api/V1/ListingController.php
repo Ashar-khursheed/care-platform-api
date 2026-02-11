@@ -8,6 +8,8 @@ use App\Http\Requests\ListingUpdateRequest;
 use App\Http\Resources\ListingResource;
 use App\Models\ServiceListing;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\Admin\NewListingNotification;
 use OpenApi\Attributes as OA;
 
 class ListingController extends Controller
@@ -226,6 +228,10 @@ class ListingController extends Controller
             ]);
 
             $listing->load(['category', 'provider']);
+
+            // Send notification to admin
+            $adminEmail = \App\Models\SiteSetting::get('admin_email', config('mail.from.address'));
+            Mail::to($adminEmail)->queue(new NewListingNotification($listing));
 
             return response()->json([
                 'success' => true,

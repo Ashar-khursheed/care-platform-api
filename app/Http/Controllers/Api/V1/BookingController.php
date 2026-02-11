@@ -13,6 +13,11 @@ use Carbon\Carbon;
 use OpenApi\Attributes as OA;
 use App\Services\StripeService;
 use App\Models\Payment;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\Booking\BookingRequested;
+use App\Mail\Booking\BookingConfirmed;
+use App\Mail\Booking\BookingCancelled;
+use App\Mail\Booking\BookingCompleted;
 
 class BookingController extends Controller
 {
@@ -238,6 +243,9 @@ class BookingController extends Controller
 
             $booking->load(['client', 'provider', 'listing.category']);
 
+            // Send notification to provider
+            Mail::to($booking->provider->email)->queue(new BookingRequested($booking));
+
             return response()->json([
                 'success' => true,
                 'message' => 'Booking request sent successfully',
@@ -303,7 +311,8 @@ class BookingController extends Controller
 
             $booking->load(['client', 'provider', 'listing.category']);
 
-            // TODO: Send notification to client
+            // Send notification to client
+            Mail::to($booking->client->email)->queue(new BookingConfirmed($booking));
 
             return response()->json([
                 'success' => true,
@@ -468,7 +477,9 @@ class BookingController extends Controller
                 $payment->update(['status' => 'refunded', 'refunded_at' => now(), 'refund_amount' => $payment->amount]);
             }
 
-            // TODO: Send notification to other party
+            // Send notification to other party
+            $otherParty = $request->user()->id === $booking->client_id ? $booking->provider : $booking->client;
+            Mail::to($otherParty->email)->queue(new BookingCancelled($booking));
 
             return response()->json([
                 'success' => true,
@@ -577,7 +588,8 @@ class BookingController extends Controller
                 'completed_at' => now(),
             ]);
 
-            // TODO: Send notification to client for review
+            // Send notification to client for review
+            Mail::to($booking->client->email)->queue(new BookingCompleted($booking));
 
             return response()->json([
                 'success' => true,

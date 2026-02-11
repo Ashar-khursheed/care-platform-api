@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Services\StripeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\Admin\PayoutRequested;
 
 class PayoutController extends Controller
 {
@@ -170,6 +172,10 @@ class PayoutController extends Controller
             ]);
 
             DB::commit();
+
+            // Send notification to admin
+            $adminEmail = \App\Models\SiteSetting::get('admin_email', config('mail.from.address'));
+            Mail::to($adminEmail)->queue(new PayoutRequested($payout));
 
             return response()->json([
                 'success' => true,

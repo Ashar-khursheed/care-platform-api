@@ -8,6 +8,9 @@ use App\Models\ServiceListing;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\Bid\NewBidReceived;
+use App\Mail\Bid\BidAccepted;
 use OpenApi\Attributes as OA;
 
 class BidController extends Controller
@@ -53,6 +56,11 @@ class BidController extends Controller
             'message' => $request->message,
             'status' => 'pending',
         ]);
+
+        $bid->load(['listing.provider', 'provider']);
+
+        // Send notification to job owner (client)
+        Mail::to($bid->listing->provider->email)->queue(new NewBidReceived($bid));
 
         return response()->json([
             'success' => true,
@@ -146,6 +154,9 @@ class BidController extends Controller
                 // Update job status - mark as unavailable as it is assigned
                 $job->update(['is_available' => false]);
             });
+
+            // Send notification to bidder
+            Mail::to($bid->provider->email)->queue(new BidAccepted($bid));
 
             return response()->json([
                 'success' => true,
