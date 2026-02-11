@@ -81,6 +81,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/footer', [CmsController::class, 'getFooter']);
         Route::get('/config', [CmsController::class, 'getFrontendConfig']); // All-in-one
         Route::get('/pages', [CmsController::class, 'getPages']);
+        Route::get('/pages/all', [CmsController::class, 'getAllPages']);
         Route::get('/pages/menu', [CmsController::class, 'getMenuPages']);
         Route::get('/pages/{slug}', [CmsController::class, 'getPage']);
         Route::get('/seo/{pageType}', [CmsController::class, 'getSeo']);

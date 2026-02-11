@@ -284,6 +284,38 @@ class CmsController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/cms/pages/all",
+     *     summary="Get all pages with content",
+     *     tags={"CMS"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Resource not found"
+     *     )
+     * )
+     */
+    public function getAllPages()
+    {
+        $pages = Page::published()
+            ->select('id', 'title', 'slug', 'content', 'excerpt', 'featured_image', 'published_at', 'template')
+            ->orderBy('menu_order', 'asc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $pages,
+        ]);
+    }
+
         /**
  *     @OA\Get(
  *         path="/api/v1/cms/pages/menu",
