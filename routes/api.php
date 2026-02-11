@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\User\ProfileController;
+use App\Http\Controllers\Api\V1\JobController;
+use App\Http\Controllers\Api\V1\BidController;
 use App\Http\Controllers\Api\V1\Admin\AdminUserController;
 use App\Http\Controllers\Api\V1\Admin\AdminDocumentController;
 use App\Http\Controllers\Api\V1\Admin\AdminListingController;
@@ -148,6 +150,15 @@ Route::prefix('v1')->group(function () {
     Route::post('/webhooks/stripe', [PaymentController::class, 'webhook']);
 
     // ========================================================
+    // MODULE 12: PUBLIC JOBS (for providers to browse)
+    // ========================================================
+
+    Route::prefix('jobs')->group(function () {
+        Route::get('/', [JobController::class, 'index']);
+        Route::get('/{id}', [JobController::class, 'show']);
+    });
+
+    // ========================================================
     // PROTECTED ROUTES (require authentication)
     // ========================================================
     
@@ -206,6 +217,22 @@ Route::prefix('v1')->group(function () {
             Route::get('/provider/upcoming', [BookingController::class, 'providerUpcoming']);
             Route::get('/client/upcoming', [BookingController::class, 'clientUpcoming']);
         });
+
+        // ====================================================
+        // MODULE: CLIENT JOBS & BIDS
+        // ====================================================
+
+        Route::prefix('jobs')->group(function () {
+            Route::post('/', [JobController::class, 'store']); // Post a new job (Client)
+            Route::post('/{id}/bids', [BidController::class, 'store']); // Place a bid (Provider)
+            Route::get('/{id}/bids', [BidController::class, 'index']); // Get bids (Client)
+        });
+
+        Route::prefix('bids')->group(function () {
+            Route::post('/{id}/accept', [BidController::class, 'accept']); // Accept a bid (Client)
+        });
+
+        Route::get('/my-jobs', [JobController::class, 'myJobs']);
 
         // ====================================================
         // MODULE 5: REVIEWS (11 endpoints)

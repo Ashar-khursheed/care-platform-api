@@ -147,4 +147,12 @@ class ServiceListing extends Model
     {
         return $query->where('rating', '>=', $rating);
     }
+
+    /**
+     * Get bids for this listing
+     */
+    public function bids()
+    {
+        return $this->hasMany(Bid::class, 'listing_id');
+    }
 }

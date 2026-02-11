@@ -3590,6 +3590,61 @@
                 ]
             }
         },
+        "/api/v1/jobs/{jobId}/bids": {
+            "get": {
+                "tags": [
+                    "Bids"
+                ],
+                "summary": "Get bids for a job (Client only)",
+                "operationId": "a323f9a45a97987fad0bed65bbc84903",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Bids"
+                ],
+                "summary": "Place a bid on a job",
+                "operationId": "7e7a81554675e47f2125202b8c915ff4",
+                "responses": {
+                    "201": {
+                        "description": "Bid placed"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/bids/{bidId}/accept": {
+            "post": {
+                "tags": [
+                    "Bids"
+                ],
+                "summary": "Accept a bid",
+                "operationId": "049f6aa698e9a5002ae3d662415533b3",
+                "responses": {
+                    "200": {
+                        "description": "Bid accepted"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/bookings": {
             "get": {
                 "tags": [
@@ -4159,6 +4214,70 @@
                     },
                     "404": {
                         "description": "Not found"
+                    }
+                }
+            }
+        },
+        "/api/v1/jobs": {
+            "get": {
+                "tags": [
+                    "Jobs"
+                ],
+                "summary": "Get all jobs (for providers)",
+                "operationId": "a1bf6a0e9261412b3ab8dca7118e3c58",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Jobs"
+                ],
+                "summary": "Create a new job request",
+                "operationId": "007112f9afcc89e80bfbab454f3fd39e",
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/my-jobs": {
+            "get": {
+                "tags": [
+                    "Jobs"
+                ],
+                "summary": "Get my posted jobs",
+                "operationId": "54466c7db1f83a18dddd95ca0a0d10a2",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/jobs/{id}": {
+            "get": {
+                "tags": [
+                    "Jobs"
+                ],
+                "summary": "Get job details",
+                "operationId": "dbceb696556f8605ef7fab765e390408",
+                "responses": {
+                    "200": {
+                        "description": "Success"
                     }
                 }
             }
@@ -5107,6 +5226,14 @@
         {
             "name": "Admin - Jobs",
             "description": "Admin - Jobs"
+        },
+        {
+            "name": "Bids",
+            "description": "Bids"
+        },
+        {
+            "name": "Jobs",
+            "description": "Jobs"
         }
     ]
 }

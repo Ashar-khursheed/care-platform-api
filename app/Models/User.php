@@ -453,4 +453,11 @@ public function payouts()
     return $this->hasMany(\App\Models\Payout::class, 'provider_id');
 }
 
+    /**
+     * Bids made by this provider
+     */
+    public function bids()
+    {
+        return $this->hasMany(Bid::class, 'provider_id');
+    }
 }
