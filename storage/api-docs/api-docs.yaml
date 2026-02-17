@@ -3171,6 +3171,277 @@ paths:
       responses:
         200:
           description: Success
+  /api/v1/messages/conversations:
+    get:
+      tags:
+        - Messages
+      summary: 'Get user conversations'
+      operationId: 4faa92e4613135568882a6bb23edbabf
+      responses:
+        200:
+          description: 'Successful operation'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConversationResource'
+                  links:
+                    type: object
+                  meta:
+                    type: object
+                type: object
+        401:
+          description: Unauthenticated
+      security:
+        -
+          bearerAuth: []
+  '/api/v1/messages/conversations/{id}/messages':
+    get:
+      tags:
+        - Messages
+      summary: 'Get messages for a conversation'
+      operationId: db2371369e29253a25098ab6905b6376
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Conversation ID'
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Successful operation'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MessageResource'
+                  links:
+                    type: object
+                  meta:
+                    type: object
+                type: object
+        403:
+          description: Unauthorized
+        404:
+          description: 'Conversation not found'
+      security:
+        -
+          bearerAuth: []
+  /api/v1/messages/send:
+    post:
+      tags:
+        - Messages
+      summary: 'Send a message'
+      operationId: 4c673fec38d5892c4bca9dd45fc7febc
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - receiver_id
+              properties:
+                receiver_id:
+                  description: 'Receiver User ID'
+                  type: integer
+                message:
+                  description: 'Message content (required if no attachment)'
+                  type: string
+                booking_id:
+                  description: 'Associated Booking ID (optional)'
+                  type: integer
+                attachment:
+                  description: 'File attachment (optional)'
+                  type: string
+                  format: binary
+              type: object
+      responses:
+        201:
+          description: 'Message sent'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResource'
+        403:
+          description: 'Blocked or Unauthorized'
+        422:
+          description: 'Validation Error'
+      security:
+        -
+          bearerAuth: []
+  '/api/v1/messages/conversations/{id}/read':
+    put:
+      tags:
+        - Messages
+      summary: 'Mark conversation as read'
+      operationId: 65eb11af11b542dfa9b10010549a9b57
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Conversation ID'
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Marked as read'
+        404:
+          description: 'Conversation not found'
+      security:
+        -
+          bearerAuth: []
+  '/api/v1/messages/{id}':
+    delete:
+      tags:
+        - Messages
+      summary: 'Delete a message'
+      description: 'Deletes a message for the authenticated user only'
+      operationId: ecd8e50a0f32635dda11beea3bd275f0
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Message ID'
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Message deleted'
+        404:
+          description: 'Message not found'
+        403:
+          description: Unauthorized
+      security:
+        -
+          bearerAuth: []
+  '/api/v1/messages/conversations/{id}/block':
+    put:
+      tags:
+        - Messages
+      summary: 'Block a conversation'
+      operationId: d3c02d4915599e5928b2dbfadf07ce22
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Conversation ID'
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Conversation blocked'
+        404:
+          description: 'Conversation not found'
+      security:
+        -
+          bearerAuth: []
+  '/api/v1/messages/conversations/{id}/unblock':
+    put:
+      tags:
+        - Messages
+      summary: 'Unblock a conversation'
+      operationId: c162ac8ed9198e4c4fcd602347f4aab8
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Conversation ID'
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Conversation unblocked'
+        403:
+          description: 'Cannot unblock if not the blocker'
+      security:
+        -
+          bearerAuth: []
+  '/api/v1/messages/{id}/flag':
+    post:
+      tags:
+        - Messages
+      summary: 'Flag a message'
+      operationId: 9b36e77d919ba60503da39ebcad92373
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Message ID'
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                reason:
+                  description: 'Reason for flagging'
+                  type: string
+              type: object
+      responses:
+        200:
+          description: 'Message flagged'
+      security:
+        -
+          bearerAuth: []
+  /api/v1/messages/unread-count:
+    get:
+      tags:
+        - Messages
+      summary: 'Get global unread message count'
+      operationId: 4b64b413abfbbd240ef3e6fc380170f6
+      responses:
+        200:
+          description: 'Successful operation'
+          content:
+            application/json:
+              schema:
+                properties:
+                  count:
+                    type: integer
+                type: object
+      security:
+        -
+          bearerAuth: []
+  /api/v1/messages/search:
+    get:
+      tags:
+        - Messages
+      summary: 'Search messages'
+      operationId: 7357fd1d6247ee743a710059df2263d4
+      parameters:
+        -
+          name: query
+          in: query
+          description: 'Search term'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Search results'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageResource'
+      security:
+        -
+          bearerAuth: []
   /api/v1/payments/create-intent:
     post:
       tags:
@@ -3527,12 +3798,180 @@ paths:
         -
           bearerAuth: []
 components:
+  schemas:
+    ConversationResource:
+      title: 'Conversation Resource'
+      description: 'Conversation details including last message and participants'
+      properties:
+        id:
+          type: integer
+          example: 1
+        other_user:
+          properties:
+            id:
+              type: integer
+              example: 2
+            name:
+              type: string
+              example: 'John Doe'
+            email:
+              type: string
+              example: john@example.com
+            profile_photo:
+              type: string
+              example: 'https://example.com/photo.jpg'
+              nullable: true
+            user_type:
+              type: string
+              example: client
+            is_verified:
+              type: boolean
+              example: true
+          type: object
+        booking:
+          properties:
+            id:
+              type: integer
+              example: 10
+            booking_date:
+              type: string
+              format: date
+              example: '2023-10-15'
+            status:
+              type: string
+              example: confirmed
+          type: object
+          nullable: true
+        last_message:
+          type: string
+          example: Hello!
+          nullable: true
+        last_message_at:
+          type: string
+          format: date-time
+          example: '2023-10-15 14:30:00'
+          nullable: true
+        last_message_by_me:
+          type: boolean
+          example: true
+        unread_count:
+          type: integer
+          example: 0
+        is_blocked:
+          type: boolean
+          example: false
+        blocked_by_me:
+          type: boolean
+          example: false
+        created_at:
+          type: string
+          format: date-time
+          example: '2023-10-01 10:00:00'
+        updated_at:
+          type: string
+          format: date-time
+          example: '2023-10-15 14:30:00'
+      type: object
+    MessageResource:
+      title: 'Message Resource'
+      description: 'Message details'
+      properties:
+        id:
+          type: integer
+          example: 1
+        conversation_id:
+          type: integer
+          example: 1
+        sender:
+          properties:
+            id:
+              type: integer
+              example: 1
+            name:
+              type: string
+              example: 'Jane Doe'
+            profile_photo:
+              type: string
+              example: 'https://example.com/photo.jpg'
+              nullable: true
+          type: object
+        receiver:
+          properties:
+            id:
+              type: integer
+              example: 2
+            name:
+              type: string
+              example: 'John Doe'
+            profile_photo:
+              type: string
+              example: 'https://example.com/photo.jpg'
+              nullable: true
+          type: object
+        message:
+          type: string
+          example: Hello!
+          nullable: true
+        has_attachment:
+          type: boolean
+          example: false
+        attachment:
+          properties:
+            type:
+              type: string
+              example: image
+            name:
+              type: string
+              example: photo.jpg
+            size:
+              type: integer
+              example: 1024
+            url:
+              type: string
+              example: 'https://example.com/storage/messages/1/images/photo.jpg'
+          type: object
+          nullable: true
+        status:
+          type: string
+          example: read
+        is_read:
+          type: boolean
+          example: true
+        delivered_at:
+          type: string
+          format: date-time
+          nullable: true
+        read_at:
+          type: string
+          format: date-time
+          nullable: true
+        is_edited:
+          type: boolean
+          example: false
+        sent_by_me:
+          type: boolean
+          example: true
+        is_flagged:
+          type: boolean
+          example: false
+        created_at:
+          type: string
+          format: date-time
+          example: '2023-10-15 14:30:00'
+        updated_at:
+          type: string
+          format: date-time
+          example: '2023-10-15 14:30:00'
+      type: object
   securitySchemes:
     bearerAuth:
       type: http
       bearerFormat: JWT
       scheme: bearer
 tags:
+  -
+    name: Messages
+    description: 'Messaging system'
   -
     name: Authentication
     description: 'User authentication and authorization endpoints'

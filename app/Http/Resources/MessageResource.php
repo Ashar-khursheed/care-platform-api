@@ -5,6 +5,44 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Schema(
+    schema: "MessageResource",
+    title: "Message Resource",
+    description: "Message details",
+    properties: [
+        new OA\Property(property: "id", type: "integer", example: 1),
+        new OA\Property(property: "conversation_id", type: "integer", example: 1),
+        new OA\Property(property: "sender", type: "object", properties: [
+            new OA\Property(property: "id", type: "integer", example: 1),
+            new OA\Property(property: "name", type: "string", example: "Jane Doe"),
+            new OA\Property(property: "profile_photo", type: "string", nullable: true, example: "https://example.com/photo.jpg"),
+        ]),
+        new OA\Property(property: "receiver", type: "object", properties: [
+            new OA\Property(property: "id", type: "integer", example: 2),
+            new OA\Property(property: "name", type: "string", example: "John Doe"),
+            new OA\Property(property: "profile_photo", type: "string", nullable: true, example: "https://example.com/photo.jpg"),
+        ]),
+        new OA\Property(property: "message", type: "string", nullable: true, example: "Hello!"),
+        new OA\Property(property: "has_attachment", type: "boolean", example: false),
+        new OA\Property(property: "attachment", type: "object", nullable: true, properties: [
+            new OA\Property(property: "type", type: "string", example: "image"),
+            new OA\Property(property: "name", type: "string", example: "photo.jpg"),
+            new OA\Property(property: "size", type: "integer", example: 1024),
+            new OA\Property(property: "url", type: "string", example: "https://example.com/storage/messages/1/images/photo.jpg"),
+        ]),
+        new OA\Property(property: "status", type: "string", example: "read"),
+        new OA\Property(property: "is_read", type: "boolean", example: true),
+        new OA\Property(property: "delivered_at", type: "string", format: "date-time", nullable: true),
+        new OA\Property(property: "read_at", type: "string", format: "date-time", nullable: true),
+        new OA\Property(property: "is_edited", type: "boolean", example: false),
+        new OA\Property(property: "sent_by_me", type: "boolean", example: true),
+        new OA\Property(property: "is_flagged", type: "boolean", example: false),
+        new OA\Property(property: "created_at", type: "string", format: "date-time", example: "2023-10-15 14:30:00"),
+        new OA\Property(property: "updated_at", type: "string", format: "date-time", example: "2023-10-15 14:30:00"),
+    ]
+)]
 class MessageResource extends JsonResource
 {
     /**

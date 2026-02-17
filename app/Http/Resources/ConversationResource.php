@@ -5,6 +5,37 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Schema(
+    schema: "ConversationResource",
+    title: "Conversation Resource",
+    description: "Conversation details including last message and participants",
+    properties: [
+        new OA\Property(property: "id", type: "integer", example: 1),
+        new OA\Property(property: "other_user", type: "object", properties: [
+            new OA\Property(property: "id", type: "integer", example: 2),
+            new OA\Property(property: "name", type: "string", example: "John Doe"),
+            new OA\Property(property: "email", type: "string", example: "john@example.com"),
+            new OA\Property(property: "profile_photo", type: "string", nullable: true, example: "https://example.com/photo.jpg"),
+            new OA\Property(property: "user_type", type: "string", example: "client"),
+            new OA\Property(property: "is_verified", type: "boolean", example: true),
+        ]),
+        new OA\Property(property: "booking", type: "object", nullable: true, properties: [
+            new OA\Property(property: "id", type: "integer", example: 10),
+            new OA\Property(property: "booking_date", type: "string", format: "date", example: "2023-10-15"),
+            new OA\Property(property: "status", type: "string", example: "confirmed"),
+        ]),
+        new OA\Property(property: "last_message", type: "string", nullable: true, example: "Hello!"),
+        new OA\Property(property: "last_message_at", type: "string", format: "date-time", nullable: true, example: "2023-10-15 14:30:00"),
+        new OA\Property(property: "last_message_by_me", type: "boolean", example: true),
+        new OA\Property(property: "unread_count", type: "integer", example: 0),
+        new OA\Property(property: "is_blocked", type: "boolean", example: false),
+        new OA\Property(property: "blocked_by_me", type: "boolean", example: false),
+        new OA\Property(property: "created_at", type: "string", format: "date-time", example: "2023-10-01 10:00:00"),
+        new OA\Property(property: "updated_at", type: "string", format: "date-time", example: "2023-10-15 14:30:00"),
+    ]
+)]
 class ConversationResource extends JsonResource
 {
     /**

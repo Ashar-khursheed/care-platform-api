@@ -11,34 +11,33 @@ use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use OpenApi\Attributes as OA;
 
-/**
- * @OA\Tag(
- *     name="Messages",
- *     description="Messaging system endpoints"
- * )
- */
+#[OA\Tag(
+    name: "Messages",
+    description: "Messaging system endpoints"
+)]
 class MessageController extends Controller
 {
-    /**
-     * @OA\Get(
-     *     path="/api/v1/messages/conversations",
-     *     summary="Get user conversations",
-     *     tags={"Messages"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Successful operation",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/ConversationResource")),
-     *             @OA\Property(property="links", type="object"),
-     *             @OA\Property(property="meta", type="object")
-     *         )
-     *     ),
-     *     @OA\Response(response=401, description="Unauthenticated")
-     * )
-     */
+    #[OA\Get(
+        path: "/api/v1/messages/conversations",
+        summary: "Get user conversations",
+        security: [["bearerAuth" => []]],
+        tags: ["Messages"]
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "Successful operation",
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "data", type: "array", items: new OA\Items(ref: "#/components/schemas/ConversationResource")),
+                new OA\Property(property: "links", type: "object"),
+                new OA\Property(property: "meta", type: "object")
+            ],
+            type: "object"
+        )
+    )]
+    #[OA\Response(response: 401, description: "Unauthenticated")]
     public function conversations(Request $request)
     {
         $userId = $request->user()->id;
@@ -51,33 +50,33 @@ class MessageController extends Controller
         return ConversationResource::collection($conversations);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/v1/messages/conversations/{id}/messages",
-     *     summary="Get messages for a conversation",
-     *     tags={"Messages"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="Conversation ID",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Successful operation",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/MessageResource")),
-     *             @OA\Property(property="links", type="object"),
-     *             @OA\Property(property="meta", type="object")
-     *         )
-     *     ),
-     *     @OA\Response(response=403, description="Unauthorized"),
-     *     @OA\Response(response=404, description="Conversation not found")
-     * )
-     */
+    #[OA\Get(
+        path: "/api/v1/messages/conversations/{id}/messages",
+        summary: "Get messages for a conversation",
+        security: [["bearerAuth" => []]],
+        tags: ["Messages"]
+    )]
+    #[OA\Parameter(
+        name: "id",
+        description: "Conversation ID",
+        in: "path",
+        required: true,
+        schema: new OA\Schema(type: "integer")
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "Successful operation",
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "data", type: "array", items: new OA\Items(ref: "#/components/schemas/MessageResource")),
+                new OA\Property(property: "links", type: "object"),
+                new OA\Property(property: "meta", type: "object")
+            ],
+            type: "object"
+        )
+    )]
+    #[OA\Response(response: 403, description: "Unauthorized")]
+    #[OA\Response(response: 404, description: "Conversation not found")]
     public function messages(Request $request, $conversationId)
     {
         $userId = $request->user()->id;
@@ -104,34 +103,34 @@ class MessageController extends Controller
         return MessageResource::collection($messages);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/api/v1/messages/send",
-     *     summary="Send a message",
-     *     tags={"Messages"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="multipart/form-data",
-     *             @OA\Schema(
-     *                 required={"receiver_id"},
-     *                 @OA\Property(property="receiver_id", type="integer", description="Receiver User ID"),
-     *                 @OA\Property(property="message", type="string", description="Message content (required if no attachment)"),
-     *                 @OA\Property(property="booking_id", type="integer", description="Associated Booking ID (optional)"),
-     *                 @OA\Property(property="attachment", type="string", format="binary", description="File attachment (optional)")
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=201, 
-     *         description="Message sent",
-     *         @OA\JsonContent(ref="#/components/schemas/MessageResource")
-     *     ),
-     *     @OA\Response(response=403, description="Blocked or Unauthorized"),
-     *     @OA\Response(response=422, description="Validation Error")
-     * )
-     */
+    #[OA\Post(
+        path: "/api/v1/messages/send",
+        summary: "Send a message",
+        security: [["bearerAuth" => []]],
+        tags: ["Messages"]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\MediaType(
+            mediaType: "multipart/form-data",
+            schema: new OA\Schema(
+                required: ["receiver_id"],
+                properties: [
+                    new OA\Property(property: "receiver_id", description: "Receiver User ID", type: "integer"),
+                    new OA\Property(property: "message", description: "Message content (required if no attachment)", type: "string"),
+                    new OA\Property(property: "booking_id", description: "Associated Booking ID (optional)", type: "integer"),
+                    new OA\Property(property: "attachment", description: "File attachment (optional)", type: "string", format: "binary")
+                ]
+            )
+        )
+    )]
+    #[OA\Response(
+        response: 201,
+        description: "Message sent",
+        content: new OA\JsonContent(ref: "#/components/schemas/MessageResource")
+    )]
+    #[OA\Response(response: 403, description: "Blocked or Unauthorized")]
+    #[OA\Response(response: 422, description: "Validation Error")]
     public function send(MessageStoreRequest $request)
     {
         $userId = $request->user()->id;
@@ -184,23 +183,21 @@ class MessageController extends Controller
         return new MessageResource($message);
     }
 
-    /**
-     * @OA\Put(
-     *     path="/api/v1/messages/conversations/{id}/read",
-     *     summary="Mark conversation as read",
-     *     tags={"Messages"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="Conversation ID",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(response=200, description="Marked as read"),
-     *     @OA\Response(response=404, description="Conversation not found")
-     * )
-     */
+    #[OA\Put(
+        path: "/api/v1/messages/conversations/{id}/read",
+        summary: "Mark conversation as read",
+        security: [["bearerAuth" => []]],
+        tags: ["Messages"]
+    )]
+    #[OA\Parameter(
+        name: "id",
+        description: "Conversation ID",
+        in: "path",
+        required: true,
+        schema: new OA\Schema(type: "integer")
+    )]
+    #[OA\Response(response: 200, description: "Marked as read")]
+    #[OA\Response(response: 404, description: "Conversation not found")]
     public function markAsRead(Request $request, $conversationId)
     {
         $userId = $request->user()->id;
@@ -219,25 +216,23 @@ class MessageController extends Controller
         return response()->json(['message' => 'Conversation marked as read']);
     }
 
-    /**
-     * @OA\Delete(
-     *     path="/api/v1/messages/{id}",
-     *     summary="Delete a message",
-     *     description="Deletes a message for the authenticated user only",
-     *     tags={"Messages"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="Message ID",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(response=200, description="Message deleted"),
-     *     @OA\Response(response=404, description="Message not found"),
-     *     @OA\Response(response=403, description="Unauthorized")
-     * )
-     */
+    #[OA\Delete(
+        path: "/api/v1/messages/{id}",
+        summary: "Delete a message",
+        description: "Deletes a message for the authenticated user only",
+        security: [["bearerAuth" => []]],
+        tags: ["Messages"]
+    )]
+    #[OA\Parameter(
+        name: "id",
+        description: "Message ID",
+        in: "path",
+        required: true,
+        schema: new OA\Schema(type: "integer")
+    )]
+    #[OA\Response(response: 200, description: "Message deleted")]
+    #[OA\Response(response: 404, description: "Message not found")]
+    #[OA\Response(response: 403, description: "Unauthorized")]
     public function deleteMessage(Request $request, $messageId)
     {
         $userId = $request->user()->id;
@@ -256,23 +251,21 @@ class MessageController extends Controller
         return response()->json(['message' => 'Message deleted']);
     }
 
-    /**
-     * @OA\Put(
-     *     path="/api/v1/messages/conversations/{id}/block",
-     *     summary="Block a conversation",
-     *     tags={"Messages"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="Conversation ID",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(response=200, description="Conversation blocked"),
-     *     @OA\Response(response=404, description="Conversation not found")
-     * )
-     */
+    #[OA\Put(
+        path: "/api/v1/messages/conversations/{id}/block",
+        summary: "Block a conversation",
+        security: [["bearerAuth" => []]],
+        tags: ["Messages"]
+    )]
+    #[OA\Parameter(
+        name: "id",
+        description: "Conversation ID",
+        in: "path",
+        required: true,
+        schema: new OA\Schema(type: "integer")
+    )]
+    #[OA\Response(response: 200, description: "Conversation blocked")]
+    #[OA\Response(response: 404, description: "Conversation not found")]
     public function blockConversation(Request $request, $conversationId)
     {
         $userId = $request->user()->id;
@@ -294,23 +287,21 @@ class MessageController extends Controller
         return response()->json(['message' => 'Conversation blocked']);
     }
 
-    /**
-     * @OA\Put(
-     *     path="/api/v1/messages/conversations/{id}/unblock",
-     *     summary="Unblock a conversation",
-     *     tags={"Messages"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="Conversation ID",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(response=200, description="Conversation unblocked"),
-     *     @OA\Response(response=403, description="Cannot unblock if not the blocker")
-     * )
-     */
+    #[OA\Put(
+        path: "/api/v1/messages/conversations/{id}/unblock",
+        summary: "Unblock a conversation",
+        security: [["bearerAuth" => []]],
+        tags: ["Messages"]
+    )]
+    #[OA\Parameter(
+        name: "id",
+        description: "Conversation ID",
+        in: "path",
+        required: true,
+        schema: new OA\Schema(type: "integer")
+    )]
+    #[OA\Response(response: 200, description: "Conversation unblocked")]
+    #[OA\Response(response: 403, description: "Cannot unblock if not the blocker")]
     public function unblockConversation(Request $request, $conversationId)
     {
         $userId = $request->user()->id;
@@ -336,27 +327,27 @@ class MessageController extends Controller
         return response()->json(['message' => 'Conversation unblocked']);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/api/v1/messages/{id}/flag",
-     *     summary="Flag a message",
-     *     tags={"Messages"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="Message ID",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\RequestBody(
-     *         @OA\JsonContent(
-     *             @OA\Property(property="reason", type="string", description="Reason for flagging")
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Message flagged")
-     * )
-     */
+    #[OA\Post(
+        path: "/api/v1/messages/{id}/flag",
+        summary: "Flag a message",
+        security: [["bearerAuth" => []]],
+        tags: ["Messages"]
+    )]
+    #[OA\Parameter(
+        name: "id",
+        description: "Message ID",
+        in: "path",
+        required: true,
+        schema: new OA\Schema(type: "integer")
+    )]
+    #[OA\RequestBody(
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "reason", description: "Reason for flagging", type: "string")
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: "Message flagged")]
     public function flagMessage(Request $request, $messageId)
     {
         $userId = $request->user()->id;
@@ -379,21 +370,21 @@ class MessageController extends Controller
         return response()->json(['message' => 'Message flagged for review']);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/v1/messages/unread-count",
-     *     summary="Get global unread message count",
-     *     tags={"Messages"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Successful operation",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="count", type="integer")
-     *         )
-     *     )
-     * )
-     */
+    #[OA\Get(
+        path: "/api/v1/messages/unread-count",
+        summary: "Get global unread message count",
+        security: [["bearerAuth" => []]],
+        tags: ["Messages"]
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "Successful operation",
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "count", type: "integer")
+            ]
+        )
+    )]
     public function unreadCount(Request $request)
     {
         $userId = $request->user()->id;
@@ -404,26 +395,24 @@ class MessageController extends Controller
         return response()->json(['count' => $count]);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/v1/messages/search",
-     *     summary="Search messages",
-     *     tags={"Messages"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="query",
-     *         in="query",
-     *         required=true,
-     *         description="Search term",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Search results",
-     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/MessageResource"))
-     *     )
-     * )
-     */
+    #[OA\Get(
+        path: "/api/v1/messages/search",
+        summary: "Search messages",
+        security: [["bearerAuth" => []]],
+        tags: ["Messages"]
+    )]
+    #[OA\Parameter(
+        name: "query",
+        description: "Search term",
+        in: "query",
+        required: true,
+        schema: new OA\Schema(type: "string")
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "Search results",
+        content: new OA\JsonContent(type: "array", items: new OA\Items(ref: "#/components/schemas/MessageResource"))
+    )]
     public function search(Request $request)
     {
         $userId = $request->user()->id;
