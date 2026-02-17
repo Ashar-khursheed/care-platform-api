@@ -1,0 +1,28 @@
+Attempting to send test email...
+Failed to send test email: Expected response code "250" but got code "554", with message "554 Message rejected: Email address is not verified. The following identities failed the check in region US-EAST-1: asharkhursheed@gmail.com, Laravel <no-reply@careapi.in-sourceit.com>...".
+Stack trace: #0 D:\care\care-platform-api\vendor\symfony\mailer\Transport\Smtp\SmtpTransport.php(187): Symfony\Component\Mailer\Transport\Smtp\SmtpTransport->assertResponseCode('554 Message rej...', Array)
+#1 D:\care\care-platform-api\vendor\symfony\mailer\Transport\Smtp\EsmtpTransport.php(150): Symfony\Component\Mailer\Transport\Smtp\SmtpTransport->executeCommand('\r\n.\r\n', Array)
+#2 D:\care\care-platform-api\vendor\symfony\mailer\Transport\Smtp\SmtpTransport.php(223): Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport->executeCommand('\r\n.\r\n', Array)
+#3 D:\care\care-platform-api\vendor\symfony\mailer\Transport\AbstractTransport.php(69): Symfony\Component\Mailer\Transport\Smtp\SmtpTransport->doSend(Object(Symfony\Component\Mailer\SentMessage))
+#4 D:\care\care-platform-api\vendor\symfony\mailer\Transport\Smtp\SmtpTransport.php(138): Symfony\Component\Mailer\Transport\AbstractTransport->send(Object(Symfony\Component\Mime\Email), Object(Symfony\Component\Mailer\DelayedEnvelope))
+#5 D:\care\care-platform-api\vendor\laravel\framework\src\Illuminate\Mail\Mailer.php(584): Symfony\Component\Mailer\Transport\Smtp\SmtpTransport->send(Object(Symfony\Component\Mime\Email), Object(Symfony\Component\Mailer\DelayedEnvelope))
+#6 D:\care\care-platform-api\vendor\laravel\framework\src\Illuminate\Mail\Mailer.php(331): Illuminate\Mail\Mailer->sendSymfonyMessage(Object(Symfony\Component\Mime\Email))
+#7 D:\care\care-platform-api\vendor\laravel\framework\src\Illuminate\Mail\Mailer.php(223): Illuminate\Mail\Mailer->send(NULL, Array, Object(Closure))
+#8 D:\care\care-platform-api\vendor\laravel\framework\src\Illuminate\Mail\MailManager.php(621): Illuminate\Mail\Mailer->raw('This is a test ...', Object(Closure))
+#9 D:\care\care-platform-api\vendor\laravel\framework\src\Illuminate\Support\Facades\Facade.php(363): Illuminate\Mail\MailManager->__call('raw', Array)
+#10 D:\care\care-platform-api\test_mail.php(16): Illuminate\Support\Facades\Facade::__callStatic('raw', Array)
+#11 {main}
+Attempting to send test email...
+Failed to send test email: Expected response code "250" but got code "554", with message "554 Message rejected: Email address is not verified. The following identities failed the check in region US-EAST-1: asharkhursheed@gmail.com, Laravel <no-reply@careapi.in-sourceit.com>...".
+Stack trace: #0 D:\care\care-platform-api\vendor\symfony\mailer\Transport\Smtp\SmtpTransport.php(187): Symfony\Component\Mailer\Transport\Smtp\SmtpTransport->assertResponseCode('554 Message rej...', Array)
+#1 D:\care\care-platform-api\vendor\symfony\mailer\Transport\Smtp\EsmtpTransport.php(150): Symfony\Component\Mailer\Transport\Smtp\SmtpTransport->executeCommand('\r\n.\r\n', Array)
+#2 D:\care\care-platform-api\vendor\symfony\mailer\Transport\Smtp\SmtpTransport.php(223): Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport->executeCommand('\r\n.\r\n', Array)
+#3 D:\care\care-platform-api\vendor\symfony\mailer\Transport\AbstractTransport.php(69): Symfony\Component\Mailer\Transport\Smtp\SmtpTransport->doSend(Object(Symfony\Component\Mailer\SentMessage))
+#4 D:\care\care-platform-api\vendor\symfony\mailer\Transport\Smtp\SmtpTransport.php(138): Symfony\Component\Mailer\Transport\AbstractTransport->send(Object(Symfony\Component\Mime\Email), Object(Symfony\Component\Mailer\DelayedEnvelope))
+#5 D:\care\care-platform-api\vendor\laravel\framework\src\Illuminate\Mail\Mailer.php(584): Symfony\Component\Mailer\Transport\Smtp\SmtpTransport->send(Object(Symfony\Component\Mime\Email), Object(Symfony\Component\Mailer\DelayedEnvelope))
+#6 D:\care\care-platform-api\vendor\laravel\framework\src\Illuminate\Mail\Mailer.php(331): Illuminate\Mail\Mailer->sendSymfonyMessage(Object(Symfony\Component\Mime\Email))
+#7 D:\care\care-platform-api\vendor\laravel\framework\src\Illuminate\Mail\Mailer.php(223): Illuminate\Mail\Mailer->send(NULL, Array, Object(Closure))
+#8 D:\care\care-platform-api\vendor\laravel\framework\src\Illuminate\Mail\MailManager.php(621): Illuminate\Mail\Mailer->raw('This is a test ...', Object(Closure))
+#9 D:\care\care-platform-api\vendor\laravel\framework\src\Illuminate\Support\Facades\Facade.php(363): Illuminate\Mail\MailManager->__call('raw', Array)
+#10 D:\care\care-platform-api\test_mail.php(16): Illuminate\Support\Facades\Facade::__callStatic('raw', Array)
+#11 {main}
