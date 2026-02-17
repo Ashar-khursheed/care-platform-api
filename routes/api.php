@@ -306,19 +306,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/search', [MessageController::class, 'search']);
         });
 
-        // Conversations (Alternative structure - 10 endpoints)
-        Route::prefix('conversations')->group(function () {
-            Route::get('/', [MessageController::class, 'conversations']);
-            Route::post('/', [MessageController::class, 'createConversation']);
-            Route::get('/{id}', [MessageController::class, 'show']);
-            Route::delete('/{id}', [MessageController::class, 'deleteConversation']);
-            Route::get('/{id}/messages', [MessageController::class, 'messages']);
-            Route::post('/{id}/messages', [MessageController::class, 'sendMessage']);
-            Route::put('/messages/{id}/read', [MessageController::class, 'markAsRead']);
-            Route::post('/messages/{id}/flag', [MessageController::class, 'flagMessage']);
-            Route::delete('/messages/{id}', [MessageController::class, 'deleteMessage']);
-            Route::get('/unread/count', [MessageController::class, 'unreadCount']);
-        });
+        // Conversations routes merged into 'messages' group above
+
 
         // ====================================================
         // MODULE 8: NOTIFICATIONS (15 endpoints)
