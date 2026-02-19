@@ -13,7 +13,7 @@ use OpenApi\Attributes as OA;
     description: "Complete API documentation for Care Platform - A comprehensive marketplace connecting service providers with customers"
 )]
 #[OA\Server(url: "http://localhost:8000", description: "Local Development Server")]
-#[OA\Server(url: "https://careapi.in-sourceit.com", description: "Production Server")]
+#[OA\Server(url: "https://api.sparccpk.org", description: "Production Server")]
 #[OA\SecurityScheme(
     securityScheme: "bearerAuth",
     type: "http",
