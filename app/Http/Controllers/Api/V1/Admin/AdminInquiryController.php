@@ -6,12 +6,52 @@ use App\Http\Controllers\Controller;
 use App\Models\Inquiry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use OpenApi\Attributes as OA;
 
 class AdminInquiryController extends Controller
 {
     /**
      * List all inquiries with pagination and filtering.
      */
+    #[OA\Get(
+        path: '/api/v1/admin/inquiries',
+        summary: 'List Inquiries',
+        description: 'Get a paginated list of all inquiries (admin only)',
+        operationId: 'getAdminInquiries',
+        security: [['bearerAuth' => []]],
+        tags: ['Admin Inquiries']
+    )]
+    #[OA\Parameter(
+        name: 'page',
+        in: 'query',
+        description: 'Page number',
+        required: false,
+        schema: new OA\Schema(type: 'integer')
+    )]
+    #[OA\Parameter(
+        name: 'status',
+        in: 'query',
+        description: 'Filter by status (pending, resolved)',
+        required: false,
+        schema: new OA\Schema(type: 'string', enum: ['pending', 'resolved'])
+    )]
+    #[OA\Parameter(
+        name: 'search',
+        in: 'query',
+        description: 'Search string',
+        required: false,
+        schema: new OA\Schema(type: 'string')
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'List of inquiries',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'status', type: 'string', example: 'success'),
+                new OA\Property(property: 'data', type: 'object') // Paginated result
+            ]
+        )
+    )]
     public function index(Request $request)
     {
         $query = Inquiry::query();
@@ -42,6 +82,31 @@ class AdminInquiryController extends Controller
     /**
      * Show a specific inquiry.
      */
+    #[OA\Get(
+        path: '/api/v1/admin/inquiries/{id}',
+        summary: 'Get Inquiry Details',
+        description: 'Get details of a specific inquiry',
+        operationId: 'getAdminInquiry',
+        security: [['bearerAuth' => []]],
+        tags: ['Admin Inquiries']
+    )]
+    #[OA\Parameter(
+        name: 'id',
+        in: 'path',
+        required: true,
+        schema: new OA\Schema(type: 'integer')
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Inquiry details',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'status', type: 'string', example: 'success'),
+                new OA\Property(property: 'data', type: 'object')
+            ]
+        )
+    )]
+    #[OA\Response(response: 404, description: 'Inquiry not found')]
     public function show($id)
     {
         $inquiry = Inquiry::with('responder')->find($id);
@@ -63,6 +128,42 @@ class AdminInquiryController extends Controller
      * Reply to an inquiry (mark as resolved).
      * Note: In a real system, this would likely send an email.
      */
+    #[OA\Post(
+        path: '/api/v1/admin/inquiries/{id}/reply',
+        summary: 'Reply to Inquiry',
+        description: 'Reply to an inquiry and mark it as resolved',
+        operationId: 'replyAdminInquiry',
+        security: [['bearerAuth' => []]],
+        tags: ['Admin Inquiries']
+    )]
+    #[OA\Parameter(
+        name: 'id',
+        in: 'path',
+        required: true,
+        schema: new OA\Schema(type: 'integer')
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['response'],
+            properties: [
+                new OA\Property(property: 'response', type: 'string', example: 'Hello, here is the answer to your question...')
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Replied successfully',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'status', type: 'string', example: 'success'),
+                new OA\Property(property: 'message', type: 'string', example: 'Inquiry resolved successfully'),
+                new OA\Property(property: 'data', type: 'object')
+            ]
+        )
+    )]
+    #[OA\Response(response: 422, description: 'Validation error')]
+    #[OA\Response(response: 404, description: 'Inquiry not found')]
     public function reply(Request $request, $id)
     {
         $inquiry = Inquiry::find($id);
@@ -105,6 +206,31 @@ class AdminInquiryController extends Controller
     /**
      * Delete an inquiry.
      */
+    #[OA\Delete(
+        path: '/api/v1/admin/inquiries/{id}',
+        summary: 'Delete Inquiry',
+        description: 'Delete an inquiry record',
+        operationId: 'deleteAdminInquiry',
+        security: [['bearerAuth' => []]],
+        tags: ['Admin Inquiries']
+    )]
+    #[OA\Parameter(
+        name: 'id',
+        in: 'path',
+        required: true,
+        schema: new OA\Schema(type: 'integer')
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Inquiry deleted',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'status', type: 'string', example: 'success'),
+                new OA\Property(property: 'message', type: 'string', example: 'Inquiry deleted successfully')
+            ]
+        )
+    )]
+    #[OA\Response(response: 404, description: 'Inquiry not found')]
     public function destroy($id)
     {
         $inquiry = Inquiry::find($id);

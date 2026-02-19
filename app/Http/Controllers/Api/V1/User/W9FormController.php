@@ -7,12 +7,29 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Models\ProfileDocument;
+use OpenApi\Attributes as OA;
 
 class W9FormController extends Controller
 {
-    /**
-     * Download the blank W-9 form.
-     */
+    #[OA\Get(
+        path: '/api/v1/w9-form/download',
+        summary: 'Download Blank W-9 Form',
+        description: 'Download the blank W-9 PDF form for filling out',
+        operationId: 'downloadW9Form',
+        tags: ['W-9 Form']
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'PDF File Download',
+        content: new OA\MediaType(
+            mediaType: 'application/pdf',
+            schema: new OA\Schema(type: 'string', format: 'binary')
+        )
+    )]
+    #[OA\Response(
+        response: 404,
+        description: 'Form not found'
+    )]
     public function downloadBlankForm()
     {
         // Path to the blank W-9 form (stored in public disk or S3 "public" folder)
@@ -31,9 +48,44 @@ class W9FormController extends Controller
         return Storage::disk('public')->download($path, 'Form-W9.pdf');
     }
 
-    /**
-     * Upload the filled W-9 form.
-     */
+    #[OA\Post(
+        path: '/api/v1/profile/w9-form',
+        summary: 'Upload Filled W-9 Form',
+        description: 'Upload the filled W-9 PDF form',
+        operationId: 'uploadW9Form',
+        security: [['bearerAuth' => []]],
+        tags: ['W-9 Form']
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\MediaType(
+            mediaType: 'multipart/form-data',
+            schema: new OA\Schema(
+                required: ['document'],
+                properties: [
+                    new OA\Property(
+                        property: 'document',
+                        description: 'The filled W-9 PDF file',
+                        type: 'string',
+                        format: 'binary'
+                    )
+                ]
+            )
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Upload successful',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'status', type: 'string', example: 'success'),
+                new OA\Property(property: 'message', type: 'string', example: 'W-9 Form uploaded successfully.'),
+                new OA\Property(property: 'data', type: 'object') // refine if needed
+            ]
+        )
+    )]
+    #[OA\Response(response: 422, description: 'Validation error')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function uploadFilledForm(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -55,11 +107,6 @@ class W9FormController extends Controller
         $filename = $request->file('document')->getClientOriginalName();
 
         // Save to ProfileDocument
-        // Check if existing W9 exists, if so, update or create new? 
-        // Typically we replace the old one or keep history. Let's create new for now or update if unique constraint.
-        // The schema doesn't enforce uniqueness on type per user, so we can stick to creating new or updating.
-        // Let's check for existing and update status to pending.
-
         $document = ProfileDocument::updateOrCreate(
             [
                 'user_id' => $user->id,
@@ -82,9 +129,34 @@ class W9FormController extends Controller
         ]);
     }
 
-    /**
-     * Get the status of the W-9 form submission.
-     */
+    #[OA\Get(
+        path: '/api/v1/profile/w9-form/status',
+        summary: 'Get W-9 Form Status',
+        description: 'Get the status of the W-9 form submission',
+        operationId: 'getW9FormStatus',
+        security: [['bearerAuth' => []]],
+        tags: ['W-9 Form']
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Status retrieved successfully',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'status', type: 'string', example: 'success'),
+                new OA\Property(
+                    property: 'data',
+                    type: 'object',
+                    properties: [
+                        new OA\Property(property: 'submitted', type: 'boolean', example: true),
+                        new OA\Property(property: 'status', type: 'string', enum: ['pending', 'approved', 'rejected', 'not_submitted'], example: 'pending'),
+                        new OA\Property(property: 'document_url', type: 'string', format: 'url', nullable: true),
+                        new OA\Property(property: 'rejection_reason', type: 'string', nullable: true)
+                    ]
+                )
+            ]
+        )
+    )]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function status()
     {
         $user = auth()->user();
