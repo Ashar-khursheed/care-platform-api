@@ -36,6 +36,9 @@ use App\Http\Controllers\Api\V1\SubscriptionController;
 use App\Http\Controllers\Api\V1\AnalyticsController;
 use App\Http\Controllers\Api\V1\Mobile\MobileApiController;
 use App\Http\Controllers\Api\V1\JobApplicationController;
+use App\Http\Controllers\Api\V1\InquiryController;
+use App\Http\Controllers\Api\V1\User\W9FormController;
+use App\Http\Controllers\Api\V1\Admin\AdminInquiryController;
 
 use App\Http\Middleware\ResponseCompressionMiddleware;
 
@@ -64,6 +67,16 @@ Route::get('/health', function () {
 
 Route::prefix('v1')->group(function () {
 
+
+    // ========================================================
+    // PUBLIC ROUTES (no authentication)
+    // ========================================================
+    
+    // Inquiries (Contact Us)
+    Route::post('/inquiries', [InquiryController::class, 'store']);
+    
+    // W-9 Form (Download Blank) - making public for ease of access, or could be protected
+    Route::get('/w9-form/download', [W9FormController::class, 'downloadBlankForm']);
 
     Route::get('/job-applications', [JobApplicationController::class, 'index']);
     Route::post('/job-applications', [JobApplicationController::class, 'store']);
@@ -179,6 +192,10 @@ Route::prefix('v1')->group(function () {
             Route::delete('/documents/{id}', [ProfileController::class, 'deleteDocument']);
             Route::get('/verification-status', [ProfileController::class, 'verificationStatus']);
             Route::put('/settings', [ProfileController::class, 'updateSettings']);
+            
+            // W-9 Form (Upload/Status)
+            Route::post('/w9-form', [W9FormController::class, 'uploadFilledForm']);
+            Route::get('/w9-form/status', [W9FormController::class, 'status']);
         });
 
         // ====================================================
@@ -585,6 +602,17 @@ Route::prefix('v1')->group(function () {
                 Route::get('/export/reviews', [AdminAnalyticsController::class, 'exportReviews']);
                 Route::get('/export/users', [AdminAnalyticsController::class, 'exportUsers']);
                 Route::get('/export/revenue-summary', [AdminAnalyticsController::class, 'exportRevenueSummary']);
+            });
+
+            // ================================================
+            // ADMIN INQUIRIES MANAGEMENT (4 endpoints)
+            // ================================================
+
+            Route::prefix('inquiries')->group(function () {
+                Route::get('/', [AdminInquiryController::class, 'index']);
+                Route::get('/{id}', [AdminInquiryController::class, 'show']);
+                Route::post('/{id}/reply', [AdminInquiryController::class, 'reply']);
+                Route::delete('/{id}', [AdminInquiryController::class, 'destroy']);
             });
 
             // ================================================
