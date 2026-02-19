@@ -103,13 +103,26 @@ class W9FormController extends Controller
         $user = auth()->user();
 
         // Debugging: Check if bucket config exists
-        if (!config('filesystems.disks.s3.bucket')) {
+        $s3Config = config('filesystems.disks.s3');
+        $envBucket = env('AWS_BUCKET');
+        
+        if (empty($s3Config['bucket'])) {
             \Illuminate\Support\Facades\Log::error('S3 Configuration Error: AWS_BUCKET is missing', [
-                'config' => config('filesystems.disks.s3')
+                'config' => $s3Config,
+                'env_bucket' => $envBucket, // Check if env function works (only if config not cached)
+                'config_cached' => app()->configurationIsCached()
             ]);
+            
             return response()->json([
                 'status' => 'error',
-                'message' => 'Server Configuration Error: AWS_BUCKET is not configured on the server.',
+                'message' => 'Server Configuration Error: AWS_BUCKET is not configured.',
+                'debug' => [
+                    's3_config' => $s3Config,
+                    'env_bucket' => $envBucket,
+                    'config_is_cached' => app()->configurationIsCached(),
+                    'php_version' => phpversion(),
+                    'document_root' => $_SERVER['DOCUMENT_ROOT'] ?? 'unknown'
+                ]
             ], 500);
         }
         
