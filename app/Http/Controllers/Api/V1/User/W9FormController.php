@@ -101,6 +101,17 @@ class W9FormController extends Controller
         }
 
         $user = auth()->user();
+
+        // Debugging: Check if bucket config exists
+        if (!config('filesystems.disks.s3.bucket')) {
+            \Illuminate\Support\Facades\Log::error('S3 Configuration Error: AWS_BUCKET is missing', [
+                'config' => config('filesystems.disks.s3')
+            ]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Server Configuration Error: AWS_BUCKET is not configured on the server.',
+            ], 500);
+        }
         
         // Upload to S3 using put() to match JobApplicationController pattern
         $file = $request->file('document');
