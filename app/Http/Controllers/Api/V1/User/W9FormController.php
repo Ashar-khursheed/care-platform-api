@@ -102,9 +102,13 @@ class W9FormController extends Controller
 
         $user = auth()->user();
         
-        // Upload to S3 (or default disk)
-        $path = $request->file('document')->store('documents/w9', 's3');
-        $filename = $request->file('document')->getClientOriginalName();
+        // Upload to S3 using put() to match JobApplicationController pattern
+        $file = $request->file('document');
+        $extension = $file->getClientOriginalExtension();
+        $filename = 'w9_' . $user->id . '_' . time() . '.' . $extension;
+        $path = "documents/w9_forms/{$filename}"; // "w9 forms folder"
+        
+        Storage::disk('s3')->put($path, file_get_contents($file));
 
         // Save to ProfileDocument
         $document = ProfileDocument::updateOrCreate(
