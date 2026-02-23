@@ -39,6 +39,7 @@ use App\Http\Controllers\Api\V1\JobApplicationController;
 use App\Http\Controllers\Api\V1\InquiryController;
 use App\Http\Controllers\Api\V1\User\W9FormController;
 use App\Http\Controllers\Api\V1\Admin\AdminInquiryController;
+use App\Http\Controllers\Api\V1\Admin\AdminW9FormController;
 
 use App\Http\Middleware\ResponseCompressionMiddleware;
 
@@ -613,6 +614,19 @@ Route::prefix('v1')->group(function () {
                 Route::get('/{id}', [AdminInquiryController::class, 'show']);
                 Route::post('/{id}/reply', [AdminInquiryController::class, 'reply']);
                 Route::delete('/{id}', [AdminInquiryController::class, 'destroy']);
+            });
+
+            // ================================================
+            // ADMIN W-9 FORM MANAGEMENT (6 endpoints)
+            // ================================================
+
+            Route::prefix('w9-forms')->group(function () {
+                Route::get('/statistics', [AdminW9FormController::class, 'statistics']);
+                Route::get('/pending', [AdminW9FormController::class, 'pending']);
+                Route::get('/', [AdminW9FormController::class, 'index']);
+                Route::get('/{id}', [AdminW9FormController::class, 'show']);
+                Route::put('/{id}/approve', [AdminW9FormController::class, 'approve']);
+                Route::put('/{id}/reject', [AdminW9FormController::class, 'reject']);
             });
 
             // ================================================

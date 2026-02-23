@@ -3501,6 +3501,223 @@
                 ]
             }
         },
+        "/api/v1/admin/w9-forms": {
+            "get": {
+                "tags": [
+                    "Admin - W9 Forms"
+                ],
+                "summary": "List all W-9 form submissions",
+                "description": "Returns paginated list of W-9 form submissions. Filter by status: pending, approved, rejected.",
+                "operationId": "adminListW9Forms",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "approved",
+                                "rejected"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/w9-forms/pending": {
+            "get": {
+                "tags": [
+                    "Admin - W9 Forms"
+                ],
+                "summary": "List pending W-9 form submissions",
+                "description": "Returns all W-9 forms awaiting admin review.",
+                "operationId": "adminPendingW9Forms",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/w9-forms/{id}": {
+            "get": {
+                "tags": [
+                    "Admin - W9 Forms"
+                ],
+                "summary": "Get W-9 form details",
+                "description": "Returns detailed information about a specific W-9 submission including a temporary download URL.",
+                "operationId": "adminShowW9Form",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/w9-forms/{id}/approve": {
+            "put": {
+                "tags": [
+                    "Admin - W9 Forms"
+                ],
+                "summary": "Approve a W-9 form",
+                "description": "Marks the W-9 form as approved. Optionally mark the user as w9_verified.",
+                "operationId": "adminApproveW9Form",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "W-9 form approved"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/w9-forms/{id}/reject": {
+            "put": {
+                "tags": [
+                    "Admin - W9 Forms"
+                ],
+                "summary": "Reject a W-9 form",
+                "description": "Marks the W-9 form as rejected. A rejection reason is required.",
+                "operationId": "adminRejectW9Form",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "reason"
+                                ],
+                                "properties": {
+                                    "reason": {
+                                        "description": "Reason for rejection",
+                                        "type": "string",
+                                        "example": "Signature is missing on the form."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "W-9 form rejected"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/w9-forms/statistics": {
+            "get": {
+                "tags": [
+                    "Admin - W9 Forms"
+                ],
+                "summary": "W-9 form statistics",
+                "description": "Returns counts of pending, approved, and rejected W-9 submissions.",
+                "operationId": "adminW9FormStatistics",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/auth/register": {
             "post": {
                 "tags": [
@@ -6605,6 +6822,10 @@
         {
             "name": "Admin - Jobs",
             "description": "Admin - Jobs"
+        },
+        {
+            "name": "Admin - W9 Forms",
+            "description": "Admin - W9 Forms"
         },
         {
             "name": "Bids",

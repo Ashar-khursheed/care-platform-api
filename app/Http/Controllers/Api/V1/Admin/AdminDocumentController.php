@@ -147,37 +147,70 @@ class AdminDocumentController extends Controller
         // Get file path
         $filePath = $document->document_path;
         
-        // Check if file exists
-        if (!Storage::disk('local')->exists($filePath)) {
+        // Determine which disk the file is on
+        $disk = 'local';
+        if (Storage::disk('s3')->exists($filePath)) {
+            $disk = 's3';
+        } elseif (!Storage::disk('local')->exists($filePath)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Document file not found'
             ], 404);
         }
 
-        // Get file content
+        // For S3 files, return a pre-signed URL instead of file bytes
+        if ($disk === 's3') {
+            try {
+                $url = Storage::disk('s3')->temporaryUrl($filePath, now()->addMinutes(60));
+            } catch (\Exception $e) {
+                $url = Storage::disk('s3')->url($filePath);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $document->id,
+                    'user' => [
+                        'id'        => $document->user->id,
+                        'name'      => $document->user->full_name,
+                        'email'     => $document->user->email,
+                        'user_type' => $document->user->user_type,
+                    ],
+                    'document_type'       => $document->document_type,
+                    'document_name'       => $document->document_name,
+                    'verification_status' => $document->verification_status,
+                    'rejection_reason'    => $document->rejection_reason,
+                    'verified_at'         => $document->verified_at?->format('Y-m-d H:i:s'),
+                    'uploaded_at'         => $document->created_at->format('Y-m-d H:i:s'),
+                    'document_url'        => $url,
+                    'storage'             => 's3',
+                ],
+            ], 200);
+        }
+
+        // Local disk: return file bytes
         $fileContent = Storage::disk('local')->get($filePath);
-        $mimeType = Storage::disk('local')->mimeType($filePath);
+        $mimeType    = Storage::disk('local')->mimeType($filePath);
 
         return response()->json([
             'success' => true,
             'data' => [
                 'id' => $document->id,
                 'user' => [
-                    'id' => $document->user->id,
-                    'name' => $document->user->full_name,
-                    'email' => $document->user->email,
+                    'id'        => $document->user->id,
+                    'name'      => $document->user->full_name,
+                    'email'     => $document->user->email,
                     'user_type' => $document->user->user_type,
                 ],
-                'document_type' => $document->document_type,
-                'document_name' => $document->document_name,
+                'document_type'       => $document->document_type,
+                'document_name'       => $document->document_name,
                 'verification_status' => $document->verification_status,
-                'rejection_reason' => $document->rejection_reason,
-                'verified_at' => $document->verified_at?->format('Y-m-d H:i:s'),
-                'uploaded_at' => $document->created_at->format('Y-m-d H:i:s'),
+                'rejection_reason'    => $document->rejection_reason,
+                'verified_at'         => $document->verified_at?->format('Y-m-d H:i:s'),
+                'uploaded_at'         => $document->created_at->format('Y-m-d H:i:s'),
                 'file_info' => [
                     'mime_type' => $mimeType,
-                    'size' => Storage::disk('local')->size($filePath),
+                    'size'      => Storage::disk('local')->size($filePath),
                 ],
             ]
         ], 200);
@@ -203,6 +236,11 @@ class AdminDocumentController extends Controller
         }
 
         $filePath = $document->document_path;
+
+        // Check which disk and download appropriately
+        if (Storage::disk('s3')->exists($filePath)) {
+            return Storage::disk('s3')->download($filePath, $document->document_name);
+        }
 
         if (!Storage::disk('local')->exists($filePath)) {
             return response()->json([
