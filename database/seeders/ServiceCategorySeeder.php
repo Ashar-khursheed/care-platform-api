@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\ServiceCategory;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 
 class ServiceCategorySeeder extends Seeder
 {
@@ -38,7 +39,10 @@ class ServiceCategorySeeder extends Seeder
         ];
 
         // Clear existing to avoid duplicates if re-run
+        // Disable foreign key constraints as service_listings may reference these
+        Schema::disableForeignKeyConstraints();
         ServiceCategory::truncate();
+        Schema::enableForeignKeyConstraints();
 
         foreach ($categories as $category) {
             ServiceCategory::create([
