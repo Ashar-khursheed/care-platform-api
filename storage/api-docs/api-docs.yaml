@@ -2431,6 +2431,293 @@ paths:
       security:
         -
           bearerAuth: []
+  /api/v1/admin/withdrawals:
+    get:
+      tags:
+        - 'Admin - Withdrawals'
+      summary: 'List all withdrawal requests (Admin)'
+      description: "GET /v1/admin/withdrawals\nList all withdrawal requests — filterable by status, provider, date."
+      operationId: 50695e746093046c5dacf719526f4c01
+      parameters:
+        -
+          name: escrow_status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - holding
+              - released
+              - disputed
+        -
+          name: withdrawal_status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - none
+              - requested
+              - approved
+              - rejected
+              - paid
+              - cancelled
+        -
+          name: provider_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        -
+          name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        -
+          name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        -
+          name: sort_by
+          in: query
+          required: false
+          schema:
+            type: string
+            default: created_at
+        -
+          name: sort_order
+          in: query
+          required: false
+          schema:
+            type: string
+            default: desc
+            enum:
+              - asc
+              - desc
+        -
+          name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        200:
+          description: Success
+      security:
+        -
+          bearerAuth: []
+  /api/v1/admin/withdrawals/statistics:
+    get:
+      tags:
+        - 'Admin - Withdrawals'
+      summary: 'Platform withdrawal statistics and commission totals'
+      description: "GET /v1/admin/withdrawals/statistics\nOverall platform withdrawal stats + commission totals."
+      operationId: 8a6a95c8245dcd89d439daa05da66797
+      responses:
+        200:
+          description: Success
+      security:
+        -
+          bearerAuth: []
+  /api/v1/admin/withdrawals/history:
+    get:
+      tags:
+        - 'Admin - Withdrawals'
+      summary: 'Full withdrawal history'
+      description: "GET /v1/admin/withdrawals/history\nFull paginated history view (all time)."
+      operationId: a75947a708fa072cb449e8e0e17cd7ed
+      parameters:
+        -
+          name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        -
+          name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        -
+          name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        200:
+          description: Success
+      security:
+        -
+          bearerAuth: []
+  /api/v1/admin/withdrawals/commission-report:
+    get:
+      tags:
+        - 'Admin - Withdrawals'
+      summary: 'Commission analytics report'
+      description: "GET /v1/admin/withdrawals/commission-report\nCommission analytics — groupable by month, week, or day."
+      operationId: 10b5b19c7fe4b13dc62695d107a4a09e
+      parameters:
+        -
+          name: group_by
+          in: query
+          required: false
+          schema:
+            type: string
+            default: month
+            enum:
+              - day
+              - week
+              - month
+      responses:
+        200:
+          description: Success
+      security:
+        -
+          bearerAuth: []
+  '/api/v1/admin/withdrawals/{id}':
+    get:
+      tags:
+        - 'Admin - Withdrawals'
+      summary: 'Get single withdrawal request details'
+      description: "GET /v1/admin/withdrawals/{id}\nView a single withdrawal request in full detail."
+      operationId: 9e85847d81b9b8e80d901438d2ccbdb3
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+        404:
+          description: 'Not found'
+      security:
+        -
+          bearerAuth: []
+  '/api/v1/admin/withdrawals/{id}/approve':
+    post:
+      tags:
+        - 'Admin - Withdrawals'
+      summary: 'Approve withdrawal request and release escrow'
+      description: "POST /v1/admin/withdrawals/{id}/approve\nAdmin manually approves and releases funds to the provider."
+      operationId: ea9d37c3baf39d534dabbaa4a4145d86
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              properties:
+                transaction_reference:
+                  type: string
+                  example: WIRE-123
+                notes:
+                  type: string
+                  example: 'Sent via wire transfer'
+              type: object
+      responses:
+        200:
+          description: Success
+        400:
+          description: 'Bad Request - Cannot approve in current state'
+        404:
+          description: 'Not found'
+      security:
+        -
+          bearerAuth: []
+  '/api/v1/admin/withdrawals/{id}/reject':
+    post:
+      tags:
+        - 'Admin - Withdrawals'
+      summary: 'Reject withdrawal request'
+      description: "POST /v1/admin/withdrawals/{id}/reject\nAdmin rejects a withdrawal request (funds remain in escrow until auto-release)."
+      operationId: f1caf2c30f583f4904bd74b58450e809
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - reason
+              properties:
+                reason:
+                  type: string
+                  example: 'Invalid bank account'
+              type: object
+      responses:
+        200:
+          description: Success
+        400:
+          description: 'Bad Request - Cannot reject in current state'
+        404:
+          description: 'Not found'
+      security:
+        -
+          bearerAuth: []
+  /api/v1/admin/withdrawals/bulk-approve:
+    post:
+      tags:
+        - 'Admin - Withdrawals'
+      summary: 'Bulk approve withdrawal requests'
+      description: "POST /v1/admin/withdrawals/bulk-approve\nApprove multiple withdrawal requests at once."
+      operationId: dbfc658dcc465a9f635d956c217f4d92
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - withdrawal_ids
+              properties:
+                withdrawal_ids:
+                  type: array
+                  items:
+                    type: integer
+                  example:
+                    - 1
+                    - 2
+                    - 3
+                transaction_reference:
+                  type: string
+                  example: BATCH-123
+                notes:
+                  type: string
+                  example: 'Batch processed'
+              type: object
+      responses:
+        200:
+          description: Success
+        422:
+          description: 'Validation Error'
+      security:
+        -
+          bearerAuth: []
   /api/v1/auth/register:
     post:
       tags:
@@ -4257,6 +4544,220 @@ paths:
       security:
         -
           bearerAuth: []
+  /api/v1/withdrawals/balance:
+    get:
+      tags:
+        - Withdrawals
+      summary: 'Get provider withdrawal balance and escrow breakdown'
+      description: "GET /v1/withdrawals/balance\nProvider's earnings breakdown: in escrow, available, pending withdrawal, total paid."
+      operationId: 864193106939836b6d218d3a33c0fdcf
+      responses:
+        200:
+          description: Success
+        403:
+          description: 'Unauthorized - Only providers'
+      security:
+        -
+          bearerAuth: []
+  /api/v1/withdrawals:
+    get:
+      tags:
+        - Withdrawals
+      summary: 'List provider withdrawals'
+      description: "GET /v1/withdrawals\nList all withdrawal requests for the authenticated provider (paginated)."
+      operationId: f3c89b77064819b4d518e4f06c3060f4
+      parameters:
+        -
+          name: escrow_status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - holding
+              - released
+              - disputed
+        -
+          name: withdrawal_status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - none
+              - requested
+              - approved
+              - rejected
+              - paid
+              - cancelled
+        -
+          name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        200:
+          description: Success
+        403:
+          description: 'Unauthorized - Only providers'
+      security:
+        -
+          bearerAuth: []
+  /api/v1/withdrawals/history:
+    get:
+      tags:
+        - Withdrawals
+      summary: 'Get provider withdrawal history and summary'
+      description: "GET /v1/withdrawals/history\nFull withdrawal history (Upwork-style transaction history view)."
+      operationId: 17a88852a9ddf1f27879c201f4bd6696
+      parameters:
+        -
+          name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        -
+          name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        -
+          name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        200:
+          description: Success
+        403:
+          description: 'Unauthorized - Only providers'
+      security:
+        -
+          bearerAuth: []
+  '/api/v1/withdrawals/{id}':
+    get:
+      tags:
+        - Withdrawals
+      summary: 'Get single withdrawal request details'
+      description: "GET /v1/withdrawals/{id}\nGet details of a specific withdrawal request."
+      operationId: a3dc65e05a3b0fcef95ec07453396e95
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+        403:
+          description: Unauthorized
+        404:
+          description: 'Not found'
+      security:
+        -
+          bearerAuth: []
+  '/api/v1/withdrawals/{id}/request':
+    post:
+      tags:
+        - Withdrawals
+      summary: 'Request payout for an escrow record'
+      description: "POST /v1/withdrawals/{id}/request\nProvider formally requests payout for an escrow record."
+      operationId: 3156ac12ef393ccd9ebd69a798e16fbe
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              properties:
+                bank_name:
+                  type: string
+                  example: 'Chase Bank'
+                account_number:
+                  type: string
+                  example: '123456789'
+                routing_number:
+                  type: string
+                  example: '123456789'
+              type: object
+      responses:
+        200:
+          description: Success
+        400:
+          description: 'Bad Request - Cannot request in current state'
+        403:
+          description: 'Unauthorized - Only providers'
+        404:
+          description: 'Not found'
+      security:
+        -
+          bearerAuth: []
+  '/api/v1/withdrawals/{id}/cancel':
+    post:
+      tags:
+        - Withdrawals
+      summary: 'Cancel a pending withdrawal request'
+      description: "POST /v1/withdrawals/{id}/cancel\nProvider cancels a pending withdrawal request (returns to 'none' state)."
+      operationId: 814b5a0c4af6d25c1b9c2d2c5586c6fc
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+        400:
+          description: 'Bad Request - Cannot cancel in current state'
+        403:
+          description: 'Unauthorized - Only providers'
+        404:
+          description: 'Not found'
+      security:
+        -
+          bearerAuth: []
+  /api/v1/withdrawals/fee-calculator:
+    get:
+      tags:
+        - Withdrawals
+      summary: 'Calculate fees for a given amount'
+      description: "GET /v1/withdrawals/fee-calculator\nUtility endpoint: calculate fees for a given amount (helps frontend show breakdowns)."
+      operationId: 4b1d2eb1d05c722ef81c009514ca6da8
+      parameters:
+        -
+          name: amount
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+            example: 100
+      responses:
+        200:
+          description: Success
+        422:
+          description: 'Validation Error'
+      security:
+        -
+          bearerAuth: []
 components:
   schemas:
     ConversationResource:
@@ -4499,6 +5000,9 @@ tags:
     name: 'Admin - W9 Forms'
     description: 'Admin - W9 Forms'
   -
+    name: 'Admin - Withdrawals'
+    description: 'Admin - Withdrawals'
+  -
     name: Bids
     description: Bids
   -
@@ -4510,3 +5014,6 @@ tags:
   -
     name: 'W-9 Form'
     description: 'W-9 Form'
+  -
+    name: Withdrawals
+    description: Withdrawals

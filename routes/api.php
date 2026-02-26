@@ -40,6 +40,8 @@ use App\Http\Controllers\Api\V1\InquiryController;
 use App\Http\Controllers\Api\V1\User\W9FormController;
 use App\Http\Controllers\Api\V1\Admin\AdminInquiryController;
 use App\Http\Controllers\Api\V1\Admin\AdminW9FormController;
+use App\Http\Controllers\Api\V1\WithdrawalController;
+use App\Http\Controllers\Api\V1\Admin\AdminWithdrawalController;
 
 use App\Http\Middleware\ResponseCompressionMiddleware;
 
@@ -300,6 +302,22 @@ Route::prefix('v1')->group(function () {
             Route::get('/{id}', [PayoutController::class, 'show']);
             Route::post('/request', [PayoutController::class, 'requestPayout']);
             Route::post('/{id}/cancel', [PayoutController::class, 'cancel']);
+        });
+
+        // ====================================================
+        // WITHDRAWAL REQUESTS (Upwork-style Escrow + Payout)
+        // 10% commission from client + 10% from provider
+        // 7-day escrow with auto-release
+        // ====================================================
+
+        Route::prefix('withdrawals')->group(function () {
+            Route::get('/balance', [WithdrawalController::class, 'balance']);
+            Route::get('/history', [WithdrawalController::class, 'history']);
+            Route::get('/fee-calculator', [WithdrawalController::class, 'feeCalculator']);
+            Route::get('/', [WithdrawalController::class, 'index']);
+            Route::get('/{id}', [WithdrawalController::class, 'show']);
+            Route::post('/{id}/request', [WithdrawalController::class, 'requestWithdrawal']);
+            Route::post('/{id}/cancel', [WithdrawalController::class, 'cancel']);
         });
 
         // Transactions (1 endpoint)
@@ -614,6 +632,22 @@ Route::prefix('v1')->group(function () {
                 Route::get('/{id}', [AdminInquiryController::class, 'show']);
                 Route::post('/{id}/reply', [AdminInquiryController::class, 'reply']);
                 Route::delete('/{id}', [AdminInquiryController::class, 'destroy']);
+            });
+
+            // ================================================
+            // ADMIN WITHDRAWAL MANAGEMENT (8 endpoints)
+            // Upwork-style: approve/reject/bulk-approve + commission report
+            // ================================================
+
+            Route::prefix('withdrawals')->group(function () {
+                Route::get('/statistics', [AdminWithdrawalController::class, 'statistics']);
+                Route::get('/history', [AdminWithdrawalController::class, 'history']);
+                Route::get('/commission-report', [AdminWithdrawalController::class, 'commissionReport']);
+                Route::get('/', [AdminWithdrawalController::class, 'index']);
+                Route::get('/{id}', [AdminWithdrawalController::class, 'show']);
+                Route::post('/{id}/approve', [AdminWithdrawalController::class, 'approve']);
+                Route::post('/{id}/reject', [AdminWithdrawalController::class, 'reject']);
+                Route::post('/bulk-approve', [AdminWithdrawalController::class, 'bulkApprove']);
             });
 
             // ================================================

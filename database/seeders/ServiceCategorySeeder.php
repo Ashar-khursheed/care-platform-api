@@ -15,67 +15,30 @@ class ServiceCategorySeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            [
-                'name' => 'Child Care',
-                'description' => 'Babysitters, nannies, and daycare providers for children of all ages',
-                'icon' => '👶',
-                'order' => 1,
-            ],
-            [
-                'name' => 'Senior Care',
-                'description' => 'Caregivers for elderly and senior citizens, including companionship and assistance',
-                'icon' => '👵',
-                'order' => 2,
-            ],
-            [
-                'name' => 'Special Needs Care',
-                'description' => 'Specialized care for individuals with disabilities or special needs',
-                'icon' => '🤝',
-                'order' => 3,
-            ],
-            [
-                'name' => 'Pet Care',
-                'description' => 'Pet sitting, dog walking, and pet grooming services',
-                'icon' => '🐕',
-                'order' => 4,
-            ],
-            [
-                'name' => 'Housekeeping',
-                'description' => 'House cleaning, laundry, and general housekeeping services',
-                'icon' => '🧹',
-                'order' => 5,
-            ],
-            [
-                'name' => 'Tutoring',
-                'description' => 'Academic tutoring and educational support for students',
-                'icon' => '📚',
-                'order' => 6,
-            ],
-            [
-                'name' => 'Personal Care',
-                'description' => 'Personal assistance, grooming, and daily living support',
-                'icon' => '💆',
-                'order' => 7,
-            ],
-            [
-                'name' => 'Home Health Care',
-                'description' => 'Medical and nursing care provided at home',
-                'icon' => '🏥',
-                'order' => 8,
-            ],
-            [
-                'name' => 'Companionship',
-                'description' => 'Companionship and social interaction for those who need it',
-                'icon' => '💬',
-                'order' => 9,
-            ],
-            [
-                'name' => 'Errands & Shopping',
-                'description' => 'Help with errands, grocery shopping, and transportation',
-                'icon' => '🛒',
-                'order' => 10,
-            ],
+            ['name' => 'Registered Nurse (RN)', 'description' => 'Professional nursing care by a Registered Nurse', 'icon' => '🩺', 'order' => 1],
+            ['name' => 'Licensed Practical Nurse (LPN)', 'description' => 'Practical nursing care by a Licensed Practical Nurse', 'icon' => '👩‍⚕️', 'order' => 2],
+            ['name' => 'Certified Nursing Assistant (CNA)', 'description' => 'Assistance with daily living activities by a CNA', 'icon' => '🏥', 'order' => 3],
+            ['name' => 'Dental Assistant', 'description' => 'Professional dental assistance and patient care', 'icon' => '🦷', 'order' => 4],
+            ['name' => 'Home Health Aide', 'description' => 'In-home medical and personal assistance', 'icon' => '🏠', 'order' => 5],
+            ['name' => 'Early Childhood Educator', 'description' => 'Educational care for infants and young children', 'icon' => '🧸', 'order' => 6],
+            ['name' => 'Child Care Teacher/Assistant', 'description' => 'Support and teaching for child care facilities and homes', 'icon' => '🏫', 'order' => 7],
+            ['name' => 'Tutoring (In person and/or Online)', 'description' => 'Academic support and tutoring services', 'icon' => '📚', 'order' => 8],
+            ['name' => 'Special needs Care', 'description' => 'Specialized care for individuals with unique needs', 'icon' => '🤝', 'order' => 9],
+            ['name' => 'Nanny Services', 'description' => 'Dedicated in-home child care and nanny services', 'icon' => '👶', 'order' => 10],
+            ['name' => 'Paraprofessional', 'description' => 'Support for educational and therapeutic environments', 'icon' => '📝', 'order' => 11],
+            ['name' => 'Personal Care Assistant', 'description' => 'Assistance with personal care and daily routines', 'icon' => 'Shower', 'order' => 12],
+            ['name' => 'Behavior Support Technician', 'description' => 'Support for behavioral interventions and plans', 'icon' => '🧠', 'order' => 13],
+            ['name' => 'Applied Behavioral Analysis (ABA)', 'description' => 'Professional ABA therapy services', 'icon' => '📊', 'order' => 14],
+            ['name' => 'Behavioral Health Technician (BHT)', 'description' => 'Support for behavioral health and mental wellness', 'icon' => '🧘', 'order' => 15],
+            ['name' => 'Registered Behavior Technician (RBT)', 'description' => 'Certified support for behavioral analysis programs', 'icon' => '📋', 'order' => 16],
+            ['name' => 'Housekeeping Services', 'description' => 'Comprehensive housekeeping and home management', 'icon' => '🧹', 'order' => 17],
+            ['name' => 'Cleaning Professional', 'description' => 'Professional and deep cleaning services', 'icon' => '✨', 'order' => 18],
+            ['name' => 'Companionship', 'description' => 'Friendly companionship and social interaction', 'icon' => '☕', 'order' => 19],
+            ['name' => 'Pet Care Services', 'description' => 'Care, walking, and sitting services for pets', 'icon' => '🐾', 'order' => 20],
         ];
+
+        // Clear existing to avoid duplicates if re-run
+        ServiceCategory::truncate();
 
         foreach ($categories as $category) {
             ServiceCategory::create([

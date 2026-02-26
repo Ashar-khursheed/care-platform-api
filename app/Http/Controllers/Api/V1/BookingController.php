@@ -18,14 +18,17 @@ use App\Mail\Booking\BookingRequested;
 use App\Mail\Booking\BookingConfirmed;
 use App\Mail\Booking\BookingCancelled;
 use App\Mail\Booking\BookingCompleted;
+use App\Services\WithdrawalService;
 
 class BookingController extends Controller
 {
     protected $stripeService;
+    protected $withdrawalService;
 
-    public function __construct(StripeService $stripeService)
+    public function __construct(StripeService $stripeService, WithdrawalService $withdrawalService)
     {
         $this->stripeService = $stripeService;
+        $this->withdrawalService = $withdrawalService;
     }
     #[OA\Get(
         path: '/api/v1/bookings',
@@ -584,23 +587,32 @@ class BookingController extends Controller
 
         try {
             $booking->update([
-                'status' => 'completed',
+                'status'       => 'completed',
                 'completed_at' => now(),
             ]);
+
+            // Create escrow record — funds held for 7 days, then auto-released to provider
+            // 10% platform commission deducted from both client and provider
+            try {
+                $this->withdrawalService->createEscrowOnBookingComplete($booking);
+            } catch (\Exception $escrowEx) {
+                // Log but don't fail the booking completion
+                \Illuminate\Support\Facades\Log::error("Escrow creation failed for booking #{$booking->id}: " . $escrowEx->getMessage());
+            }
 
             // Send notification to client for review
             Mail::to($booking->client->email)->queue(new BookingCompleted($booking));
 
             return response()->json([
                 'success' => true,
-                'message' => 'Booking marked as completed'
+                'message' => 'Booking marked as completed. Funds have been placed in escrow and will be released in 7 days.',
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to complete booking',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage()
             ], 500);
         }
     }
