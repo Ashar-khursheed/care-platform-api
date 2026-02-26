@@ -15,7 +15,10 @@ return new class extends Migration
     {
         // 1. Clear existing categories
         // We use DB::table to avoid model events/observers issues during migration
+        // Disable foreign key constraints to allow truncating even if referenced by service_listings
+        Schema::disableForeignKeyConstraints();
         DB::table('service_categories')->truncate();
+        Schema::enableForeignKeyConstraints();
 
         // 2. Define the new list of categories
         $categories = [
@@ -64,10 +67,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Truncate and restore original defaults if needed, 
-        // but for now we'll just leave it as is or truncate.
-        // It's hard to assume what "original" was without a backup.
         // We will just clear them.
+        Schema::disableForeignKeyConstraints();
         DB::table('service_categories')->truncate();
+        Schema::enableForeignKeyConstraints();
     }
 };
