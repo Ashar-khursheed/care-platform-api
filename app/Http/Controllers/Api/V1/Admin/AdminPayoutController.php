@@ -50,70 +50,6 @@ class AdminPayoutController extends Controller
         $perPage = $request->get('per_page', 20);
         $payouts = $query->paginate($perPage);
 
-        // Dummy data for integration if empty
-        if ($payouts->isEmpty()) {
-            $dummyData = collect([
-                [
-                    'id' => 1,
-                    'provider_id' => 101,
-                    'amount' => 1500.00,
-                    'currency' => 'USD',
-                    'status' => 'pending',
-                    'created_at' => now()->subHours(2)->toIso8601String(),
-                    'provider' => [
-                        'id' => 101,
-                        'first_name' => 'John',
-                        'last_name' => 'Doe',
-                        'email' => 'john.doe@example.com',
-                        'avatar_url' => 'https://ui-avatars.com/api/?name=John+Doe',
-                    ]
-                ],
-                [
-                    'id' => 2,
-                    'provider_id' => 102,
-                    'amount' => 2450.50,
-                    'currency' => 'USD',
-                    'status' => 'paid',
-                    'created_at' => now()->subDays(1)->toIso8601String(),
-                    'provider' => [
-                        'id' => 102,
-                        'first_name' => 'Sarah',
-                        'last_name' => 'Smith',
-                        'email' => 'sarah.smith@example.com',
-                        'avatar_url' => 'https://ui-avatars.com/api/?name=Sarah+Smith',
-                    ]
-                ],
-                [
-                    'id' => 3,
-                    'provider_id' => 103,
-                    'amount' => 750.00,
-                    'currency' => 'USD',
-                    'status' => 'rejected',
-                    'created_at' => now()->subDays(2)->toIso8601String(),
-                    'provider' => [
-                        'id' => 103,
-                        'first_name' => 'Mike',
-                        'last_name' => 'Johnson',
-                        'email' => 'mike.j@example.com',
-                        'avatar_url' => 'https://ui-avatars.com/api/?name=Mike+Johnson',
-                    ]
-                ],
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'payouts' => $dummyData,
-                    'pagination' => [
-                        'total' => $dummyData->count(),
-                        'per_page' => $perPage,
-                        'current_page' => 1,
-                        'last_page' => 1,
-                    ]
-                ]
-            ]);
-        }
-
         return response()->json([
             'success' => true,
             'data' => [
@@ -139,82 +75,19 @@ class AdminPayoutController extends Controller
     #[OA\Response(response: 404, description: 'Not found')]
     public function show($id)
     {
-        try {
-            $payout = Payout::with(['provider', 'transaction'])->findOrFail($id);
-            return response()->json([
-                'success' => true,
-                'data' => $payout
-            ]);
-        } catch (\Exception $e) {
-            // Check if we should return dummy data for testing
-            if (in_array($id, [1, 2, 3])) {
-                $dummyData = [
-                    1 => [
-                         'id' => 1,
-                        'provider_id' => 101,
-                        'amount' => 1500.00,
-                        'currency' => 'USD',
-                        'status' => 'pending',
-                        'created_at' => now()->subHours(2)->toIso8601String(),
-                        'provider' => [
-                            'id' => 101,
-                            'first_name' => 'John',
-                            'last_name' => 'Doe',
-                            'email' => 'john.doe@example.com',
-                            'avatar_url' => 'https://ui-avatars.com/api/?name=John+Doe',
-                        ],
-                        'transaction' => null
-                    ],
-                    2 => [
-                        'id' => 2,
-                        'provider_id' => 102,
-                        'amount' => 2450.50,
-                        'currency' => 'USD',
-                        'status' => 'paid',
-                        'created_at' => now()->subDays(1)->toIso8601String(),
-                        'provider' => [
-                            'id' => 102,
-                            'first_name' => 'Sarah',
-                            'last_name' => 'Smith',
-                            'email' => 'sarah.smith@example.com',
-                            'avatar_url' => 'https://ui-avatars.com/api/?name=Sarah+Smith',
-                        ],
-                        'transaction' => [
-                            'id' => 999,
-                            'status' => 'completed',
-                            'created_at' => now()->subDays(1)->toIso8601String(),
-                        ]
-                    ], 
-                    3 => [
-                         'id' => 3,
-                        'provider_id' => 103,
-                        'amount' => 750.00,
-                        'currency' => 'USD',
-                        'status' => 'rejected',
-                        'created_at' => now()->subDays(2)->toIso8601String(),
-                        'provider' => [
-                            'id' => 103,
-                            'first_name' => 'Mike',
-                            'last_name' => 'Johnson',
-                            'email' => 'mike.j@example.com',
-                            'avatar_url' => 'https://ui-avatars.com/api/?name=Mike+Johnson',
-                        ],
-                        'transaction' => null
-                    ]
-                ];
+        $payout = Payout::with(['provider', 'transaction'])->find($id);
 
-                return response()->json([
-                    'success' => true,
-                    'data' => $dummyData[$id]
-                ]);
-            }
-
-            // Real 404 response
+        if (!$payout) {
             return response()->json([
                 'success' => false,
                 'message' => 'Payout not found'
             ], 404);
         }
+
+        return response()->json([
+            'success' => true,
+            'data' => $payout
+        ]);
     }
 
     #[OA\Post(
@@ -282,31 +155,6 @@ class AdminPayoutController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            // MOCK RESPONSE FOR DUMMY DATA INTEGRATION
-            if (in_array($id, [1, 2, 3])) {
-                 return response()->json([
-                    'success' => true,
-                    'message' => 'Payout approved and processed successfully (Mock Mode)',
-                    'data' => [
-                        'id' => (int)$id,
-                        'status' => 'paid',
-                        'paid_at' => now()->toIso8601String(),
-                        'metadata' => [
-                            'transaction_reference' => $request->transaction_reference ?? 'MOCK-REF',
-                            'approved_by' => $request->user()->id ?? 1
-                        ]
-                    ]
-                ]);
-            }
-
-            // If it's a real ModelNotFoundException or other error not related to dummy data
-            if ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
-                 return response()->json([
-                    'success' => false,
-                    'message' => 'Payout not found'
-                ], 404);
-            }
-
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to process payout',
@@ -356,32 +204,6 @@ class AdminPayoutController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            
-            // MOCK RESPONSE FOR DUMMY DATA INTEGRATION
-            if (in_array($id, [1, 2, 3])) {
-                 return response()->json([
-                    'success' => true,
-                    'message' => 'Payout request rejected (Mock Mode)',
-                    'data' => [
-                        'id' => (int)$id,
-                        'status' => 'rejected',
-                        'failure_reason' => $request->reason ?? 'MOCK REASON',
-                        'failed_at' => now()->toIso8601String(),
-                        'metadata' => [
-                            'rejected_by' => $request->user()->id ?? 1
-                        ]
-                    ]
-                ]);
-            }
-
-            // If it's a real ModelNotFoundException
-            if ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
-                 return response()->json([
-                    'success' => false,
-                    'message' => 'Payout not found'
-                ], 404);
-            }
-
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to reject payout',

@@ -21,19 +21,13 @@ class PayoutController extends Controller
         $this->stripeService = $stripeService;
     }
 
-        /**
-         * @OA\Get(
-         *     path="/v1/payouts/balance",
-         *     operationId="payoutsGetbalance",
-         *     tags={"Payouts"},
-         *     summary="Get provider's current balance",
-         *     security={{"bearerAuth":{}}},
-         *     @OA\Response(response=200, description="Success"),
-         *     @OA\Response(response=401, description="Unauthorized"),
-         *     @OA\Response(response=404, description="Not found"),
-         *     @OA\Response(response=500, description="Server error")
-         * )
-         */
+    #[OA\Get(
+        path: '/api/v1/payouts/balance',
+        summary: "Get provider's current balance",
+        tags: ['Payouts'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Response(response: 200, description: 'Success')]
     public function getBalance(Request $request)
     {
         $user = $request->user();
@@ -76,33 +70,32 @@ class PayoutController extends Controller
         ]);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/api/v1/payouts/request",
-     *     summary="Request a payout",
-     *     tags={"Payouts"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"amount", "password"},
-     *             @OA\Property(property="amount", type="number", format="float", example=100.00),
-     *             @OA\Property(property="password", type="string", format="password", example="secret123"),
-     *             @OA\Property(
-     *                 property="bank_account_details",
-     *                 type="object",
-     *                 @OA\Property(property="bank_name", type="string"),
-     *                 @OA\Property(property="account_number", type="string"),
-     *                 @OA\Property(property="routing_number", type="string")
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(response=201, description="Payout requested successfully"),
-     *     @OA\Response(response=400, description="Insufficient balance"),
-     *     @OA\Response(response=401, description="Invalid password"),
-     *     @OA\Response(response=403, description="Unauthorized")
-     * )
-     */
+    #[OA\Post(
+        path: '/api/v1/payouts/request',
+        summary: 'Request a payout',
+        tags: ['Payouts'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ['amount', 'password'],
+            properties: [
+                new OA\Property(property: 'amount', type: 'number', format: 'float', example: 100.00),
+                new OA\Property(property: 'password', type: 'string', format: 'password', example: 'secret123'),
+                new OA\Property(
+                    property: 'bank_account_details',
+                    type: 'object',
+                    properties: [
+                        new OA\Property(property: 'bank_name', type: 'string'),
+                        new OA\Property(property: 'account_number', type: 'string'),
+                        new OA\Property(property: 'routing_number', type: 'string')
+                    ]
+                )
+            ]
+        )
+    )]
+    #[OA\Response(response: 201, description: 'Payout requested successfully')]
     public function requestPayout(Request $request)
     {
         $user = $request->user();
@@ -198,30 +191,15 @@ class PayoutController extends Controller
         }
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/v1/payouts",
-     *     summary="Get my payout history",
-     *     tags={"Payouts"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="status",
-     *         in="query",
-     *         description="Filter by status (pending, paid, failed)",
-     *         required=false,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="page",
-     *         in="query",
-     *         description="Page number",
-     *         required=false,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(response=200, description="Successful operation"),
-     *     @OA\Response(response=401, description="Unauthenticated")
-     * )
-     */
+    #[OA\Get(
+        path: '/api/v1/payouts',
+        summary: 'Get my payout history',
+        tags: ['Payouts'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'status', in: 'query', required: false, schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'page', in: 'query', required: false, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Successful operation')]
     public function myPayouts(Request $request)
     {
         $user = $request->user();
@@ -259,33 +237,14 @@ class PayoutController extends Controller
         ]);
     }
 
-        /**
- *     @OA\Get(
- *         path="/api/v1/payouts/{id}",
- *         summary="Get payout details",
- *         tags={"Payouts"},
- *     security={{"bearerAuth":{}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="The id of the resource",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Resource not found"
- *     )
- *     )
- */
+    #[OA\Get(
+        path: '/api/v1/payouts/{id}',
+        summary: 'Get payout details',
+        tags: ['Payouts'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Successful operation')]
     public function show(Request $request, $id)
     {
         $user = $request->user();
@@ -306,25 +265,14 @@ class PayoutController extends Controller
         ]);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/api/v1/payouts/{id}/cancel",
-     *     summary="Cancel a pending payout request",
-     *     tags={"Payouts"},
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="Payout ID",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(response=200, description="Payout cancelled successfully"),
-     *     @OA\Response(response=401, description="Unauthorized"),
-     *     @OA\Response(response=404, description="Payout not found"),
-     *     @OA\Response(response=400, description="Cannot cancel payout")
-     * )
-     */
+    #[OA\Post(
+        path: '/api/v1/payouts/{id}/cancel',
+        summary: 'Cancel a pending payout request',
+        tags: ['Payouts'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Payout cancelled successfully')]
     public function cancel(Request $request, $id)
     {
         $user = $request->user();

@@ -128,6 +128,12 @@ class AdminPaymentController extends Controller
         ]);
     }
 
+    #[OA\Get(
+        path: '/api/v1/admin/payments/payouts',
+        summary: 'List payouts related to payments',
+        tags: ['Admin - Payments'],
+        security: [['bearerAuth' => []]]
+    )]
     public function payouts(Request $request)
     {
         $query = Payout::with(['provider', 'payment']);
@@ -149,6 +155,13 @@ class AdminPaymentController extends Controller
         return response()->json($payouts);
     }
 
+    #[OA\Post(
+        path: '/api/v1/admin/payments/payouts/{id}/process',
+        summary: 'Process a specific payout',
+        tags: ['Admin - Payments'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
     public function processPayout(Request $request, $id)
     {
         $payout = Payout::findOrFail($id);

@@ -35,6 +35,7 @@ class Booking extends Model
         'transaction_id',
         'paid_at',
         'refunded_at',
+        'is_quick_pay',
     ];
 
     protected $casts = [
@@ -50,6 +51,7 @@ class Booking extends Model
         'completed_at' => 'datetime',
         'paid_at' => 'datetime',
         'refunded_at' => 'datetime',
+        'is_quick_pay' => 'boolean',
     ];
 
     /**
@@ -97,6 +99,18 @@ class Booking extends Model
     public function latestPayment()
     {
         return $this->hasOne(Payment::class, 'booking_id')->latestOfMany();
+    }
+
+    /**
+     * Get quick pay status (from booking or listing)
+     */
+    public function getIsQuickPayAttribute($value)
+    {
+        if ($value !== null) {
+            return (bool) $value;
+        }
+
+        return $this->listing->quick_pay ?? false;
     }
 
     /**
