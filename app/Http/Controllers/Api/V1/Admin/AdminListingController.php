@@ -36,6 +36,16 @@ class AdminListingController extends Controller
             $query->where('provider_id', $request->provider_id);
         }
 
+        // Filter by emergency status
+        if ($request->has('is_urgent')) {
+            $query->where('is_urgent', $request->is_urgent);
+        }
+
+        // Filter by quick pay status
+        if ($request->has('quick_pay')) {
+            $query->where('quick_pay', $request->quick_pay);
+        }
+
         // Search
         if ($request->has('search')) {
             $query->search($request->search);
@@ -44,6 +54,12 @@ class AdminListingController extends Controller
         // Sort
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
+
+        // Prioritize Urgent if requested
+        if ($request->get('prioritize_urgent')) {
+            $query->orderBy('is_urgent', 'desc');
+        }
+
         $query->orderBy($sortBy, $sortOrder);
 
         $perPage = $request->get('per_page', 15);
@@ -87,6 +103,81 @@ class AdminListingController extends Controller
             'success' => true,
             'data' => new ListingResource($listing)
         ], 200);
+    }
+
+    #[OA\Put(
+        path: '/api/v1/admin/listings/{id}',
+        summary: 'Update listing details',
+        tags: ['Admin - Listings'],
+        security: [['bearerAuth' => []]]
+    )]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'title', type: 'string'),
+                new OA\Property(property: 'description', type: 'string'),
+                new OA\Property(property: 'price', type: 'number'),
+                new OA\Property(property: 'is_urgent', type: 'boolean'),
+                new OA\Property(property: 'quick_pay', type: 'boolean'),
+                new OA\Property(property: 'shift_date', type: 'string', format: 'date'),
+                new OA\Property(property: 'start_time', type: 'string'),
+                new OA\Property(property: 'end_time', type: 'string'),
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Update success')]
+    #[OA\Response(response: 404, description: 'Not found')]
+    public function update(Request $request, $id)
+    {
+        $listing = ServiceListing::find($id);
+
+        if (!$listing) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Listing not found'
+            ], 404);
+        }
+
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'category_id' => 'sometimes|exists:service_categories,id',
+            'title' => 'sometimes|string|max:255',
+            'description' => 'sometimes|string',
+            'price' => 'sometimes|numeric|min:0',
+            'status' => 'sometimes|in:pending,active,rejected,suspended',
+            'is_urgent' => 'sometimes|boolean',
+            'quick_pay' => 'sometimes|boolean',
+            'shift_date' => 'nullable|date',
+            'start_time' => 'nullable',
+            'end_time' => 'nullable',
+            'is_featured' => 'sometimes|boolean',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $listing->update($request->all());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Listing updated successfully',
+                'data' => new ListingResource($listing->fresh(['category', 'provider']))
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update listing',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
 

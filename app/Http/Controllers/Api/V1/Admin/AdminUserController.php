@@ -78,12 +78,23 @@ class AdminUserController extends Controller
             $query->where('is_verified', $request->is_verified);
         }
 
+        // Filter by Role (Worker Discovery requirement)
+        if ($request->has('desired_role') && $request->desired_role) {
+            $query->where('desired_role', $request->desired_role);
+        }
+
+        // Filter by City
+        if ($request->has('city') && $request->city) {
+            $query->where('city', 'like', "%{$request->city}%");
+        }
+
         // Search by name or email
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
                   ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('business_name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%");
             });
         }
@@ -186,6 +197,11 @@ class AdminUserController extends Controller
             'state' => 'sometimes|string',
             'country' => 'sometimes|string',
             'zip_code' => 'sometimes|string',
+            'business_name' => 'nullable|string|max:255',
+            'facility_type' => 'nullable|string|max:255',
+            'desired_role' => 'nullable|string|max:255',
+            'is_verified' => 'sometimes|boolean',
+            'status' => 'sometimes|in:active,suspended,pending_verification',
         ]);
 
         if ($validator->fails()) {

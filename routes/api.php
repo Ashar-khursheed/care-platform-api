@@ -42,6 +42,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminInquiryController;
 use App\Http\Controllers\Api\V1\Admin\AdminW9FormController;
 use App\Http\Controllers\Api\V1\WithdrawalController;
 use App\Http\Controllers\Api\V1\Admin\AdminWithdrawalController;
+use App\Http\Controllers\Api\V1\Admin\AdminCategoryController;
 
 use App\Http\Middleware\ResponseCompressionMiddleware;
 
@@ -477,6 +478,18 @@ Route::prefix('v1')->group(function () {
                 Route::put('/{id}/approve', [AdminDocumentController::class, 'approve']);
                 Route::put('/{id}/reject', [AdminDocumentController::class, 'reject']);
                 Route::delete('/{id}', [AdminDocumentController::class, 'destroy']);
+            });
+
+            // ================================================
+            // ADMIN CATEGORY MANAGEMENT (5 endpoints)
+            // ================================================
+            
+            Route::prefix('categories')->group(function () {
+                Route::get('/', [AdminCategoryController::class, 'index']);
+                Route::get('/{id}', [AdminCategoryController::class, 'show']);
+                Route::post('/', [AdminCategoryController::class, 'store']);
+                Route::put('/{id}', [AdminCategoryController::class, 'update']);
+                Route::delete('/{id}', [AdminCategoryController::class, 'destroy']);
             });
 
             // ================================================
