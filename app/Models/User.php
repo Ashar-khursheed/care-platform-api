@@ -292,6 +292,12 @@ class User extends Authenticatable
         'status',
         'is_verified',
         'last_active_at',
+        'business_name',
+        'facility_type',
+        'desired_role',
+        'profile_completion_percentage',
+        'intro_video_path',
+        'availability_settings',
     ];
 
     protected $hidden = [
@@ -305,6 +311,7 @@ class User extends Authenticatable
         'last_active_at' => 'datetime',
         'is_verified' => 'boolean',
         'password' => 'hashed',
+        'availability_settings' => 'array',
     ];
 
     // Relationships
@@ -425,6 +432,45 @@ class User extends Authenticatable
     {
         return 0; // Will be implemented with Notification module
     }
+
+    /**
+     * Calculate profile completion percentage
+     */
+    public function calculateProfileCompletion(): int
+    {
+        $fields = [
+            'first_name', 'last_name', 'email', 'phone', 
+            'profile_photo', 'bio', 'address', 'city', 
+            'state', 'zip_code'
+        ];
+
+        if ($this->isClient()) {
+            $fields[] = 'business_name';
+            $fields[] = 'facility_type';
+        } else if ($this->isProvider()) {
+            $fields[] = 'desired_role';
+            $fields[] = 'intro_video_path';
+            $fields[] = 'availability_settings';
+        }
+
+        $filled = 0;
+        foreach ($fields as $field) {
+            if (!empty($this->$field)) {
+                $filled++;
+            }
+        }
+
+        // Add 10% for document upload if they have any approved documents
+        $hasDocs = $this->documents()->where('verification_status', 'approved')->exists();
+        
+        $percentage = ($filled / count($fields)) * 90; // Base 90%
+        if ($hasDocs) {
+            $percentage += 10;
+        }
+
+        return (int) round($percentage);
+    }
+
 //     public function bookings()
 // {
 //     return $this->hasMany(Booking::class, 'user_id', 'id');

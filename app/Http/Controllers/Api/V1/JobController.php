@@ -86,6 +86,12 @@ class JobController extends Controller
                 'service_radius' => $request->service_radius,
                 'is_available' => true,
                 'status' => 'active', // Auto-approve for now or pending
+                'shift_date' => $request->shift_date,
+                'shift_start_time' => $request->shift_start_time,
+                'shift_end_time' => $request->shift_end_time,
+                'is_urgent' => $request->is_urgent ?? false,
+                'quick_pay' => $request->quick_pay ?? false,
+                'workers_needed' => $request->workers_needed ?? 1,
             ]);
 
             $job->load(['category', 'provider']);

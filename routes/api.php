@@ -190,6 +190,7 @@ Route::prefix('v1')->group(function () {
             Route::put('/', [ProfileController::class, 'update']);
             Route::post('/photo', [ProfileController::class, 'uploadPhoto']);
             Route::delete('/photo', [ProfileController::class, 'deletePhoto']);
+            Route::post('/video', [ProfileController::class, 'uploadVideo']);
             Route::post('/documents', [ProfileController::class, 'uploadDocument']);
             Route::get('/documents', [ProfileController::class, 'getDocuments']);
             Route::delete('/documents/{id}', [ProfileController::class, 'deleteDocument']);
@@ -200,6 +201,10 @@ Route::prefix('v1')->group(function () {
             Route::post('/w9-form', [W9FormController::class, 'uploadFilledForm']);
             Route::get('/w9-form/status', [W9FormController::class, 'status']);
         });
+
+        // Worker Discovery (Find Staff)
+        Route::get('/workers/discovery', [\App\Http\Controllers\Api\V1\WorkerDiscoveryController::class, 'index']);
+        Route::get('/workers/{id}', [\App\Http\Controllers\Api\V1\WorkerDiscoveryController::class, 'show']);
 
         // ====================================================
         // MODULE 3: PROVIDER LISTINGS (10 endpoints)

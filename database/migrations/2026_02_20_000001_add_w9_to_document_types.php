@@ -14,7 +14,10 @@ return new class extends Migration
     {
         // Enum modification in Laravel/MySQL is tricky. 
         // We use a raw statement to modify the column definition.
-        DB::statement("ALTER TABLE profile_documents MODIFY COLUMN document_type ENUM('identity_proof', 'address_proof', 'certification', 'background_check', 'other', 'w9_form') NOT NULL");
+        // NOTE: SQLite does NOT support MODIFY COLUMN so we skip the enum alteration there.
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE profile_documents MODIFY COLUMN document_type ENUM('identity_proof', 'address_proof', 'certification', 'background_check', 'other', 'w9_form') NOT NULL");
+        }
     }
 
     /**
@@ -22,8 +25,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Revert to original enum list (WARNING: this might fail if 'w9_form' data exists)
-        // Check if any w9_form exists before reverting? For now, we just attempt revert.
-        DB::statement("ALTER TABLE profile_documents MODIFY COLUMN document_type ENUM('identity_proof', 'address_proof', 'certification', 'background_check', 'other') NOT NULL");
+        // Revert to original enum list
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE profile_documents MODIFY COLUMN document_type ENUM('identity_proof', 'address_proof', 'certification', 'background_check', 'other') NOT NULL");
+        }
     }
 };

@@ -30,6 +30,12 @@ class ServiceListing extends Model
         'rating',
         'reviews_count',
         'featured_until',
+        'shift_date',
+        'shift_start_time',
+        'shift_end_time',
+        'is_urgent',
+        'quick_pay',
+        'workers_needed',
     ];
 
     protected $casts = [
@@ -37,11 +43,15 @@ class ServiceListing extends Model
         'service_radius' => 'decimal:2',
         'is_available' => 'boolean',
         'is_featured' => 'boolean',
+        'is_urgent' => 'boolean',
+        'quick_pay' => 'boolean',
+        'workers_needed' => 'integer',
         'skills' => 'array',
         'languages' => 'array',
         'certifications' => 'array',
         'availability' => 'array',
         'featured_until' => 'datetime',
+        'shift_date' => 'date',
     ];
 
     /**

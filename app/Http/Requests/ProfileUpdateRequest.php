@@ -45,6 +45,10 @@ class ProfileUpdateRequest extends FormRequest
             'zip_code' => 'sometimes|nullable|string|max:20',
             'latitude' => 'sometimes|nullable|numeric|between:-90,90',
             'longitude' => 'sometimes|nullable|numeric|between:-180,180',
+            'business_name' => 'sometimes|nullable|string|max:255',
+            'facility_type' => 'sometimes|nullable|string|max:255',
+            'desired_role' => 'sometimes|nullable|string|max:255',
+            'availability_settings' => 'sometimes|nullable|array',
         ];
     }
 

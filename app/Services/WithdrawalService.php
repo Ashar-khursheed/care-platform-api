@@ -31,8 +31,12 @@ class WithdrawalService
         $grossAmount = (float) $booking->total_amount;
         $fees        = WithdrawalRequest::calculateFees($grossAmount);
 
+        $listing = $booking->listing;
+        $isQuickPay = $listing && $listing->quick_pay;
+
         $escrowHeldAt  = now();
-        $autoReleaseAt = $escrowHeldAt->copy()->addDays(7);
+        // If Quick Pay, release in 24 hours. Otherwise, 7 days.
+        $autoReleaseAt = $isQuickPay ? $escrowHeldAt->copy()->addHours(24) : $escrowHeldAt->copy()->addDays(7);
 
         $withdrawal = WithdrawalRequest::create([
             'provider_id'         => $booking->provider_id,
@@ -47,6 +51,10 @@ class WithdrawalService
             'withdrawal_status'   => 'none',
             'escrow_held_at'      => $escrowHeldAt,
             'auto_release_at'     => $autoReleaseAt,
+            'metadata'            => [
+                'is_quick_pay' => $isQuickPay,
+                'release_strategy' => $isQuickPay ? '24h' : '7d'
+            ]
         ]);
 
         Log::info("Escrow created for booking #{$booking->id}, provider #{$booking->provider_id}, auto-release at {$autoReleaseAt}");

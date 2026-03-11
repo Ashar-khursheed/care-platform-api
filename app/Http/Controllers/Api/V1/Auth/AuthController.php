@@ -21,7 +21,7 @@ class AuthController extends Controller
     #[OA\Post(
         path: '/api/v1/auth/register',
         summary: 'User Registration',
-        description: 'Register a new user (client or provider)',
+        description: 'Register a new user (client/employer or provider/worker)',
         operationId: 'authRegister',
         tags: ['Authentication']
     )]
@@ -36,7 +36,10 @@ class AuthController extends Controller
                 new OA\Property(property: 'password', type: 'string', format: 'password', minLength: 8, example: 'Password123!'),
                 new OA\Property(property: 'password_confirmation', type: 'string', format: 'password', example: 'Password123!'),
                 new OA\Property(property: 'user_type', type: 'string', enum: ['client', 'provider'], example: 'client'),
-                new OA\Property(property: 'phone_number', type: 'string', example: '+1234567890')
+                new OA\Property(property: 'phone_number', type: 'string', example: '+1234567890'),
+                new OA\Property(property: 'business_name', type: 'string', example: 'Sunset Care Facility'),
+                new OA\Property(property: 'facility_type', type: 'string', example: 'Nursing Facility'),
+                new OA\Property(property: 'desired_role', type: 'string', example: 'CNA')
             ]
         )
     )]
@@ -51,6 +54,9 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'user_type' => 'required|in:client,provider',
             'phone_number' => 'nullable|string|max:20',
+            'business_name' => 'nullable|string|max:255',
+            'facility_type' => 'nullable|string|max:255',
+            'desired_role' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -68,17 +74,30 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'user_type' => $request->user_type,
             'phone_number' => $request->phone_number,
+            'business_name' => $request->business_name,
+            'facility_type' => $request->facility_type,
+            'desired_role' => $request->desired_role,
+            'status' => 'active', // Default to active for now
         ]);
 
         // Generate token
         $token = $user->createToken('auth_token')->plainTextToken;
 
         // Send Welcome Email
-        Mail::to($user->email)->queue(new WelcomeEmail($user));
+        try {
+            Mail::to($user->email)->queue(new WelcomeEmail($user));
+        } catch (\Exception $e) {
+            // Log error but don't fail registration
+            \Illuminate\Support\Facades\Log::error('Welcome email failed: ' . $e->getMessage());
+        }
 
         // Send Verification Email
-        $verificationUrl = config('app.frontend_url') . '/verify-email?token=' . bin2hex(random_bytes(32)); // Simple token for now
-        Mail::to($user->email)->queue(new VerifyEmail($user, $verificationUrl));
+        try {
+            $verificationUrl = config('app.frontend_url', 'http://localhost:3000') . '/verify-email?token=' . bin2hex(random_bytes(32)); 
+            Mail::to($user->email)->queue(new VerifyEmail($user, $verificationUrl));
+        } catch (\Exception $e) {
+             \Illuminate\Support\Facades\Log::error('Verification email failed: ' . $e->getMessage());
+        }
 
         return response()->json([
             'success' => true,

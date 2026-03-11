@@ -149,6 +149,61 @@ class ProfileController extends Controller
     }
 
     /**
+     * @OA\Post(
+     *     path="/api/v1/profile/video",
+     *     summary="Upload intro video (Workers)",
+     *     tags={"Profile"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(property="video", type="string", format="binary")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Video uploaded")
+     * )
+     */
+    public function uploadVideo(Request $request)
+    {
+        $request->validate([
+            'video' => 'required|file|mimes:mp4,mov,avi,quicktime|max:20480', // Max 20MB
+        ]);
+
+        $user = $request->user();
+
+        try {
+            // Delete old video if exists
+            if ($user->intro_video_path) {
+                Storage::disk('s3')->delete($user->intro_video_path);
+            }
+
+            // Upload new video
+            $path = $request->file('video')->store('profiles/videos/' . $user->id, 's3');
+
+            // Update user record
+            $user->update(['intro_video_path' => $path]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Intro video uploaded successfully',
+                'data' => [
+                    'intro_video' => Storage::disk('s3')->url($path)
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to upload video',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * @OA\Delete(
      *     path="/api/v1/profile/photo",
      *     summary="Delete profile photo",

@@ -49,6 +49,14 @@ class ListingStoreRequest extends FormRequest
             $rules['skills.*'] = 'string|max:100';
             $rules['languages'] = 'nullable|array';
             $rules['certifications'] = 'nullable|array';
+            
+            // Mandatory for Job Posts (Emergency Shifts)
+            $rules['shift_date'] = 'required|date|after_or_equal:today';
+            $rules['shift_start_time'] = 'required|date_format:H:i';
+            $rules['shift_end_time'] = 'required|date_format:H:i|after:shift_start_time';
+            $rules['is_urgent'] = 'boolean';
+            $rules['quick_pay'] = 'boolean';
+            $rules['workers_needed'] = 'integer|min:1';
         }
 
         return $rules;
