@@ -32,6 +32,26 @@ class JobController extends Controller
         if ($request->has('search')) {
             $query->search($request->search);
         }
+
+        // Filter by location/city/state/zip specifically
+        if ($request->has('city')) {
+            $query->whereHas('provider', function($q) use ($request) {
+                $q->where('city', 'like', "%{$request->city}%");
+            });
+        }
+
+        if ($request->has('state')) {
+            $query->whereHas('provider', function($q) use ($request) {
+                $q->where('state', 'like', "%{$request->state}%");
+            });
+        }
+
+        if ($request->has('zip_code') || $request->has('zipcode')) {
+            $zip = $request->zip_code ?? $request->zipcode;
+            $query->whereHas('provider', function($q) use ($zip) {
+                $q->where('zip_code', 'like', "%{$zip}%");
+            });
+        }
         
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);

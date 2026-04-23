@@ -35,6 +35,15 @@ class WorkerDiscoveryController extends Controller
             $query->where('city', 'like', '%' . $request->city . '%');
         }
 
+        if ($request->has('state')) {
+            $query->where('state', 'like', '%' . $request->state . '%');
+        }
+
+        if ($request->has('zip_code') || $request->has('zipcode')) {
+            $zip = $request->zip_code ?? $request->zipcode;
+            $query->where('zip_code', 'like', '%' . $zip . '%');
+        }
+
         // Filter by verified status
         if ($request->boolean('verified_only')) {
             $query->where('is_verified', true);
@@ -45,14 +54,18 @@ class WorkerDiscoveryController extends Controller
             $query->whereNotNull('availability_settings');
         }
 
-        // Search by name or bio
+        // Search by name, bio, or location
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
                   ->orWhere('last_name', 'like', "%{$search}%")
                   ->orWhere('bio', 'like', "%{$search}%")
-                  ->orWhere('desired_role', 'like', "%{$search}%");
+                  ->orWhere('desired_role', 'like', "%{$search}%")
+                  ->orWhere('city', 'like', "%{$search}%")
+                  ->orWhere('state', 'like', "%{$search}%")
+                  ->orWhere('zip_code', 'like', "%{$search}%")
+                  ->orWhere('business_name', 'like', "%{$search}%");
             });
         }
 

@@ -102,10 +102,36 @@ class MobileApiController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
+        // New: Explicit location filters
+        if ($request->has('city')) {
+            $query->whereHas('provider', function($q) use ($request) {
+                $q->where('city', 'like', "%{$request->city}%");
+            });
+        }
+
+        if ($request->has('state')) {
+            $query->whereHas('provider', function($q) use ($request) {
+                $q->where('state', 'like', "%{$request->state}%");
+            });
+        }
+
+        if ($request->has('zip_code') || $request->has('zipcode')) {
+            $zip = $request->zip_code ?? $request->zipcode;
+            $query->whereHas('provider', function($q) use ($zip) {
+                $q->where('zip_code', 'like', "%{$zip}%");
+            });
+        }
+
         if ($request->has('search')) {
             $query->where(function ($q) use ($request) {
-                $q->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhere('description', 'like', '%' . $request->search . '%');
+                $search = $request->search;
+                $q->where('title', 'like', '%' . $search . '%')
+                  ->orWhere('description', 'like', '%' . $search . '%')
+                  ->orWhereHas('provider', function($subQ) use ($search) {
+                      $subQ->where('city', 'like', "%{$search}%")
+                           ->orWhere('state', 'like', "%{$search}%")
+                           ->orWhere('zip_code', 'like', "%{$search}%");
+                  });
             });
         }
 

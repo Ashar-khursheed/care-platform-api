@@ -143,7 +143,8 @@ class ServiceListing extends Model
                   $subQ->where('zip_code', 'like', "%{$search}%")
                        ->orWhere('city', 'like', "%{$search}%")
                        ->orWhere('state', 'like', "%{$search}%")
-                       ->orWhere('address', 'like', "%{$search}%");
+                       ->orWhere('address', 'like', "%{$search}%")
+                       ->orWhere('business_name', 'like', "%{$search}%");
               });
         });
     }

@@ -88,14 +88,26 @@ class AdminUserController extends Controller
             $query->where('city', 'like', "%{$request->city}%");
         }
 
-        // Search by name or email
+        if ($request->has('state') && $request->state) {
+            $query->where('state', 'like', "%{$request->state}%");
+        }
+
+        if (($request->has('zip_code') && $request->zip_code) || ($request->has('zipcode') && $request->zipcode)) {
+            $zip = $request->zip_code ?? $request->zipcode;
+            $query->where('zip_code', 'like', "%{$zip}%");
+        }
+
+        // Search by name, email, or location
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
                   ->orWhere('last_name', 'like', "%{$search}%")
                   ->orWhere('business_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('city', 'like', "%{$search}%")
+                  ->orWhere('state', 'like', "%{$search}%")
+                  ->orWhere('zip_code', 'like', "%{$search}%");
             });
         }
 
