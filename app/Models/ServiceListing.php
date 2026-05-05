@@ -36,6 +36,9 @@ class ServiceListing extends Model
         'is_urgent',
         'quick_pay',
         'workers_needed',
+        'zip_code',
+        'city',
+        'state',
     ];
 
     protected $casts = [
@@ -139,6 +142,9 @@ class ServiceListing extends Model
             $q->where('title', 'like', "%{$search}%")
               ->orWhere('description', 'like', "%{$search}%")
               ->orWhere('service_location', 'like', "%{$search}%")
+              ->orWhere('zip_code', 'like', "%{$search}%")
+              ->orWhere('city', 'like', "%{$search}%")
+              ->orWhere('state', 'like', "%{$search}%")
               ->orWhereHas('provider', function($subQ) use ($search) {
                   $subQ->where('zip_code', 'like', "%{$search}%")
                        ->orWhere('city', 'like', "%{$search}%")

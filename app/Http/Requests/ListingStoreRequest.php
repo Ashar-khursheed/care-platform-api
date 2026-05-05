@@ -28,6 +28,9 @@ class ListingStoreRequest extends FormRequest
             'description' => 'required|string|min:20|max:2000', // Reduced min length
             'hourly_rate' => 'required|numeric|min:0|max:999.99',
             'service_location' => 'required|string|max:500',
+            'zip_code' => 'required|string|max:20',
+            'city' => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:100',
             'service_radius' => 'nullable|numeric|min:0|max:100',
             'is_available' => 'boolean',
             'availability' => 'nullable|array',
@@ -93,6 +96,18 @@ class ListingStoreRequest extends FormRequest
         // Set default values
         if (!$this->has('is_available')) {
             $this->merge(['is_available' => true]);
+        }
+
+        // Auto-fill location fields from profile if missing
+        $user = $this->user();
+        if (!$this->has('zip_code') && $user->zip_code) {
+            $this->merge(['zip_code' => $user->zip_code]);
+        }
+        if (!$this->has('city') && $user->city) {
+            $this->merge(['city' => $user->city]);
+        }
+        if (!$this->has('state') && $user->state) {
+            $this->merge(['state' => $user->state]);
         }
     }
 }

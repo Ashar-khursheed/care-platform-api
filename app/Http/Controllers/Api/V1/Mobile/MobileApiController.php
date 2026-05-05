@@ -104,21 +104,32 @@ class MobileApiController extends Controller
 
         // New: Explicit location filters
         if ($request->has('city')) {
-            $query->whereHas('provider', function($q) use ($request) {
-                $q->where('city', 'like', "%{$request->city}%");
+            $city = $request->city;
+            $query->where(function($q) use ($city) {
+                $q->where('city', 'like', "%{$city}%")
+                  ->orWhereHas('provider', function($subQ) use ($city) {
+                      $subQ->where('city', 'like', "%{$city}%");
+                  });
             });
         }
 
         if ($request->has('state')) {
-            $query->whereHas('provider', function($q) use ($request) {
-                $q->where('state', 'like', "%{$request->state}%");
+            $state = $request->state;
+            $query->where(function($q) use ($state) {
+                $q->where('state', 'like', "%{$state}%")
+                  ->orWhereHas('provider', function($subQ) use ($state) {
+                      $subQ->where('state', 'like', "%{$state}%");
+                  });
             });
         }
 
         if ($request->has('zip_code') || $request->has('zipcode')) {
             $zip = $request->zip_code ?? $request->zipcode;
-            $query->whereHas('provider', function($q) use ($zip) {
-                $q->where('zip_code', 'like', "%{$zip}%");
+            $query->where(function($q) use ($zip) {
+                $q->where('zip_code', 'like', "%{$zip}%")
+                  ->orWhereHas('provider', function($subQ) use ($zip) {
+                      $subQ->where('zip_code', 'like', "%{$zip}%");
+                  });
             });
         }
 
