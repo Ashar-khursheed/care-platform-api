@@ -38,44 +38,56 @@ trait HandlesLocationSearch
                 $lat = $coords['lat'];
                 $lng = $coords['lng'];
 
+                // Safety checks to see if the columns actually exist in the DB (in case migrations haven't run in production yet)
+                $hasListingCoords = \Illuminate\Support\Facades\Schema::hasColumns('service_listings', ['latitude', 'longitude']);
+                $hasUserCoords = \Illuminate\Support\Facades\Schema::hasColumns('users', ['latitude', 'longitude']);
+
                 if ($type === 'listing') {
-                    $query->where(function($q) use ($lat, $lng, $radius, $zip, $request) {
-                        // Listing itself is within 30km
-                        $q->where(function($sub) use ($lat, $lng, $radius) {
-                            $sub->whereNotNull('latitude')
-                                ->whereNotNull('longitude')
-                                ->whereRaw(
-                                    "(6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) <= ?",
-                                    [$lat, $lng, $lat, $radius]
-                                );
-                        })
-                        // Or provider is within 30km
-                        ->orWhereHas('provider', function($sub) use ($lat, $lng, $radius) {
-                            $sub->whereNotNull('latitude')
-                                ->whereNotNull('longitude')
-                                ->whereRaw(
-                                    "(6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) <= ?",
-                                    [$lat, $lng, $lat, $radius]
-                                );
-                        })
+                    $query->where(function($q) use ($lat, $lng, $radius, $zip, $hasListingCoords, $hasUserCoords) {
+                        if ($hasListingCoords) {
+                            // Listing itself is within 30km
+                            $q->where(function($sub) use ($lat, $lng, $radius) {
+                                $sub->whereNotNull('latitude')
+                                    ->whereNotNull('longitude')
+                                    ->whereRaw(
+                                        "(6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) <= ?",
+                                        [$lat, $lng, $lat, $radius]
+                                    );
+                            });
+                        }
+
+                        if ($hasUserCoords) {
+                            // Or provider is within 30km
+                            $q->orWhereHas('provider', function($sub) use ($lat, $lng, $radius) {
+                                $sub->whereNotNull('latitude')
+                                    ->whereNotNull('longitude')
+                                    ->whereRaw(
+                                        "(6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) <= ?",
+                                        [$lat, $lng, $lat, $radius]
+                                    );
+                            });
+                        }
+
                         // Direct zip match on listing or provider as fallback
-                        ->orWhere('zip_code', 'like', "%{$zip}%")
-                        ->orWhereHas('provider', function($sub) use ($zip) {
-                            $sub->where('zip_code', 'like', "%{$zip}%");
-                        });
+                        $q->orWhere('zip_code', 'like', "%{$zip}%")
+                           ->orWhereHas('provider', function($sub) use ($zip) {
+                               $sub->where('zip_code', 'like', "%{$zip}%");
+                           });
                     });
                 } else {
                     // For User/Worker discovery
-                    $query->where(function($q) use ($lat, $lng, $radius, $zip) {
-                        $q->where(function($sub) use ($lat, $lng, $radius) {
-                            $sub->whereNotNull('latitude')
-                                ->whereNotNull('longitude')
-                                ->whereRaw(
-                                    "(6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) <= ?",
-                                    [$lat, $lng, $lat, $radius]
-                                );
-                        })
-                        ->orWhere('zip_code', 'like', "%{$zip}%");
+                    $query->where(function($q) use ($lat, $lng, $radius, $zip, $hasUserCoords) {
+                        if ($hasUserCoords) {
+                            $q->where(function($sub) use ($lat, $lng, $radius) {
+                                $sub->whereNotNull('latitude')
+                                    ->whereNotNull('longitude')
+                                    ->whereRaw(
+                                        "(6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) <= ?",
+                                        [$lat, $lng, $lat, $radius]
+                                    );
+                            });
+                        }
+                        $q->orWhere('zip_code', 'like', "%{$zip}%");
                     });
                 }
 
@@ -83,18 +95,23 @@ trait HandlesLocationSearch
             }
         }
 
-        // 2. Filter by specific City
+        // 2. Filter by specific City (with state fallback support)
         if ($request->has('city')) {
             $city = $request->city;
             if ($type === 'listing') {
                 $query->where(function($q) use ($city) {
                     $q->where('city', 'like', "%{$city}%")
+                      ->orWhere('state', 'like', "%{$city}%")
                       ->orWhereHas('provider', function($subQ) use ($city) {
-                          $subQ->where('city', 'like', "%{$city}%");
+                          $subQ->where('city', 'like', "%{$city}%")
+                               ->orWhere('state', 'like', "%{$city}%");
                       });
                 });
             } else {
-                $query->where('city', 'like', "%{$city}%");
+                $query->where(function($q) use ($city) {
+                    $q->where('city', 'like', "%{$city}%")
+                      ->orWhere('state', 'like', "%{$city}%");
+                });
             }
         }
 
