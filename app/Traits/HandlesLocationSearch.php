@@ -98,19 +98,51 @@ trait HandlesLocationSearch
         // 2. Filter by specific City (with state fallback support)
         if ($request->has('city')) {
             $city = $request->city;
+            $stateAbbr = null;
+            $lowerCity = strtolower($city);
+            
+            $stateMap = [
+                'alabama' => 'AL', 'alaska' => 'AK', 'arizona' => 'AZ', 'arkansas' => 'AR', 'california' => 'CA',
+                'colorado' => 'CO', 'connecticut' => 'CT', 'delaware' => 'DE', 'florida' => 'FL', 'georgia' => 'GA',
+                'hawaii' => 'HI', 'idaho' => 'ID', 'illinois' => 'IL', 'indiana' => 'IN', 'iowa' => 'IA',
+                'kansas' => 'KS', 'kentucky' => 'KY', 'louisiana' => 'LA', 'maine' => 'ME', 'maryland' => 'MD',
+                'massachusetts' => 'MA', 'michigan' => 'MI', 'minnesota' => 'MN', 'mississippi' => 'MS',
+                'missouri' => 'MO', 'montana' => 'MT', 'nebraska' => 'NE', 'nevada' => 'NV', 'new hampshire' => 'NH',
+                'new jersey' => 'NJ', 'new mexico' => 'NM', 'new york' => 'NY', 'north carolina' => 'NC',
+                'north dakota' => 'ND', 'ohio' => 'OH', 'oklahoma' => 'OK', 'oregon' => 'OR', 'pennsylvania' => 'PA',
+                'rhode island' => 'RI', 'south carolina' => 'SC', 'south dakota' => 'SD', 'tennessee' => 'TN',
+                'texas' => 'TX', 'utah' => 'UT', 'vermont' => 'VT', 'virginia' => 'VA', 'washington' => 'WA',
+                'west virginia' => 'WV', 'wisconsin' => 'WI', 'wyoming' => 'WY'
+            ];
+            
+            if (isset($stateMap[$lowerCity])) {
+                $stateAbbr = $stateMap[$lowerCity];
+            }
+
             if ($type === 'listing') {
-                $query->where(function($q) use ($city) {
+                $query->where(function($q) use ($city, $stateAbbr) {
                     $q->where('city', 'like', "%{$city}%")
                       ->orWhere('state', 'like', "%{$city}%")
                       ->orWhereHas('provider', function($subQ) use ($city) {
                           $subQ->where('city', 'like', "%{$city}%")
                                ->orWhere('state', 'like', "%{$city}%");
                       });
+                      
+                    if ($stateAbbr) {
+                        $q->orWhere('state', 'like', "%{$stateAbbr}%")
+                          ->orWhereHas('provider', function($subQ) use ($stateAbbr) {
+                              $subQ->where('state', 'like', "%{$stateAbbr}%");
+                          });
+                    }
                 });
             } else {
-                $query->where(function($q) use ($city) {
+                $query->where(function($q) use ($city, $stateAbbr) {
                     $q->where('city', 'like', "%{$city}%")
                       ->orWhere('state', 'like', "%{$city}%");
+                      
+                    if ($stateAbbr) {
+                        $q->orWhere('state', 'like', "%{$stateAbbr}%");
+                    }
                 });
             }
         }
@@ -118,15 +150,49 @@ trait HandlesLocationSearch
         // 3. Filter by specific State (Fixed: Search both listing's own state and provider's state)
         if ($request->has('state')) {
             $state = $request->state;
+            $stateAbbr = null;
+            $lowerState = strtolower($state);
+            
+            $stateMap = [
+                'alabama' => 'AL', 'alaska' => 'AK', 'arizona' => 'AZ', 'arkansas' => 'AR', 'california' => 'CA',
+                'colorado' => 'CO', 'connecticut' => 'CT', 'delaware' => 'DE', 'florida' => 'FL', 'georgia' => 'GA',
+                'hawaii' => 'HI', 'idaho' => 'ID', 'illinois' => 'IL', 'indiana' => 'IN', 'iowa' => 'IA',
+                'kansas' => 'KS', 'kentucky' => 'KY', 'louisiana' => 'LA', 'maine' => 'ME', 'maryland' => 'MD',
+                'massachusetts' => 'MA', 'michigan' => 'MI', 'minnesota' => 'MN', 'mississippi' => 'MS',
+                'missouri' => 'MO', 'montana' => 'MT', 'nebraska' => 'NE', 'nevada' => 'NV', 'new hampshire' => 'NH',
+                'new jersey' => 'NJ', 'new mexico' => 'NM', 'new york' => 'NY', 'north carolina' => 'NC',
+                'north dakota' => 'ND', 'ohio' => 'OH', 'oklahoma' => 'OK', 'oregon' => 'OR', 'pennsylvania' => 'PA',
+                'rhode island' => 'RI', 'south carolina' => 'SC', 'south dakota' => 'SD', 'tennessee' => 'TN',
+                'texas' => 'TX', 'utah' => 'UT', 'vermont' => 'VT', 'virginia' => 'VA', 'washington' => 'WA',
+                'west virginia' => 'WV', 'wisconsin' => 'WI', 'wyoming' => 'WY'
+            ];
+            
+            if (isset($stateMap[$lowerState])) {
+                $stateAbbr = $stateMap[$lowerState];
+            }
+
             if ($type === 'listing') {
-                $query->where(function($q) use ($state) {
+                $query->where(function($q) use ($state, $stateAbbr) {
                     $q->where('state', 'like', "%{$state}%")
                       ->orWhereHas('provider', function($subQ) use ($state) {
                           $subQ->where('state', 'like', "%{$state}%");
                       });
+                      
+                    if ($stateAbbr) {
+                        $q->orWhere('state', 'like', "%{$stateAbbr}%")
+                          ->orWhereHas('provider', function($subQ) use ($stateAbbr) {
+                              $subQ->where('state', 'like', "%{$stateAbbr}%");
+                          });
+                    }
                 });
             } else {
-                $query->where('state', 'like', "%{$state}%");
+                $query->where(function($q) use ($state, $stateAbbr) {
+                    $q->where('state', 'like', "%{$state}%");
+                    
+                    if ($stateAbbr) {
+                        $q->orWhere('state', 'like', "%{$stateAbbr}%");
+                    }
+                });
             }
         }
 
