@@ -134,6 +134,8 @@ class AdminPaymentController extends Controller
         tags: ['Admin - Payments'],
         security: [['bearerAuth' => []]]
     )]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function payouts(Request $request)
     {
         $query = Payout::with(['provider', 'payment']);
@@ -162,6 +164,9 @@ class AdminPaymentController extends Controller
         security: [['bearerAuth' => []]]
     )]
     #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Success')]
+    #[OA\Response(response: 400, description: 'Bad Request')]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function processPayout(Request $request, $id)
     {
         $payout = Payout::findOrFail($id);

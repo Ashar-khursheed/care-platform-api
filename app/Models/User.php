@@ -314,6 +314,34 @@ class User extends Authenticatable
         'availability_settings' => 'array',
     ];
 
+    protected static function booted()
+    {
+        static::saving(function ($user) {
+            // Automatically geocode user location on saving if dirty and lat/lng are not manually passed
+            if (($user->isDirty('address') || $user->isDirty('city') || $user->isDirty('state') || $user->isDirty('zip_code'))
+                && !$user->isDirty('latitude') && !$user->isDirty('longitude')) {
+                
+                $addressParts = array_filter([
+                    $user->address,
+                    $user->city,
+                    $user->state,
+                    $user->zip_code
+                ]);
+
+                if (!empty($addressParts)) {
+                    $searchQuery = implode(', ', $addressParts);
+                    $locationService = app(\App\Services\LocationService::class);
+                    $coords = $locationService->getCoordinates($searchQuery);
+                    
+                    if ($coords) {
+                        $user->latitude = $coords['lat'];
+                        $user->longitude = $coords['lng'];
+                    }
+                }
+            }
+        });
+    }
+
     // Relationships
 
     /**

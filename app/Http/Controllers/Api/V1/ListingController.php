@@ -10,10 +10,12 @@ use App\Models\ServiceListing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\Admin\NewListingNotification;
+use App\Traits\HandlesLocationSearch;
 use OpenApi\Attributes as OA;
 
 class ListingController extends Controller
 {
+    use HandlesLocationSearch;
     #[OA\Get(
         path: '/api/v1/provider/listings',
         summary: 'Get my listings',
@@ -58,6 +60,12 @@ class ListingController extends Controller
         summary: 'Get all listings',
         tags: ['Listings']
     )]
+    #[OA\Parameter(name: 'search', in: 'query', description: 'Search keyword (searches title, description, city, state, zipcode)', required: false, schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'zip_code', in: 'query', description: 'Zip code for 30 km radius-based search', required: false, schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'zipcode', in: 'query', description: 'Alias for zip_code', required: false, schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'city', in: 'query', description: 'Filter by city', required: false, schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'state', in: 'query', description: 'Filter by state (e.g. Texas)', required: false, schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'location', in: 'query', description: 'Filter by service location/address', required: false, schema: new OA\Schema(type: 'string'))]
     #[OA\Response(response: 200, description: 'Success')]
     #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function index(Request $request)
@@ -84,34 +92,8 @@ class ListingController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
-        // Search
-        if ($request->has('search')) {
-            $query->search($request->search);
-        }
-
-        // Filter by location/city/state/zip specifically
-        if ($request->has('city')) {
-            $query->whereHas('provider', function($q) use ($request) {
-                $q->where('city', 'like', "%{$request->city}%");
-            });
-        }
-
-        if ($request->has('state')) {
-            $query->whereHas('provider', function($q) use ($request) {
-                $q->where('state', 'like', "%{$request->state}%");
-            });
-        }
-
-        if ($request->has('zip_code') || $request->has('zipcode')) {
-            $zip = $request->zip_code ?? $request->zipcode;
-            $query->whereHas('provider', function($q) use ($zip) {
-                $q->where('zip_code', 'like', "%{$zip}%");
-            });
-        }
-
-        if ($request->has('location')) {
-            $query->where('service_location', 'like', "%{$request->location}%");
-        }
+        // Apply centralized location, search and radius filters
+        $query = $this->applyLocationSearch($query, $request, 'listing');
 
         // Marketplace: Shift Filters
         if ($request->has('is_urgent')) {

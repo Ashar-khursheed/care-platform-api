@@ -7,15 +7,23 @@ use App\Http\Requests\ListingStoreRequest;
 use App\Http\Resources\ListingResource;
 use App\Models\ServiceListing;
 use Illuminate\Http\Request;
+use App\Traits\HandlesLocationSearch;
 use OpenApi\Attributes as OA;
 
 class JobController extends Controller
 {
+    use HandlesLocationSearch;
     #[OA\Get(
         path: '/api/v1/jobs',
         summary: 'Get all jobs (for providers)',
         tags: ['Jobs']
     )]
+    #[OA\Parameter(name: 'search', in: 'query', description: 'Search keyword (searches title, description, city, state, zipcode)', required: false, schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'zip_code', in: 'query', description: 'Zip code for 30 km radius-based search', required: false, schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'zipcode', in: 'query', description: 'Alias for zip_code', required: false, schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'city', in: 'query', description: 'Filter by city', required: false, schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'state', in: 'query', description: 'Filter by state (e.g. Texas)', required: false, schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'location', in: 'query', description: 'Filter by service location/address', required: false, schema: new OA\Schema(type: 'string'))]
     #[OA\Response(response: 200, description: 'Success')]
     public function index(Request $request)
     {
@@ -29,47 +37,11 @@ class JobController extends Controller
             })
             ->active();
 
-        if ($request->has('search')) {
-            $query->search($request->search);
-        }
+        // Apply centralized location, search and radius filters
+        $query = $this->applyLocationSearch($query, $request, 'listing');
 
-        // Filter by location/city/state/zip specifically
-        if ($request->has('city')) {
-            $city = $request->city;
-            $query->where(function($q) use ($city) {
-                $q->where('city', 'like', "%{$city}%")
-                  ->orWhereHas('provider', function($subQ) use ($city) {
-                      $subQ->where('city', 'like', "%{$city}%");
-                  });
-            });
-        }
-
-        if ($request->has('state')) {
-            $state = $request->state;
-            $query->where(function($q) use ($state) {
-                $q->where('state', 'like', "%{$state}%")
-                  ->orWhereHas('provider', function($subQ) use ($state) {
-                      $subQ->where('state', 'like', "%{$state}%");
-                  });
-            });
-        }
-
-        if ($request->has('zip_code') || $request->has('zipcode')) {
-            $zip = $request->zip_code ?? $request->zipcode;
-            $query->where(function($q) use ($zip) {
-                $q->where('zip_code', 'like', "%{$zip}%")
-                  ->orWhereHas('provider', function($subQ) use ($zip) {
-                      $subQ->where('zip_code', 'like', "%{$zip}%");
-                  });
-            });
-        }
-        
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);
-        }
-
-        if ($request->has('location')) {
-            $query->where('service_location', 'like', "%{$request->location}%");
         }
 
         $jobs = $query->orderBy('created_at', 'desc')

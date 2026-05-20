@@ -354,6 +354,103 @@ paths:
       security:
         -
           bearerAuth: []
+  /api/v1/admin/categories:
+    get:
+      tags:
+        - 'Admin - Categories'
+      summary: 'Get all categories (Admin)'
+      operationId: 60c1845fa474ab10f47be4344a46d5e9
+      responses:
+        200:
+          description: Success
+      security:
+        -
+          bearerAuth: []
+    post:
+      tags:
+        - 'Admin - Categories'
+      summary: 'Create a new category'
+      operationId: 5d57ed40ec1270064b7506692fce3f33
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                icon:
+                  type: string
+                order:
+                  type: integer
+                is_active:
+                  type: boolean
+              type: object
+      responses:
+        201:
+          description: 'Created successfully'
+      security:
+        -
+          bearerAuth: []
+  '/api/v1/admin/categories/{id}':
+    get:
+      tags:
+        - 'Admin - Categories'
+      summary: 'Get category details'
+      operationId: 282bc296196d67e1741d9d5011f87aeb
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+      security:
+        -
+          bearerAuth: []
+    put:
+      tags:
+        - 'Admin - Categories'
+      summary: 'Update category details'
+      operationId: d17050ef990ccad8bae67bc78d3eb20d
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Update success'
+      security:
+        -
+          bearerAuth: []
+    delete:
+      tags:
+        - 'Admin - Categories'
+      summary: 'Delete category'
+      operationId: 945e9a22b9c26727e511deb40b5f2fba
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Delete success'
+      security:
+        -
+          bearerAuth: []
   /api/v1/admin/cms/settings:
     get:
       tags:
@@ -821,6 +918,50 @@ paths:
       responses:
         200:
           description: Success
+        404:
+          description: 'Not found'
+      security:
+        -
+          bearerAuth: []
+    put:
+      tags:
+        - 'Admin - Listings'
+      summary: 'Update listing details'
+      operationId: 4a9de44d6c782162e706dd486090f4f6
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                price:
+                  type: number
+                is_urgent:
+                  type: boolean
+                quick_pay:
+                  type: boolean
+                shift_date:
+                  type: string
+                  format: date
+                start_time:
+                  type: string
+                end_time:
+                  type: string
+              type: object
+      responses:
+        200:
+          description: 'Update success'
         404:
           description: 'Not found'
       security:
@@ -1433,6 +1574,43 @@ paths:
           description: Unauthenticated
         404:
           description: 'Resource not found'
+      security:
+        -
+          bearerAuth: []
+  /api/v1/admin/payments/payouts:
+    get:
+      tags:
+        - 'Admin - Payments'
+      summary: 'List payouts related to payments'
+      operationId: 68eb73ed2b778500c28aac29435d43a8
+      responses:
+        200:
+          description: Success
+        401:
+          description: Unauthenticated
+      security:
+        -
+          bearerAuth: []
+  '/api/v1/admin/payments/payouts/{id}/process':
+    post:
+      tags:
+        - 'Admin - Payments'
+      summary: 'Process a specific payout'
+      operationId: ef032a4c73f9f716f44048f32d1d676a
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+        400:
+          description: 'Bad Request'
+        401:
+          description: Unauthenticated
       security:
         -
           bearerAuth: []
@@ -2723,7 +2901,7 @@ paths:
       tags:
         - Authentication
       summary: 'User Registration'
-      description: 'Register a new user (client or provider)'
+      description: 'Register a new user (client/employer or provider/worker)'
       operationId: authRegister
       requestBody:
         required: true
@@ -2766,6 +2944,15 @@ paths:
                 phone_number:
                   type: string
                   example: '+1234567890'
+                business_name:
+                  type: string
+                  example: 'Sunset Care Facility'
+                facility_type:
+                  type: string
+                  example: 'Nursing Facility'
+                desired_role:
+                  type: string
+                  example: CNA
               type: object
       responses:
         201:
@@ -3574,6 +3761,49 @@ paths:
         - Jobs
       summary: 'Get all jobs (for providers)'
       operationId: a1bf6a0e9261412b3ab8dca7118e3c58
+      parameters:
+        -
+          name: search
+          in: query
+          description: 'Search keyword (searches title, description, city, state, zipcode)'
+          required: false
+          schema:
+            type: string
+        -
+          name: zip_code
+          in: query
+          description: 'Zip code for 30 km radius-based search'
+          required: false
+          schema:
+            type: string
+        -
+          name: zipcode
+          in: query
+          description: 'Alias for zip_code'
+          required: false
+          schema:
+            type: string
+        -
+          name: city
+          in: query
+          description: 'Filter by city'
+          required: false
+          schema:
+            type: string
+        -
+          name: state
+          in: query
+          description: 'Filter by state (e.g. Texas)'
+          required: false
+          schema:
+            type: string
+        -
+          name: location
+          in: query
+          description: 'Filter by service location/address'
+          required: false
+          schema:
+            type: string
       responses:
         200:
           description: Success
@@ -3689,6 +3919,49 @@ paths:
         - Listings
       summary: 'Get all listings'
       operationId: 3fe0bcfa170c9353417e30943fac66b5
+      parameters:
+        -
+          name: search
+          in: query
+          description: 'Search keyword (searches title, description, city, state, zipcode)'
+          required: false
+          schema:
+            type: string
+        -
+          name: zip_code
+          in: query
+          description: 'Zip code for 30 km radius-based search'
+          required: false
+          schema:
+            type: string
+        -
+          name: zipcode
+          in: query
+          description: 'Alias for zip_code'
+          required: false
+          schema:
+            type: string
+        -
+          name: city
+          in: query
+          description: 'Filter by city'
+          required: false
+          schema:
+            type: string
+        -
+          name: state
+          in: query
+          description: 'Filter by state (e.g. Texas)'
+          required: false
+          schema:
+            type: string
+        -
+          name: location
+          in: query
+          description: 'Filter by service location/address'
+          required: false
+          schema:
+            type: string
       responses:
         200:
           description: Success
@@ -4990,6 +5263,9 @@ tags:
   -
     name: 'Admin - CMS'
     description: 'Admin CMS management'
+  -
+    name: 'Admin - Categories'
+    description: 'Admin - Categories'
   -
     name: 'Admin Inquiries'
     description: 'Admin Inquiries'

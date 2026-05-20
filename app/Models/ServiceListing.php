@@ -39,6 +39,8 @@ class ServiceListing extends Model
         'zip_code',
         'city',
         'state',
+        'latitude',
+        'longitude',
     ];
 
     protected $casts = [
@@ -55,7 +57,37 @@ class ServiceListing extends Model
         'availability' => 'array',
         'featured_until' => 'datetime',
         'shift_date' => 'date',
+        'latitude' => 'float',
+        'longitude' => 'float',
     ];
+
+    protected static function booted()
+    {
+        static::saving(function ($listing) {
+            // Automatically geocode listing location on saving if dirty and lat/lng are not manually passed
+            if (($listing->isDirty('service_location') || $listing->isDirty('zip_code') || $listing->isDirty('city') || $listing->isDirty('state'))
+                && !$listing->isDirty('latitude') && !$listing->isDirty('longitude')) {
+                
+                $addressParts = array_filter([
+                    $listing->service_location,
+                    $listing->city,
+                    $listing->state,
+                    $listing->zip_code
+                ]);
+
+                if (!empty($addressParts)) {
+                    $searchQuery = implode(', ', $addressParts);
+                    $locationService = app(\App\Services\LocationService::class);
+                    $coords = $locationService->getCoordinates($searchQuery);
+                    
+                    if ($coords) {
+                        $listing->latitude = $coords['lat'];
+                        $listing->longitude = $coords['lng'];
+                    }
+                }
+            }
+        });
+    }
 
     /**
      * Get the provider who owns the listing
