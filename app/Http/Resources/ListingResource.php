@@ -51,6 +51,19 @@ class ListingResource extends JsonResource
             'views_count' => $this->views_count,
             'rating' => (float) $this->rating,
             'reviews_count' => $this->reviews_count,
+            'proposals_count' => isset($this->bids_count)
+                ? (int) $this->bids_count
+                : ($this->relationLoaded('bids') ? $this->bids->count() : 0),
+            'bids' => $this->whenLoaded('bids', fn() => $this->bids->map(fn($bid) => [
+                'id' => $bid->id,
+                'provider_id' => $bid->provider_id,
+                'provider_name' => $bid->provider?->full_name,
+                'provider_photo' => $bid->provider?->profile_photo ? url('storage/' . $bid->provider->profile_photo) : null,
+                'amount' => (float) $bid->amount,
+                'message' => $bid->message,
+                'status' => $bid->status,
+                'created_at' => $bid->created_at->format('Y-m-d H:i:s'),
+            ])),
             'employer_details' => $this->provider->user_type === 'client' ? [
                 'business_name' => $this->provider->business_name,
                 'facility_type' => $this->provider->facility_type,

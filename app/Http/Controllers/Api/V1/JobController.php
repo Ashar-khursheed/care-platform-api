@@ -32,6 +32,7 @@ class JobController extends Controller
         // We can filter by user_type of the provider relation
         
         $query = ServiceListing::with(['category', 'provider'])
+            ->withCount('bids')
             ->whereHas('provider', function($q) {
                 $q->where('user_type', 'client');
             })
@@ -124,6 +125,7 @@ class JobController extends Controller
     public function myJobs(Request $request)
     {
         $jobs = ServiceListing::with(['category', 'bids.provider'])
+            ->withCount('bids')
             ->where('provider_id', $request->user()->id)
             ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page', 10));
