@@ -54,6 +54,9 @@ class ListingResource extends JsonResource
             'proposals_count' => isset($this->bids_count)
                 ? (int) $this->bids_count
                 : ($this->relationLoaded('bids') ? $this->bids->count() : 0),
+            'bids_count' => isset($this->bids_count)
+                ? (int) $this->bids_count
+                : ($this->relationLoaded('bids') ? $this->bids->count() : 0),
             'bids' => $this->whenLoaded('bids', fn() => $this->bids->map(fn($bid) => [
                 'id' => $bid->id,
                 'provider_id' => $bid->provider_id,

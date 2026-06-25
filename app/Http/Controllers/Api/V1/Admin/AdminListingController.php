@@ -19,7 +19,8 @@ class AdminListingController extends Controller
     #[OA\Response(response: 200, description: 'Success')]
     public function index(Request $request)
     {
-        $query = ServiceListing::with(['category', 'provider']);
+        $query = ServiceListing::with(['category', 'provider'])
+            ->withCount('bids');
 
         // Filter by status
         if ($request->has('status')) {
@@ -110,7 +111,9 @@ class AdminListingController extends Controller
     #[OA\Response(response: 404, description: 'Not found')]
     public function show($id)
     {
-        $listing = ServiceListing::with(['category', 'provider'])->find($id);
+        $listing = ServiceListing::with(['category', 'provider'])
+            ->withCount('bids')
+            ->find($id);
 
         if (!$listing) {
             return response()->json([
@@ -211,6 +214,7 @@ class AdminListingController extends Controller
     public function getPendingListings(Request $request)
     {
         $listings = ServiceListing::with(['category', 'provider'])
+            ->withCount('bids')
             ->where('status', 'pending')
             ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page', 15));

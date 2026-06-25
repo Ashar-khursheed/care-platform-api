@@ -27,6 +27,7 @@ class ListingController extends Controller
     public function myListings(Request $request)
     {
         $query = ServiceListing::with(['category', 'provider'])
+            ->withCount('bids')
             ->where('provider_id', $request->user()->id);
 
         // Filter by status
@@ -71,6 +72,7 @@ class ListingController extends Controller
     public function index(Request $request)
     {
         $query = ServiceListing::with(['category', 'provider'])
+            ->withCount('bids')
             ->active();
 
         // Filter by user_type 
@@ -178,7 +180,9 @@ class ListingController extends Controller
     #[OA\Response(response: 404, description: 'Not found')]
     public function show($id)
     {
-        $listing = ServiceListing::with(['category', 'provider'])->find($id);
+        $listing = ServiceListing::with(['category', 'provider'])
+            ->withCount('bids')
+            ->find($id);
 
         if (!$listing) {
             return response()->json([
@@ -415,6 +419,7 @@ class ListingController extends Controller
     public function featured()
     {
         $listings = ServiceListing::with(['category', 'provider'])
+            ->withCount('bids')
             ->active()
             ->featured()
             ->orderBy('created_at', 'desc')
