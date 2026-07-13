@@ -247,11 +247,22 @@ class Booking extends Model
     /**
      * Scope: Past bookings
      */
+    /**
+     * Past bookings scope
+     */
     public function scopePast($query)
     {
         return $query->where(function($q) {
             $q->where('booking_date', '<', now()->toDateString())
               ->orWhereIn('status', ['completed', 'cancelled', 'rejected']);
         })->orderBy('booking_date', 'desc');
+    }
+
+    /**
+     * Get the review for this booking
+     */
+    public function review()
+    {
+        return $this->hasOne(Review::class, 'booking_id');
     }
 }

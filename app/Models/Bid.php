@@ -36,4 +36,13 @@ class Bid extends Model
     {
         return $this->belongsTo(User::class, 'provider_id');
     }
+
+    /**
+     * Get the booking resulting from this bid
+     */
+    public function booking()
+    {
+        return $this->hasOne(Booking::class, 'listing_id', 'listing_id')
+            ->where('provider_id', $this->provider_id);
+    }
 }

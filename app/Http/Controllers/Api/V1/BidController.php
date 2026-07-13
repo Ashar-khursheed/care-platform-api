@@ -89,7 +89,7 @@ class BidController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $bids = Bid::with('provider')
+        $bids = Bid::with(['provider', 'booking'])
             ->where('listing_id', $jobId)
             ->orderBy('amount', 'asc') // Lowest bid first? Or created_at?
             ->get();

@@ -41,7 +41,7 @@ class BookingController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $query = Booking::with(['client', 'provider', 'listing.category', 'latestPayment']);
+        $query = Booking::with(['client', 'provider', 'listing.category', 'latestPayment', 'review']);
 
         // Filter by role - allow user to see bookings where they are client OR provider
         $query->where(function($q) use ($user) {
@@ -95,7 +95,7 @@ class BookingController extends Controller
     public function show(Request $request, $id)
     {
         $user = $request->user();
-        $booking = Booking::with(['client', 'provider', 'listing.category'])->find($id);
+        $booking = Booking::with(['client', 'provider', 'listing.category', 'review'])->find($id);
 
         if (!$booking) {
             return response()->json([

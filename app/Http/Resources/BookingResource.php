@@ -63,6 +63,11 @@ class BookingResource extends JsonResource
             'completed_at' => $this->completed_at?->format('Y-m-d H:i:s'),
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
+            'review' => $this->review ? [
+                'id' => $this->review->id,
+                'rating' => $this->review->rating,
+                'comment' => $this->review->comment,
+            ] : null,
         ];
     }
 }
