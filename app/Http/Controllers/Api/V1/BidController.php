@@ -127,7 +127,7 @@ class BidController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($bid, $job) {
+            $booking = DB::transaction(function () use ($bid, $job) {
                 // Update bid status
                 $bid->update(['status' => 'accepted']);
 
@@ -137,7 +137,7 @@ class BidController extends Controller
                     ->update(['status' => 'rejected']);
 
                 // Create Booking
-                Booking::create([
+                $booking = Booking::create([
                     'client_id' => $job->provider_id, // The job owner is the client
                     'provider_id' => $bid->provider_id, // The bidder is the provider
                     'listing_id' => $job->id,
@@ -153,6 +153,8 @@ class BidController extends Controller
                 
                 // Update job status - mark as unavailable as it is assigned
                 $job->update(['is_available' => false]);
+
+                return $booking;
             });
 
             // Send notification to bidder
@@ -160,7 +162,8 @@ class BidController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Bid accepted and booking created'
+                'message' => 'Bid accepted and booking created',
+                'booking_id' => $booking->id
             ], 200);
 
         } catch (\Exception $e) {
