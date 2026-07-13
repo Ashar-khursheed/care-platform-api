@@ -92,7 +92,9 @@ class StripeService
             }
 
             $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
-            $paymentIntent = $paymentIntent->confirm($data);
+            if ($paymentIntent->status !== 'succeeded') {
+                $paymentIntent = $paymentIntent->confirm($data);
+            }
 
             return [
                 'success' => true,
