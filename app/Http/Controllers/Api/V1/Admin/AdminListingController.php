@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ListingResource;
 use App\Models\ServiceListing;
+use App\Traits\HandlesLocationSearch;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 class AdminListingController extends Controller
 {
+    use HandlesLocationSearch;
+
     #[OA\Get(
         path: '/api/v1/admin/listings',
         summary: 'Get all listings',
@@ -47,30 +50,8 @@ class AdminListingController extends Controller
             $query->where('quick_pay', $request->quick_pay);
         }
 
-        // Search
-        if ($request->has('search')) {
-            $query->search($request->search);
-        }
-
-        // Filter by location/city/state/zip specifically
-        if ($request->has('city')) {
-            $query->whereHas('provider', function($q) use ($request) {
-                $q->where('city', 'like', "%{$request->city}%");
-            });
-        }
-
-        if ($request->has('state')) {
-            $query->whereHas('provider', function($q) use ($request) {
-                $q->where('state', 'like', "%{$request->state}%");
-            });
-        }
-
-        if ($request->has('zip_code') || $request->has('zipcode')) {
-            $zip = $request->zip_code ?? $request->zipcode;
-            $query->whereHas('provider', function($q) use ($zip) {
-                $q->where('zip_code', 'like', "%{$zip}%");
-            });
-        }
+        // Apply centralized location, search and radius filters
+        $query = $this->applyLocationSearch($query, $request, 'listing');
 
         // Sort
         $sortBy = $request->get('sort_by', 'created_at');

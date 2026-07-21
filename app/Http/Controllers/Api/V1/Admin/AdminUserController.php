@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Models\ProfileDocument;
+use App\Traits\HandlesLocationSearch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -14,6 +15,7 @@ use OpenApi\Attributes as OA;
 
 class AdminUserController extends Controller
 {
+    use HandlesLocationSearch;
     #[OA\Get(
         path: '/api/v1/admin/dashboard',
         summary: 'Dashboard',
@@ -83,33 +85,8 @@ class AdminUserController extends Controller
             $query->where('desired_role', $request->desired_role);
         }
 
-        // Filter by City
-        if ($request->has('city') && $request->city) {
-            $query->where('city', 'like', "%{$request->city}%");
-        }
-
-        if ($request->has('state') && $request->state) {
-            $query->where('state', 'like', "%{$request->state}%");
-        }
-
-        if (($request->has('zip_code') && $request->zip_code) || ($request->has('zipcode') && $request->zipcode)) {
-            $zip = $request->zip_code ?? $request->zipcode;
-            $query->where('zip_code', 'like', "%{$zip}%");
-        }
-
-        // Search by name, email, or location
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('business_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('city', 'like', "%{$search}%")
-                  ->orWhere('state', 'like', "%{$search}%")
-                  ->orWhere('zip_code', 'like', "%{$search}%");
-            });
-        }
+        // Apply centralized location, search and radius filters
+        $query = $this->applyLocationSearch($query, $request, 'user');
 
         // Sort
         $sortBy = $request->get('sort_by', 'created_at');
